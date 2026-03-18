@@ -3,124 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Hub | Dashboard</title>
+    <title>Моя Учеба | Dashboard</title>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc; --success: #22c55e; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 500px; }
-        .card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #334155; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .accent-border { border: 2px solid var(--accent); text-align: center; }
-        .btn { background: var(--accent); color: var(--bg); border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
-        .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
-        .lesson-title { font-size: 1.4rem; color: var(--accent); font-weight: bold; }
-        .task-box { border-left: 4px solid var(--accent); padding-left: 15px; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #334155; }
-        .highlight { background: rgba(56, 189, 248, 0.15); color: var(--accent); font-weight: bold; }
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --text: #f8fafc;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+        .status-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid var(--accent);
+            margin-bottom: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .current-lesson {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        .timer {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+        .schedule-table {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            border-collapse: collapse;
+        }
+        .schedule-table th, .schedule-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        .schedule-table th {
+            background: #334155;
+            color: var(--accent);
+        }
+        .today-label {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+        .highlight {
+            background: rgba(56, 189, 248, 0.2) !important;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="card accent-border">
-        <div id="status-time" style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 5px;"></div>
-        <div class="lesson-title" id="current-lesson-name">Загрузка...</div>
-        <div id="timer-val" style="margin-top: 5px;"></div>
-        <button class="btn btn-outline" id="notif-btn" onclick="requestNotif()">🔔 Включить уведомления</button>
+    <div class="status-card">
+        <div id="day-now" style="font-size: 0.9rem; opacity: 0.7;">Загрузка...</div>
+        <div class="current-lesson" id="lesson-text">Проверка расписания...</div>
+        <div class="timer" id="timer-text">--:--</div>
     </div>
 
-    <div class="card">
-        <div style="font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between;">
-            <span>💡 Доп. задание</span>
-            <span id="task-subject" style="color: var(--accent); font-size: 0.8rem;"></span>
-        </div>
-        <div id="task-text" class="task-box">Нажми кнопку ниже, чтобы получить задание для саморазвития.</div>
-        <button class="btn" onclick="generateTask()">Получить квест</button>
-    </div>
-
-    <div style="margin: 10px 0; font-weight: bold;">📅 Расписание на сегодня:</div>
-    <table class="card" style="padding: 0;" id="schedule-table"></table>
+    <div class="today-label">Расписание на сегодня:</div>
+    <table class="schedule-table" id="schedule-body">
+        </table>
 </div>
 
 <script>
-    const extraTasks = [
-        {sub: "Английский", text: "Выучи 5 новых слов на тему 'Технологии'"},
-        {sub: "Математика", text: "Реши 3 примера на логику из интернета"},
-        {sub: "Общее", text: "Посмотри 10-минутное видео о космосе на YouTube"},
-        {sub: "Программирование", text: "Добавь новую кнопку или измени цвет фона на этом сайте"},
-        {sub: "Украинский", text: "Прочитай 2 страницы любого произведения вне программы"}
-    ];
-
-    const fullSchedule = {
-        1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
-        2: ["Англ", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис", "Физра", "Гром. освіта"],
-        3: ["Химия", "Основы здоровья", "Укр. лит", "Алгебра", "История Укр", "Англ", "География", "Биология"],
-        4: ["Геометрия", "Физика", "Физра", "Всемирка", "Технологии", "Англ"],
-        5: ["Физра", "Укр. язык", "Укр. лит", "Алгебра", "Зарубежка", "Информатика", "Немецкий"]
+    const schedule = {
+        1: [ // Понедельник
+            {name: "Алгебра", start: "09:00", end: "09:25"},
+            {name: "География", start: "09:35", end: "10:00"},
+            {name: "Укр. язык", start: "10:10", end: "10:35"},
+            {name: "Биология", start: "10:45", end: "11:10"},
+            {name: "Укр. язык", start: "11:20", end: "11:45"},
+            {name: "Химия", start: "11:55", end: "12:20"},
+            {name: "Информатика", start: "12:30", end: "12:55"}
+        ],
+        2: [ /* Вторник */ ], // Заполнится по аналогии
+        3: [ /* Среда */ ],
+        // Добавим логику автозаполнения для всех дней ниже
     };
 
-    function getLessonTimes(index) {
-        let start = new Date();
-        start.setHours(9, 0, 0); 
-        start.setMinutes(start.getMinutes() + (index * 35)); // 25 урок + 10 перемена
-        let end = new Date(start);
-        end.setMinutes(end.getMinutes() + 25);
-        return { start, end };
+    // Функция для расчета времени (упростим ввод для остальных дней)
+    function generateTimes(startTime, count) {
+        let times = [];
+        let current = new Date(`2026-01-01T${startTime}:00`);
+        for(let i=0; i<count; i++) {
+            let start = current.toTimeString().slice(0,5);
+            current.setMinutes(current.getMinutes() + 25);
+            let end = current.toTimeString().slice(0,5);
+            times.push({start, end});
+            current.setMinutes(current.getMinutes() + 10); // Перемена
+        }
+        return times;
     }
 
-    function requestNotif() {
-        Notification.requestPermission().then(perm => {
-            if(perm === 'granted') document.getElementById('notif-btn').innerText = "✅ Уведомления активны";
-        });
-    }
-
-    function generateTask() {
-        const random = extraTasks[Math.floor(Math.random() * extraTasks.length)];
-        document.getElementById('task-subject').innerText = random.sub;
-        document.getElementById('task-text').innerText = random.text;
-    }
-
-    let notified = [];
+    const fullSchedule = {
+        1: schedule[1],
+        2: ["Англ", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис", "Физра", "Гром. освіта"].map((n, i) => ({name: n, ...generateTimes("09:00", 8)[i]})),
+        3: ["Химия", "Основы здоровья", "Укр. лит", "Алгебра", "История Укр", "Англ", "География", "Биология"].map((n, i) => ({name: n, ...generateTimes("09:00", 8)[i]})),
+        4: ["Геометрия", "Физика", "Физра", "Всемирка", "Технологии", "Англ"].map((n, i) => ({name: n, ...generateTimes("09:00", 6)[i]})),
+        5: ["Физра", "Укр. язык", "Укр. лит", "Алгебра", "Зарубежка", "Информатика", "Немецкий"].map((n, i) => ({name: n, ...generateTimes("09:00", 7)[i]}))
+    };
 
     function update() {
         const now = new Date();
-        const day = now.getDay();
-        const subjects = fullSchedule[day] || [];
-        const table = document.getElementById('schedule-table');
-        table.innerHTML = "";
+        const day = now.getDay(); // 1-5
+        const timeStr = now.toTimeString().slice(0,5);
+        const dayNames = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+        
+        document.getElementById('day-now').innerText = dayNames[day] + ", " + timeStr;
+
+        const todaysLessons = fullSchedule[day] || [];
+        const table = document.getElementById('schedule-body');
+        table.innerHTML = "<tr><th>Время</th><th>Урок</th></tr>";
 
         let currentFound = false;
 
-        subjects.forEach((name, i) => {
-            const {start, end} = getLessonTimes(i);
+        todaysLessons.forEach(lesson => {
             const row = table.insertRow();
-            const timeStr = `${start.toTimeString().slice(0,5)}-${end.toTimeString().slice(0,5)}`;
-            
-            // Логика уведомлений (за 1 минуту до начала)
-            let diff = (start - now) / 1000 / 60;
-            if (diff > 0 && diff <= 1 && !notified.includes(name)) {
-                new Notification("Скоро урок!", { body: `Через минуту начнется ${name}` });
-                notified.push(name);
-            }
-
-            if (now >= start && now <= end) {
+            if (timeStr >= lesson.start && timeStr <= lesson.end) {
                 row.className = "highlight";
-                document.getElementById('current-lesson-name').innerText = name;
-                document.getElementById('timer-val').innerText = "Урок идет";
+                document.getElementById('lesson-text').innerText = "Сейчас: " + lesson.name;
                 currentFound = true;
             }
-            row.innerHTML = `<td>${timeStr}</td><td>${name}</td>`;
+            row.innerHTML = `<td>${lesson.start}-${lesson.end}</td><td>${lesson.name}</td>`;
         });
 
         if (!currentFound) {
-            document.getElementById('current-lesson-name').innerText = "Перемена или отдых";
-            document.getElementById('timer-val').innerText = "Свободное время";
+            document.getElementById('lesson-text').innerText = "Уроков сейчас нет";
+            document.getElementById('timer-text').innerText = "Отдыхай!";
         }
-        document.getElementById('status-time').innerText = now.toLocaleTimeString();
     }
 
     setInterval(update, 1000);
     update();
 </script>
+
 </body>
 </html>
