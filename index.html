@@ -3,117 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Hub Dashboard</title>
+    <title>Study Hub Pro | 8 Class</title>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc; --success: #22c55e; --error: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 500px; }
-        .card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #334155; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .status-header { border: 2px solid var(--accent); text-align: center; }
-        .btn { background: var(--accent); color: #0f172a; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.3s; }
-        .btn:hover { opacity: 0.8; }
-        .btn-notif { background: transparent; border: 1px solid var(--accent); color: var(--accent); font-size: 0.8rem; }
-        .lesson-name { font-size: 1.4rem; color: var(--accent); font-weight: bold; margin: 10px 0; }
-        .task-display { background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent); padding: 15px; margin: 10px 0; min-height: 40px; font-style: italic; }
+        .card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #334155; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: 0.3s; }
+        .btn { background: var(--accent); color: #0f172a; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn-done { background: var(--success); color: white; margin-top: 5px; }
+        .btn-change { background: transparent; border: 1px solid var(--accent); color: var(--accent); font-size: 0.8rem; }
+        .input-ans { width: 90%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid var(--accent); background: #0f172a; color: white; text-align: center; }
+        .hidden { display: none; }
+        .task-text { font-style: italic; margin: 15px 0; min-height: 40px; color: #cbd5e1; }
+        .status-msg { font-size: 0.8rem; margin-top: 5px; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; font-size: 0.9rem; }
-        .current-row { background: rgba(56, 189, 248, 0.2); color: var(--accent); font-weight: bold; }
+        td { padding: 10px; border-bottom: 1px solid #334155; font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="card status-header">
-        <div id="real-time" style="font-size: 0.8rem; opacity: 0.6;">--:--:--</div>
-        <div class="lesson-name" id="current-lesson">Проверка...</div>
-        <div id="time-left" style="font-size: 0.9rem; margin-bottom: 10px;"></div>
-        <button class="btn btn-notif" id="n-btn" onclick="initNotifs()">🔔 Включить уведомления</button>
+    <div class="card" style="border: 2px solid var(--accent); text-align: center;">
+        <div id="clock" style="font-size: 0.8rem; opacity: 0.5;">--:--</div>
+        <div id="current-lesson" style="font-size: 1.2rem; font-weight: bold; color: var(--accent); margin: 5px 0;">Загрузка...</div>
     </div>
 
-    <div class="card">
-        <div style="font-weight: bold; font-size: 1rem;">🚀 Дополнительный квест</div>
-        <div id="task-text" class="task-display">Нажми кнопку, чтобы получить случайное задание</div>
-        <button class="btn" onclick="newTask()">Дать задание</button>
+    <div class="card" id="task-card">
+        <div style="font-weight: bold;">🎯 Умное задание (8 класс)</div>
+        <div id="task-content" class="task-text">Нажми на кнопку, чтобы начать тренировку</div>
+        
+        <div id="answer-section" class="hidden">
+            <input type="text" id="user-answer" class="input-ans" placeholder="Введи ответ">
+            <div id="feedback" class="status-msg"></div>
+        </div>
+
+        <div id="task-controls" class="hidden">
+            <button class="btn btn-done" onclick="completeTask()">Выполнено</button>
+            <button class="btn btn-change" onclick="getNewTask()">Поменять задание</button>
+        </div>
+        
+        <button class="btn" id="start-btn" onclick="getNewTask()">Дать задание</button>
     </div>
 
-    <div style="margin-bottom: 10px; font-weight: bold; color: var(--accent);">📖 Расписание на сегодня:</div>
-    <table class="card" style="padding: 0;" id="table-body"></table>
+    <div style="font-size: 0.8rem; opacity: 0.6; text-align: center;">Выполнено сегодня: <span id="done-count">0</span></div>
 </div>
 
 <script>
-    const schedule = {
-        1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
-        2: ["Англ", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис", "Физра", "Гром. освіта"],
-        3: ["Химия", "Основы здоровья", "Укр. лит", "Алгебра", "История Укр", "Англ", "География", "Биология"],
-        4: ["Геометрия", "Физика", "Физра", "Всемирка", "Технологии", "Англ"],
-        5: ["Физра", "Укр. язык", "Укр. лит", "Алгебра", "Зарубежка", "Информатика", "Немецкий"]
-    };
-
-    const extraTasks = [
-        "Выучи 5 новых слов на английском про космос",
-        "Реши 3 примера на умножение в уме",
-        "Прочитай одну новость о технологиях",
-        "Сделай 10 приседаний (разминка!)",
-        "Напиши в заметках одну цель на неделю",
-        "Найди на карте город, в котором никогда не был"
+    // База заданий для 8 класса
+    const allTasks = [
+        { id: 1, text: "Реши уравнение: 2x - 8 = 12", type: "math", ans: "10" },
+        { id: 2, text: "Вычисли: √64 + 5", type: "math", ans: "13" },
+        { id: 3, text: "Реши: (12 + 8) * 2", type: "math", ans: "40" },
+        { id: 4, text: "Назови столицу Украины", type: "text", ans: "Киев" },
+        { id: 5, text: "Сколько будет 15% от 200?", type: "math", ans: "30" },
+        { id: 6, text: "Раскрой скобки: 3(x + 2). Какой свободный член (число)?", type: "math", ans: "6" }
     ];
 
-    function initNotifs() {
-        Notification.requestPermission().then(p => {
-            if(p === 'granted') document.getElementById('n-btn').innerText = "✅ Уведомления включены";
-        });
-    }
+    let completedIds = [];
+    let currentTask = null;
 
-    function newTask() {
-        document.getElementById('task-text').innerText = extraTasks[Math.floor(Math.random() * extraTasks.length)];
-    }
+    function getNewTask() {
+        document.getElementById('start-btn').classList.add('hidden');
+        document.getElementById('task-controls').classList.remove('hidden');
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('user-answer').value = "";
 
-    let notifiedLessons = new Set();
+        // Фильтруем задания, которых нет в корзине
+        const available = allTasks.filter(t => !completedIds.includes(t.id));
 
-    function main() {
-        const now = new Date();
-        const day = now.getDay();
-        const currentTotalMin = now.getHours() * 60 + now.getMinutes();
-        
-        document.getElementById('real-time').innerText = now.toLocaleTimeString();
+        if (available.length === 0) {
+            document.getElementById('task-content').innerText = "🎉 Все задания выполнены! Ты монстр учебы!";
+            document.getElementById('task-controls').classList.add('hidden');
+            return;
+        }
 
-        const subjects = schedule[day] || [];
-        const table = document.getElementById('table-body');
-        table.innerHTML = "<tr><th>Время</th><th>Предмет</th></tr>";
+        currentTask = available[Math.floor(Math.random() * available.length)];
+        document.getElementById('task-content').innerText = currentTask.text;
 
-        let found = false;
-
-        subjects.forEach((name, i) => {
-            const startMin = 540 + (i * 35); // Старт в 9:00
-            const endMin = startMin + 25;
-            
-            // Уведомление за 1 минуту
-            if (currentTotalMin === startMin - 1 && !notifiedLessons.has(name)) {
-                new Notification("Скоро урок!", { body: `Через минуту начнется ${name}` });
-                notifiedLessons.add(name);
-            }
-
-            const row = table.insertRow();
-            if (currentTotalMin >= startMin && currentTotalMin < endMin) {
-                row.className = "current-row";
-                document.getElementById('current-lesson').innerText = "Сейчас: " + name;
-                document.getElementById('time-left').innerText = "Осталось: " + (endMin - currentTotalMin) + " мин";
-                found = true;
-            }
-
-            const format = (m) => `${Math.floor(m/60)}:${(m%60).toString().padStart(2, '0')}`;
-            row.innerHTML = `<td>${format(startMin)} - ${format(endMin)}</td><td>${name}</td>`;
-        });
-
-        if (!found) {
-            document.getElementById('current-lesson').innerText = "Уроков сейчас нет";
-            document.getElementById('time-left').innerText = "Отдыхай!";
+        // Показываем поле ответа только для математики
+        if (currentTask.type === "math") {
+            document.getElementById('answer-section').classList.remove('hidden');
+        } else {
+            document.getElementById('answer-section').classList.add('hidden');
         }
     }
 
-    setInterval(main, 1000);
-    main();
-</script>
+    function completeTask() {
+        const userVal = document.getElementById('user-answer').value.trim();
+        
+        // Проверка ответа (если математика)
+        if (currentTask.type === "math") {
+            if (userVal === currentTask.ans) {
+                saveTask();
+            } else {
+                document.getElementById('feedback').innerText = "❌ Неправильно, попробуй еще раз!";
+                document.getElementById('feedback').style.color = "var(--error)";
+            }
+        } else {
+            // Если текстовое задание (например, Киев), просто засчитываем
+            saveTask();
+        }
+    }
 
+    function saveTask() {
+        completedIds.push(currentTask.id);
+        document.getElementById('done-count').innerText = completedIds.length;
+        document.getElementById('feedback').innerText = "✅ Верно! Задание в корзине.";
+        document.getElementById('feedback').style.color = "var(--success)";
+        
+        // Через секунду даем новое
+        setTimeout(getNewTask, 1500);
+    }
+
+    // Время и расписание (упрощенно для примера)
+    function tick() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString();
+        // Тут можно вставить логику расписания из предыдущего кода
+    }
+    setInterval(tick, 1000);
+</script>
 </body>
 </html>
