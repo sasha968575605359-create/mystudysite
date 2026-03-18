@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub - Classroom Edition</title>
+    <title>StudyHub Pro - Classroom</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root {
@@ -18,12 +18,12 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0; background: var(--bg); color: var(--text);
             min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden;
         }
 
-        /* Анимация фона */
+        /* Флавер-эффекты */
         #fx-layer, #ground-layer { position: fixed; left: 0; width: 100%; pointer-events: none; z-index: 1; }
         #fx-layer { top: 0; height: 100%; }
         #ground-layer { bottom: 0; height: 100px; display: flex; justify-content: space-around; align-items: flex-end; padding-bottom: 80px; }
@@ -36,7 +36,7 @@
         .grass { font-size: 30px; animation: sway 3s ease-in-out infinite alternate; transform-origin: bottom; }
         @keyframes sway { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
 
-        /* Контейнер */
+        /* Контент */
         .container { position: relative; z-index: 10; width: 100%; max-width: 600px; margin: 0 auto; padding: 20px 20px 110px 20px; }
         .page { display: none; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
@@ -47,12 +47,12 @@
             border-radius: 24px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
 
-        /* Расписание */
+        /* Таблица */
         table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
         td { padding: 14px; background: rgba(255,255,255,0.03); border-radius: 12px; }
         .active-lesson td { background: var(--accent) !important; color: #000 !important; font-weight: bold; }
 
-        /* Кнопки и интерфейс */
+        /* Кнопки */
         .btn-main {
             background: var(--accent); color: #000; border: none; padding: 16px;
             border-radius: 15px; font-weight: 900; width: 100%; cursor: pointer; margin-top: 10px; font-size: 1rem;
@@ -95,7 +95,7 @@
 
     <div id="p-quests" class="page">
         <div class="glass-card">
-            <div id="q-box" style="text-align:center; font-size:1.2rem; font-weight:bold; min-height:60px;">Готов к урокам?</div>
+            <div id="q-box" style="text-align:center; font-size:1.2rem; font-weight:bold; min-height:60px;">Готов?</div>
             <div class="progress-bar"><div id="progress-fill"></div></div>
             <div id="quest-content"></div>
             <button id="next-btn" class="btn-main" onclick="Engine.nextQuest()" style="display:none">Далее</button>
@@ -120,35 +120,29 @@
 </nav>
 
 <script>
-    // Твой Client ID со скриншота
+    // Твой Client ID
     const CLIENT_ID = '747337328453-jdr5ok0n0q6sls2seodq6r0j3adeh7s.apps.googleusercontent.com';
     const SCOPES = 'https://www.googleapis.com/auth/classroom.courses.readonly';
 
     const CONFIG = {
         schedule: {
-            1: [{s:"09:00",e:"09:25",n:"Алгебра"},{s:"09:35",e:"10:00",n:"География"}],
-            2: [{s:"09:00",e:"09:25",n:"Английский"},{s:"10:45",e:"11:10",n:"Физика"}],
             3: [ // Среда
                 {s:"09:00",e:"09:25",n:"Химия"}, {s:"09:35",e:"10:00",n:"Основы здоровья"},
                 {s:"10:10",e:"10:35",n:"Укр. лит"}, {s:"10:45",e:"11:10",n:"Алгебра"},
                 {s:"11:30",e:"11:55",n:"История Укр"}, {s:"12:05",e:"12:30",n:"Англ. мова"},
                 {s:"12:40",e:"13:05",n:"География"}, {s:"13:15",e:"13:40",n:"Биология"}
-            ],
-            4: [{s:"09:00",e:"09:25",n:"Геометрия"},{s:"11:55",e:"12:20",n:"Английский"}],
-            5: [{s:"09:00",e:"09:25",n:"Физра"},{s:"10:45",e:"11:10",n:"Алгебра"}]
+            ]
         },
         quests: [
             {q:"Химия: Какой газ мы выдыхаем?", a:["УГЛЕКИСЛЫЙ", "CO2"]},
             {q:"Геометрия: Пифагоровы штаны во все стороны...?", a:["РАВНЫ"]},
             {q:"Алгебра: Дискриминант D = b² - ... ?", a:["4AC"]},
-            {q:"Физика: В чем измеряется сила?", a:["НЬЮТОН", "N", "Н"]},
-            {q:"Английский: Hello - это?", a:["ПРИВЕТ", "ЗДРАВСТВУЙ"], options:["Пока", "Привет", "Спасибо"]},
-            {q:"Биология: Зеленый пигмент растений?", a:["ХЛОРОФИЛЛ"], options:["Йод", "Хлорофилл", "Кровь"]}
+            {q:"Физика: В чем измеряется сила?", a:["НЬЮТОН", "N", "Н"]}
         ]
     };
 
     const Engine = {
-        solved: JSON.parse(localStorage.getItem('sh_solved_final') || "[]"),
+        solved: JSON.parse(localStorage.getItem('sh_solved_v5') || "[]"),
         current: null,
         gToken: sessionStorage.getItem('g_token'),
 
@@ -203,14 +197,13 @@
             document.getElementById(id).classList.add('active'); el.classList.add('active');
         },
 
-        // --- КВЕСТЫ ---
         nextQuest() {
             document.getElementById('start-btn').style.display = "none";
             document.getElementById('next-btn').style.display = "none";
             document.getElementById('hint').innerText = "";
             const pool = CONFIG.quests.filter(q => !this.solved.includes(q.q));
             if(pool.length === 0) {
-                document.getElementById('q-box').innerText = "🏆 ТЫ ВСЁ РЕШИЛ!";
+                document.getElementById('q-box').innerText = "🏆 ВСЁ РЕШЕНО!";
                 document.getElementById('quest-content').innerHTML = "";
                 return;
             }
@@ -222,7 +215,6 @@
         renderQuestBody() {
             const container = document.getElementById('quest-content');
             container.innerHTML = "";
-            container.style.pointerEvents = "auto";
             if(this.current.options) {
                 const grid = document.createElement('div'); grid.className = 'options-grid';
                 this.current.options.forEach(opt => {
@@ -232,11 +224,11 @@
                 });
                 container.appendChild(grid);
             } else {
-                const inp = document.createElement('input'); inp.className = 'input-box'; inp.id = 'ans-input';
-                inp.placeholder = "Твой ответ...";
+                const inp = document.createElement('input'); inp.className = 'input-box';
+                inp.placeholder = "Ответ...";
                 inp.onkeyup = (e) => { if(e.key === "Enter") this.checkAns(inp.value); };
                 container.appendChild(inp);
-                const b = document.createElement('button'); b.className = 'btn-main'; b.innerText = "Проверить";
+                const b = document.createElement('button'); b.className = 'btn-main'; b.innerText = "ОК";
                 b.onclick = () => this.checkAns(inp.value);
                 container.appendChild(b);
             }
@@ -252,15 +244,14 @@
             const h = document.getElementById('hint');
             if(ok) {
                 if(btn) btn.classList.add('opt-correct');
-                h.innerText = "Верно! 🔥"; h.style.color = "var(--accent)";
+                h.innerText = "Верно! 🔥";
                 this.solved.push(this.current.q);
-                localStorage.setItem('sh_solved_final', JSON.stringify(this.solved));
-                document.getElementById('quest-content').style.pointerEvents = "none";
+                localStorage.setItem('sh_solved_v5', JSON.stringify(this.solved));
                 document.getElementById('next-btn').style.display = "block";
                 this.updateUI();
             } else {
                 if(btn) { btn.classList.add('opt-wrong'); setTimeout(() => btn.classList.remove('opt-wrong'), 500); }
-                h.innerText = "Ошибка ❌"; h.style.color = "var(--error)";
+                h.innerText = "Неа ❌";
             }
         },
 
@@ -269,7 +260,7 @@
             document.getElementById('progress-fill').style.width = p + "%";
         },
 
-        // --- CLASSROOM ---
+        // GOOGLE CLASSROOM
         handleAuth() {
             try {
                 const client = google.accounts.oauth2.initTokenClient({
@@ -285,32 +276,31 @@
                 });
                 client.requestAccessToken();
             } catch (e) {
-                alert("Ошибка библиотеки Google. Попробуй обновить страницу.");
+                alert("Ошибка Google API. Перезагрузи страницу.");
             }
         },
 
         async loadCourses() {
             const list = document.getElementById('courses-list');
-            list.innerHTML = "Загружаем курсы...";
+            list.innerHTML = "Загрузка...";
             try {
                 const r = await fetch('https://classroom.googleapis.com/v1/courses', {
                     headers: { 'Authorization': `Bearer ${this.gToken}` }
                 });
                 const d = await r.json();
-                if (d.courses && d.courses.length > 0) {
+                if (d.courses) {
                     list.innerHTML = d.courses.map(c => `
-                        <div class="glass-card" style="margin-bottom:12px; border-left: 5px solid var(--accent); background:rgba(255,255,255,0.05)">
-                            <div style="font-weight:bold; font-size:1.1rem;">${c.name}</div>
-                            <div style="font-size:0.8rem; opacity:0.6; margin: 4px 0;">${c.section || 'Учебный курс'}</div>
-                            <a href="${c.alternateLink}" target="_blank" style="color:var(--accent); text-decoration:none; font-size:0.9rem; font-weight:bold;">Перейти →</a>
+                        <div class="glass-card" style="margin-bottom:10px; border-left: 5px solid var(--accent); background:rgba(255,255,255,0.05)">
+                            <div style="font-weight:bold;">${c.name}</div>
+                            <a href="${c.alternateLink}" target="_blank" style="color:var(--accent); text-decoration:none; font-size:0.8rem;">Открыть →</a>
                         </div>
                     `).join('');
                     document.getElementById('auth-btn').style.display = 'none';
                 } else {
-                    list.innerHTML = "Курсы не найдены. Зайди под школьным аккаунтом!";
+                    list.innerHTML = "Курсов нет. Проверь аккаунт!";
                 }
             } catch (e) {
-                list.innerHTML = "Ошибка связи. Нажми кнопку входа еще раз.";
+                list.innerHTML = "Ошибка связи.";
             }
         }
     };
