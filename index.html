@@ -3,200 +3,474 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub Ultimate</title>
+    <title>StudyHub OS v2.0</title>
     <style>
-        :root { --bg: #0f172a; --text: #f8fafc; --accent: #38bdf8; --card-bg: rgba(30, 41, 59, 0.85); }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 100px; transition: 0.5s; color: var(--text); background: var(--bg); min-height: 100vh; overflow-x: hidden; }
-        
-        /* Слой для падающих цветов/снега */
-        #fx-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        /* Слой для травы внизу */
-        #grass-layer { position: fixed; bottom: 0; left: 0; width: 100%; height: 40px; z-index: 2; pointer-events: none; display: flex; justify-content: space-around; align-items: flex-end; font-size: 30px; }
-
-        .drop { position: absolute; animation: fall linear infinite; }
-        @keyframes fall { 
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; } 
-            10% { opacity: 1; } 
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.3; } 
+        /* --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ --- */
+        :root {
+            --bg: #0f172a;
+            --nav-bg: #1e293b;
+            --text: #f8fafc;
+            --accent: #38bdf8;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --success: #4ade80;
+            --error: #f87171;
+            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .container { position: relative; z-index: 10; padding: 20px; max-width: 500px; margin: 0 auto; }
-        .page { display: none; }
+        /* --- БАЗОВЫЕ СТИЛИ --- */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- СЛОИ ЖИВОГО ФОНА --- */
+        #sky-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        #weather-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        #ground-layer { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 60px; 
+            z-index: 2; 
+            pointer-events: none; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: flex-end;
+            padding-bottom: 5px;
+        }
+
+        /* --- АНИМАЦИИ --- */
+        .falling-item {
+            position: absolute;
+            top: -10%;
+            animation: fallAnimation linear infinite;
+        }
+
+        @keyframes fallAnimation {
+            0% { transform: translateY(0vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        .ground-plant {
+            font-size: 24px;
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.3));
+            animation: sway 3s ease-in-out infinite alternate;
+            transform-origin: bottom;
+        }
+
+        @keyframes sway {
+            from { transform: rotate(-5deg); }
+            to { transform: rotate(5deg); }
+        }
+
+        /* --- КОНТЕНТ --- */
+        .app-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px 20px 100px 20px;
+            flex-grow: 1;
+        }
+
+        .page { display: none; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
-        
-        .card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; text-align: center; backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .btn-main { background: var(--accent); color: #000; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem; transition: 0.3s; }
-        .btn-main:active { transform: scale(0.95); }
-        .input-box { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--accent); background: rgba(0,0,0,0.5); color: #fff; box-sizing: border-box; outline: none; text-align: center; }
-        
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #1e293b; display: flex; border-top: 2px solid var(--accent); z-index: 1000; }
-        .nav-btn { flex: 1; padding: 15px; text-align: center; cursor: pointer; color: #94a3b8; background: none; border: none; font-weight: bold; font-size: 0.8rem; }
-        .nav-btn.active { color: var(--accent); background: rgba(255,255,255,0.05); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-        td, th { padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
-        .highlight { color: #000 !important; background: var(--accent) !important; font-weight: bold; border-radius: 8px; }
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
 
-        /* Темы */
-        [data-theme="spring"] { --bg: #064e3b; --accent: #4ade80; }
-        [data-theme="autumn"] { --bg: #451a03; --accent: #f59e0b; }
-        [data-theme="winter"] { --bg: #1e293b; --accent: #38bdf8; }
+        /* --- РАСПИСАНИЕ --- */
+        .sched-header { text-align: center; margin-bottom: 20px; }
+        .sched-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        .sched-row { background: rgba(255,255,255,0.03); transition: var(--transition); }
+        .sched-row td { padding: 15px; }
+        .sched-row td:first-child { border-radius: 12px 0 0 12px; font-weight: bold; width: 110px; }
+        .sched-row td:last-child { border-radius: 0 12px 12px 0; }
+        
+        .row-active { 
+            background: var(--accent) !important; 
+            color: #000; 
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px var(--accent);
+        }
+
+        /* --- КВЕСТЫ --- */
+        .quest-display { font-size: 1.4rem; font-weight: 600; margin: 20px 0; min-height: 80px; display: flex; align-items: center; justify-content: center; }
+        .input-field {
+            width: 100%;
+            background: rgba(0,0,0,0.2);
+            border: 2px solid var(--accent);
+            border-radius: 16px;
+            padding: 15px;
+            color: #white;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        .input-field:focus { box-shadow: 0 0 15px var(--accent); }
+
+        .btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 800;
+            width: 100%;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:active { transform: scale(0.96); }
+
+        /* --- НАВИГАЦИЯ --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 75px;
+            background: var(--nav-bg);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 1.5rem; margin-bottom: 4px; }
+
+        /* --- ТЕМАТИЧЕСКИЕ ЦВЕТА --- */
+        [data-season="spring"] { --bg: #064e3b; --accent: #4ade80; }
+        [data-season="summer"] { --bg: #0c4a6e; --accent: #facc15; }
+        [data-season="autumn"] { --bg: #451a03; --accent: #fb923c; }
+        [data-season="winter"] { --bg: #0f172a; --accent: #38bdf8; }
     </style>
 </head>
 <body>
 
-<div id="fx-layer"></div>
-<div id="grass-layer"></div>
+    <div id="sky-layer"></div>
+    <div id="weather-layer"></div>
+    <div id="ground-layer"></div>
 
-<div class="container">
-    <div id="p-sched" class="page active">
-        <div class="card">
-            <h2 id="day-now">Загрузка даты...</h2>
-            <h1 id="lesson-text" style="margin: 10px 0;">Уроков нет</h1>
-        </div>
-        <div class="card" style="padding: 10px;">
-            <table id="schedule-body"></table>
-        </div>
-    </div>
-
-    <div id="p-cards" class="page">
-        <h1 style="text-align:center">Квесты 8-А</h1>
-        <div class="card">
-            <div id="q-text" style="font-size: 1.2rem; min-height: 60px; display: flex; align-items: center; justify-content: center;">Нажми кнопку ниже!</div>
-            <input type="text" id="ans-input" class="input-box" style="display:none" placeholder="Напиши ответ...">
-            <button id="card-btn" onclick="handleCard()" class="btn-main">Взять карточку</button>
-            <p id="msg" style="margin-top: 15px; font-weight: bold;"></p>
-        </div>
-        <div style="text-align:center; opacity: 0.5; font-size: 0.8rem;">Решено: <span id="solved-count">0</span></div>
-    </div>
-</div>
-
-<nav class="bottom-nav">
-    <button class="nav-btn active" onclick="tab('p-sched', this)">УРОКИ</button>
-    <button class="nav-btn" onclick="tab('p-cards', this)">КВЕСТЫ</button>
-</nav>
-
-<script>
-    const fullSchedule = {
-        1: [{s:"09:00", e:"09:25", n:"Алгебра"}, {s:"09:35", e:"10:00", n:"География"}, {s:"10:10", e:"10:35", n:"Укр. мова"}, {s:"10:55", e:"11:20", n:"Биология"}, {s:"11:30", e:"11:55", n:"Укр. мова"}, {s:"12:05", e:"12:30", n:"Химия"}],
-        2: [{s:"09:00", e:"09:25", n:"Англ. мова"}, {s:"09:35", e:"10:00", n:"Геометрия"}, {s:"10:10", e:"10:35", n:"Физика"}, {s:"10:55", e:"11:20", n:"Укр. мова"}, {s:"11:30", e:"11:55", n:"Биология"}, {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}],
-        3: [{s:"09:00", e:"09:25", n:"Химия"}, {s:"10:55", e:"11:20", n:"Алгебра"}, {s:"12:05", e:"12:30", n:"Англ. мова"}],
-        4: [{s:"09:00", e:"09:25", n:"Геометрия"}, {s:"10:10", e:"10:35", n:"Физра"}, {s:"12:05", e:"12:30", n:"Англ. мова"}, {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}],
-        5: [{s:"09:00", e:"09:25", n:"Физра"}, {s:"10:55", e:"11:20", n:"Алгебра"}, {s:"12:40", e:"13:05", n:"Немецкий"}]
-    };
-
-    const cardsBase = [
-        {q: "Химия: Формула воды?", a: "H2O"},
-        {q: "Алгебра: D = b² - ... ?", a: "4ac"},
-        {q: "Физика: Сила измеряется в?", a: "ньютонах"},
-        {q: "Геометрия: Сумма углов треугольника?", a: "180"},
-        {q: "Биология: Главный орган кровообращения?", a: "сердце"}
-    ];
-
-    let solvedCards = [];
-    let currentCard = null;
-
-    function tab(id, btn) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        btn.classList.add('active');
-    }
-
-    function initFX() {
-        const month = new Date().getMonth() + 1;
-        const fx = document.getElementById('fx-layer');
-        const grass = document.getElementById('grass-layer');
-        let char = "❄"; let theme = "winter"; let grassChar = "";
-
-        if (month >= 3 && month <= 5) { 
-            theme="spring"; char="🌸"; grassChar = "🌿🌱🌼🌱🌿"; 
-        } else if (month >= 9 && month <= 11) { 
-            theme="autumn"; char="🍂"; grassChar = "🍂🌾🍂";
-        }
-
-        document.body.setAttribute('data-theme', theme);
-        
-        // Падающие штуки
-        for (let i = 0; i < 20; i++) {
-            let d = document.createElement('div');
-            d.className = 'drop'; d.innerText = char;
-            d.style.left = Math.random() * 100 + "vw";
-            d.style.fontSize = Math.random() * 20 + 15 + "px";
-            d.style.animationDuration = Math.random() * 5 + 5 + "s";
-            d.style.animationDelay = Math.random() * 5 + "s";
-            fx.appendChild(d);
-        }
-
-        // Трава внизу
-        if(grassChar) {
-            for(let i=0; i<15; i++) {
-                let g = document.createElement('span');
-                g.innerText = grassChar[Math.floor(Math.random()*grassChar.length)];
-                grass.appendChild(g);
-            }
-        }
-    }
-
-    function updateSched() {
-        const now = new Date();
-        const day = now.getDay();
-        const time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        
-        document.getElementById('day-now').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'short'});
-        
-        const table = document.getElementById('schedule-body');
-        table.innerHTML = "<tr><th>Время</th><th>Урок</th></tr>";
-        
-        let activeLesson = "Уроков нет";
-        (fullSchedule[day] || []).forEach(l => {
-            let row = table.insertRow();
-            if (time >= l.s && time <= l.e) {
-                row.className = "highlight";
-                activeLesson = "Сейчас: " + l.n;
-            }
-            row.innerHTML = `<td>${l.s}-${l.e}</td><td>${l.n}</td>`;
-        });
-        document.getElementById('lesson-text').innerText = activeLesson;
-    }
-
-    function handleCard() {
-        const btn = document.getElementById('card-btn');
-        const input = document.getElementById('ans-input');
-        const msg = document.getElementById('msg');
-
-        if (btn.innerText === "Проверить") {
-            // УМНАЯ ПРОВЕРКА (замена русских букв на латынь)
-            let userAns = input.value.toUpperCase().trim()
-                .replace(/Н/g, 'H').replace(/О/g, 'O').replace(/С/g, 'C');
+    <div class="app-container">
+        <div id="page-schedule" class="page active">
+            <div class="glass-card sched-header">
+                <div id="live-clock" style="font-size: 2.5rem; font-weight: 800;">00:00</div>
+                <div id="live-date" style="opacity: 0.6; text-transform: capitalize;">Загрузка...</div>
+            </div>
             
-            if (userAns === currentCard.a.toUpperCase()) {
-                msg.innerText = "✅ ПРАВИЛЬНО!"; msg.style.color = "var(--accent)";
-                solvedCards.push(currentCard.q);
-                document.getElementById('solved-count').innerText = solvedCards.length;
-                btn.innerText = "Взять карточку";
-                input.style.display = "none";
-            } else {
-                msg.innerText = "❌ ОШИБКА"; msg.style.color = "#ff4444";
+            <div class="glass-card" style="padding: 10px;">
+                <table class="sched-table" id="table-render">
+                    </table>
+            </div>
+        </div>
+
+        <div id="page-quests" class="page">
+            <div class="glass-card" style="text-align:center">
+                <div style="font-size: 0.8rem; opacity: 0.5; text-transform: uppercase;">Задание 8-А</div>
+                <div id="q-box" class="quest-display">Нажми "Начать", чтобы получить первый квест!</div>
+                
+                <div id="input-zone" style="display: none;">
+                    <input type="text" id="user-answer" class="input-field" placeholder="Введите ответ...">
+                </div>
+
+                <button id="action-btn" class="btn" onclick="QuestManager.handleAction()">Начать</button>
+                <div id="feedback" style="margin-top: 15px; font-weight: bold; min-height: 20px;"></div>
+            </div>
+
+            <div class="glass-card" style="display: flex; justify-content: space-around; text-align: center;">
+                <div><div id="stat-solved" style="font-size: 1.5rem; font-weight: bold;">0</div><div style="font-size: 0.7rem; opacity: 0.6;">РЕШЕНО</div></div>
+                <div><div id="stat-total" style="font-size: 1.5rem; font-weight: bold;">0</div><div style="font-size: 0.7rem; opacity: 0.6;">ВСЕГО</div></div>
+            </div>
+        </div>
+
+        <div id="page-classroom" class="page">
+            <div class="glass-card" style="text-align: center;">
+                <div style="font-size: 4rem;">🏫</div>
+                <h2>Google Classroom</h2>
+                <p style="opacity: 0.7;">Здесь будут отображаться домашние задания после подключения вашего аккаунта.</p>
+                <button class="btn" style="opacity: 0.5; cursor: not-allowed;">Подключить (Скоро)</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <a href="#" class="nav-item active" onclick="Navigation.switch('page-schedule', this)">
+            <span class="nav-icon">📅</span><span>УРОКИ</span>
+        </a>
+        <a href="#" class="nav-item" onclick="Navigation.switch('page-quests', this)">
+            <span class="nav-icon">🎯</span><span>КВЕСТЫ</span>
+        </a>
+        <a href="#" class="nav-item" onclick="Navigation.switch('page-classroom', this)">
+            <span class="nav-icon">📚</span><span>CLASSROOM</span>
+        </a>
+    </nav>
+
+    <script>
+        /**
+         * 1. КОНФИГУРАЦИЯ ДАННЫХ
+         */
+        const DATA = {
+            schedule: {
+                1: [ // Понедельник
+                    {s:"09:00", e:"09:25", n:"Алгебра"}, {s:"09:35", e:"10:00", n:"География"},
+                    {s:"10:10", e:"10:35", n:"Укр. мова"}, {s:"10:55", e:"11:20", n:"Биология"},
+                    {s:"11:30", e:"11:55", n:"Укр. мова"}, {s:"12:05", e:"12:30", n:"Химия"},
+                    {s:"12:40", e:"13:05", n:"Информатика"}
+                ],
+                2: [ // Вторник
+                    {s:"09:00", e:"09:25", n:"Англ. мова"}, {s:"09:35", e:"10:00", n:"Геометрия"},
+                    {s:"10:10", e:"10:35", n:"Физика"}, {s:"10:55", e:"11:20", n:"Укр. мова"},
+                    {s:"11:30", e:"11:55", n:"Биология"}, {s:"12:05", e:"12:30", n:"Муз/Рис"},
+                    {s:"12:40", e:"13:05", n:"Физра"}, {s:"13:15", e:"13:40", n:"Гром. освіта"},
+                    {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}
+                ],
+                3: [ // Среда
+                    {s:"09:00", e:"09:25", n:"Химия"}, {s:"09:35", e:"10:00", n:"Основы здоровья"},
+                    {s:"10:10", e:"10:35", n:"Укр. лит"}, {s:"10:55", e:"11:20", n:"Алгебра"},
+                    {s:"11:30", e:"11:55", n:"История Укр"}, {s:"12:05", e:"12:30", n:"Англ. мова"},
+                    {s:"12:40", e:"13:05", n:"География"}, {s:"13:15", e:"13:40", n:"Биология"}
+                ],
+                4: [ // Четверг
+                    {s:"09:00", e:"09:25", n:"Геометрия"}, {s:"09:35", e:"10:00", n:"Физика"},
+                    {s:"10:10", e:"10:35", n:"Физра"}, {s:"10:55", e:"11:20", n:"Всемирка"},
+                    {s:"11:30", e:"11:55", n:"Технологии"}, {s:"12:05", e:"12:30", n:"Англ. мова"},
+                    {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}
+                ],
+                5: [ // Пятница
+                    {s:"09:00", e:"09:25", n:"Физра"}, {s:"09:35", e:"10:00", n:"Укр. мова"},
+                    {s:"10:10", e:"10:35", n:"Укр. лит"}, {s:"10:55", e:"11:20", n:"Алгебра"},
+                    {s:"11:30", e:"11:55", n:"Зарубежка"}, {s:"12:05", e:"12:30", n:"Информатика"},
+                    {s:"12:40", e:"13:05", n:"Немецкий"}
+                ]
+            },
+            quests: [
+                {q: "Формула воды?", a: ["H2O", "H20", "АШ2О"]},
+                {q: "Алгебра: Дискриминант D = ?", a: ["B2-4AC", "B^2-4AC"]},
+                {q: "Столица Украины?", a: ["КИЕВ", "KYIV"]},
+                {q: "Сколько будет 7 x 8?", a: ["56"]},
+                {q: "Физика: Сила измеряется в...?", a: ["НЬЮТОНАХ", "НЬЮТОН", "N"]}
+            ]
+        };
+
+        /**
+         * 2. ДВИЖОК НАВИГАЦИИ
+         */
+        const Navigation = {
+            switch: function(pageId, element) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                
+                document.getElementById(pageId).classList.add('active');
+                element.classList.add('active');
+                
+                if(pageId === 'page-quests') QuestManager.init();
             }
-            return;
-        }
+        };
 
-        // Выбор карточки без повторов
-        let pool = cardsBase.filter(c => !solvedCards.includes(c.q));
-        if (pool.length === 0) {
-            document.getElementById('q-text').innerText = "🎉 Все карточки решены!";
-            input.style.display = "none"; btn.style.display = "none";
-            return;
-        }
+        /**
+         * 3. УПРАВЛЕНИЕ ПОГОДОЙ И СЕЗОНАМИ
+         */
+        const WorldManager = {
+            init: function() {
+                const month = new Date().getMonth() + 1;
+                let season = "winter";
+                let dropChar = "❄";
+                let groundChars = ["❄", "🧊"];
 
-        currentCard = pool[Math.floor(Math.random() * pool.length)];
-        document.getElementById('q-text').innerText = currentCard.q;
-        input.style.display = "block"; input.value = "";
-        btn.innerText = "Проверить"; msg.innerText = "";
-    }
+                if (month >= 3 && month <= 5) {
+                    season = "spring"; dropChar = "🌸"; groundChars = ["🌱", "🌿", "🌼", "🍀"];
+                } else if (month >= 6 && month <= 8) {
+                    season = "summer"; dropChar = "☀️"; groundChars = ["🌻", "🌿", "🦋", "🌸"];
+                } else if (month >= 9 && month <= 11) {
+                    season = "autumn"; dropChar = "🍂"; groundChars = ["🍁", "🍄", "🌾", "🍂"];
+                }
 
-    initFX(); updateSched(); setInterval(updateSched, 30000);
-</script>
+                document.body.setAttribute('data-season', season);
+                this.startWeather(dropChar);
+                this.startGround(groundChars);
+            },
+            startWeather: function(char) {
+                const layer = document.getElementById('weather-layer');
+                for (let i = 0; i < 25; i++) {
+                    const item = document.createElement('div');
+                    item.className = 'falling-item';
+                    item.innerText = char;
+                    item.style.left = Math.random() * 100 + "vw";
+                    item.style.fontSize = Math.random() * 20 + 10 + "px";
+                    item.style.animationDuration = Math.random() * 5 + 5 + "s";
+                    item.style.animationDelay = Math.random() * 8 + "s";
+                    layer.appendChild(item);
+                }
+            },
+            startGround: function(chars) {
+                const layer = document.getElementById('ground-layer');
+                for (let i = 0; i < 12; i++) {
+                    const plant = document.createElement('div');
+                    plant.className = 'ground-plant';
+                    plant.innerText = chars[Math.floor(Math.random() * chars.length)];
+                    layer.appendChild(plant);
+                }
+            }
+        };
+
+        /**
+         * 4. МЕНЕДЖЕР РАСПИСАНИЯ
+         */
+        const SchedManager = {
+            render: function() {
+                const now = new Date();
+                const day = now.getDay();
+                const curTime = now.getHours() * 60 + now.getMinutes();
+                const table = document.getElementById('table-render');
+                
+                document.getElementById('live-clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                document.getElementById('live-date').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
+
+                const todayLessons = DATA.schedule[day] || [];
+                table.innerHTML = "";
+
+                if(todayLessons.length === 0) {
+                    table.innerHTML = "<tr><td style='text-align:center; opacity:0.5'>На сегодня уроков нет. Отдыхай!</td></tr>";
+                    return;
+                }
+
+                todayLessons.forEach(l => {
+                    const [sh, sm] = l.s.split(':').map(Number);
+                    const [eh, em] = l.e.split(':').map(Number);
+                    const startTotal = sh * 60 + sm;
+                    const endTotal = eh * 60 + em;
+
+                    const row = document.createElement('tr');
+                    row.className = 'sched-row';
+                    if(curTime >= startTotal && curTime <= endTotal) row.classList.add('row-active');
+                    
+                    row.innerHTML = `<td>${l.s} — ${l.e}</td><td>${l.n}</td>`;
+                    table.appendChild(row);
+                });
+            }
+        };
+
+        /**
+         * 5. СИСТЕМА КВЕСТОВ (БЕЗ ПОВТОРОВ)
+         */
+        const QuestManager = {
+            current: null,
+            solved: [],
+            
+            init: function() {
+                document.getElementById('stat-total').innerText = DATA.quests.length;
+                this.updateStats();
+            },
+
+            updateStats: function() {
+                document.getElementById('stat-solved').innerText = this.solved.length;
+            },
+
+            handleAction: function() {
+                const btn = document.getElementById('action-btn');
+                const input = document.getElementById('user-answer');
+                const feedback = document.getElementById('feedback');
+
+                if (btn.innerText === "НАЧАТЬ" || btn.innerText === "ДАЛЕЕ") {
+                    this.nextQuest();
+                } else {
+                    this.checkAnswer();
+                }
+            },
+
+            nextQuest: function() {
+                const pool = DATA.quests.filter(q => !this.solved.includes(q.q));
+                
+                if(pool.length === 0) {
+                    document.getElementById('q-box').innerText = "🏆 ТЫ КРАСАВЧИК! ВСЕ РЕШЕНО!";
+                    document.getElementById('input-zone').style.display = "none";
+                    document.getElementById('action-btn').style.display = "none";
+                    return;
+                }
+
+                this.current = pool[Math.floor(Math.random() * pool.length)];
+                document.getElementById('q-box').innerText = this.current.q;
+                document.getElementById('input-zone').style.display = "block";
+                document.getElementById('user-answer').value = "";
+                document.getElementById('user-answer').focus();
+                document.getElementById('action-btn').innerText = "ПРОВЕРИТЬ";
+                document.getElementById('feedback').innerText = "";
+            },
+
+            checkAnswer: function() {
+                let userVal = document.getElementById('user-answer').value.trim().toUpperCase();
+                
+                // КРИТИЧЕСКИЙ ФИКС: Замена русских букв на латынь для формул
+                userVal = userVal.replace(/Н/g, 'H').replace(/О/g, 'O').replace(/С/g, 'C').replace(/В/g, 'B').replace(/А/g, 'A');
+
+                const isCorrect = this.current.a.some(ans => {
+                    let cleanAns = ans.toUpperCase().replace(/\s/g, '');
+                    return userVal.replace(/\s/g, '') === cleanAns;
+                });
+
+                const feedback = document.getElementById('feedback');
+                if(isCorrect) {
+                    feedback.innerText = "ВЕРНО! 🔥";
+                    feedback.style.color = "var(--success)";
+                    this.solved.push(this.current.q);
+                    this.updateStats();
+                    document.getElementById('action-btn').innerText = "ДАЛЕЕ";
+                } else {
+                    feedback.innerText = "НЕПРАВИЛЬНО. ПОПРОБУЙ ЕЩЕ! ❌";
+                    feedback.style.color = "var(--error)";
+                    document.getElementById('user-answer').classList.add('shake');
+                    setTimeout(() => document.getElementById('user-answer').classList.remove('shake'), 500);
+                }
+            }
+        };
+
+        // ЗАПУСК СИСТЕМЫ
+        WorldManager.init();
+        SchedManager.render();
+        setInterval(() => SchedManager.render(), 10000); // Обновлять расписание каждые 10 сек
+
+    </script>
 </body>
 </html>
