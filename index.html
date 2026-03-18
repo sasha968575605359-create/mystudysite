@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Hub Dashboard</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 500px; }
+        .card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #334155; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .status-header { border: 2px solid var(--accent); text-align: center; }
+        .btn { background: var(--accent); color: #0f172a; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.3s; }
+        .btn:hover { opacity: 0.8; }
+        .btn-notif { background: transparent; border: 1px solid var(--accent); color: var(--accent); font-size: 0.8rem; }
+        .lesson-name { font-size: 1.4rem; color: var(--accent); font-weight: bold; margin: 10px 0; }
+        .task-display { background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent); padding: 15px; margin: 10px 0; min-height: 40px; font-style: italic; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; font-size: 0.9rem; }
+        .current-row { background: rgba(56, 189, 248, 0.2); color: var(--accent); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card status-header">
+        <div id="real-time" style="font-size: 0.8rem; opacity: 0.6;">--:--:--</div>
+        <div class="lesson-name" id="current-lesson">Проверка...</div>
+        <div id="time-left" style="font-size: 0.9rem; margin-bottom: 10px;"></div>
+        <button class="btn btn-notif" id="n-btn" onclick="initNotifs()">🔔 Включить уведомления</button>
+    </div>
+
+    <div class="card">
+        <div style="font-weight: bold; font-size: 1rem;">🚀 Дополнительный квест</div>
+        <div id="task-text" class="task-display">Нажми кнопку, чтобы получить случайное задание</div>
+        <button class="btn" onclick="newTask()">Дать задание</button>
+    </div>
+
+    <div style="margin-bottom: 10px; font-weight: bold; color: var(--accent);">📖 Расписание на сегодня:</div>
+    <table class="card" style="padding: 0;" id="table-body"></table>
+</div>
+
+<script>
+    const schedule = {
+        1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
+        2: ["Англ", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис", "Физра", "Гром. освіта"],
+        3: ["Химия", "Основы здоровья", "Укр. лит", "Алгебра", "История Укр", "Англ", "География", "Биология"],
+        4: ["Геометрия", "Физика", "Физра", "Всемирка", "Технологии", "Англ"],
+        5: ["Физра", "Укр. язык", "Укр. лит", "Алгебра", "Зарубежка", "Информатика", "Немецкий"]
+    };
+
+    const extraTasks = [
+        "Выучи 5 новых слов на английском про космос",
+        "Реши 3 примера на умножение в уме",
+        "Прочитай одну новость о технологиях",
+        "Сделай 10 приседаний (разминка!)",
+        "Напиши в заметках одну цель на неделю",
+        "Найди на карте город, в котором никогда не был"
+    ];
+
+    function initNotifs() {
+        Notification.requestPermission().then(p => {
+            if(p === 'granted') document.getElementById('n-btn').innerText = "✅ Уведомления включены";
+        });
+    }
+
+    function newTask() {
+        document.getElementById('task-text').innerText = extraTasks[Math.floor(Math.random() * extraTasks.length)];
+    }
+
+    let notifiedLessons = new Set();
+
+    function main() {
+        const now = new Date();
+        const day = now.getDay();
+        const currentTotalMin = now.getHours() * 60 + now.getMinutes();
+        
+        document.getElementById('real-time').innerText = now.toLocaleTimeString();
+
+        const subjects = schedule[day] || [];
+        const table = document.getElementById('table-body');
+        table.innerHTML = "<tr><th>Время</th><th>Предмет</th></tr>";
+
+        let found = false;
+
+        subjects.forEach((name, i) => {
+            const startMin = 540 + (i * 35); // Старт в 9:00
+            const endMin = startMin + 25;
+            
+            // Уведомление за 1 минуту
+            if (currentTotalMin === startMin - 1 && !notifiedLessons.has(name)) {
+                new Notification("Скоро урок!", { body: `Через минуту начнется ${name}` });
+                notifiedLessons.add(name);
+            }
+
+            const row = table.insertRow();
+            if (currentTotalMin >= startMin && currentTotalMin < endMin) {
+                row.className = "current-row";
+                document.getElementById('current-lesson').innerText = "Сейчас: " + name;
+                document.getElementById('time-left').innerText = "Осталось: " + (endMin - currentTotalMin) + " мин";
+                found = true;
+            }
+
+            const format = (m) => `${Math.floor(m/60)}:${(m%60).toString().padStart(2, '0')}`;
+            row.innerHTML = `<td>${format(startMin)} - ${format(endMin)}</td><td>${name}</td>`;
+        });
+
+        if (!found) {
+            document.getElementById('current-lesson').innerText = "Уроков сейчас нет";
+            document.getElementById('time-left').innerText = "Отдыхай!";
+        }
+    }
+
+    setInterval(main, 1000);
+    main();
+</script>
+
+</body>
+</html>
