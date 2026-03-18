@@ -1,261 +1,142 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub Smart Check</title>
-    <style>
-        :root {
-            --bg: #064e3b;
-            --nav-bg: #1e293b;
-            --text: #f8fafc;
-            --accent: #4ade80;
-            --card-bg: rgba(15, 23, 42, 0.9);
-            --success: #22c55e;
-            --error: #ef4444;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            margin: 0; background: var(--bg); color: var(--text);
-            min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column;
-        }
-
-        #fx-layer, #ground-layer { position: fixed; left: 0; width: 100%; pointer-events: none; }
-        #fx-layer { top: 0; height: 100%; z-index: 1; }
-        #ground-layer { bottom: 0; height: 100px; z-index: 2; display: flex; justify-content: space-around; align-items: flex-end; padding-bottom: 80px; }
-        .flower { position: absolute; top: -10%; animation: fall linear infinite; font-size: 20px; }
-        @keyframes fall {
-            0% { transform: translateY(0vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
-        }
-        .grass { font-size: 30px; animation: sway 3s ease-in-out infinite alternate; transform-origin: bottom; }
-        @keyframes sway { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
-
-        .container { position: relative; z-index: 10; width: 100%; max-width: 600px; margin: 0 auto; padding: 20px 20px 110px 20px; }
-        .page { display: none; animation: fadeIn 0.4s ease; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .glass-card {
-            background: var(--card-bg); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        td { padding: 14px; background: rgba(255,255,255,0.03); border-radius: 12px; transition: 0.3s; }
-        .active-lesson td { background: var(--accent) !important; color: #000 !important; font-weight: bold; transform: scale(1.02); }
-
-        .q-text { font-size: 1.3rem; font-weight: 600; margin: 15px 0; text-align: center; min-height: 50px; }
-        .input-box {
-            width: 100%; background: rgba(0,0,0,0.5); border: 2px solid var(--accent);
-            border-radius: 15px; padding: 15px; color: #fff; text-align: center; font-size: 1.1rem; outline: none;
-        }
-        
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .opt-btn { 
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
-            padding: 15px; border-radius: 12px; color: #fff; cursor: pointer; font-weight: 600; transition: 0.2s;
-        }
-        .opt-correct { background: var(--success) !important; color: #000; }
-        .opt-wrong { background: var(--error) !important; }
-
-        .btn-main {
-            background: var(--accent); color: #000; border: none; padding: 18px;
-            border-radius: 15px; font-weight: 900; width: 100%; cursor: pointer; margin-top: 15px;
-        }
-
-        .progress-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        #progress-fill { height: 100%; background: var(--accent); width: 0%; transition: 0.5s; }
-
-        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--nav-bg); display: flex; z-index: 1000; border-top: 1px solid rgba(255,255,255,0.1); }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; font-size: 0.75rem; font-weight: bold; }
-        .nav-item.active { color: var(--accent); background: rgba(255,255,255,0.03); }
-    </style>
-</head>
-<body>
-
-<div id="fx-layer"></div>
-<div id="ground-layer"></div>
-
-<div class="container">
-    <div id="p-sched" class="page active">
-        <div class="glass-card" style="text-align: center;">
-            <div id="clock" style="font-size: 2.5rem; font-weight: 900;">00:00</div>
-            <div id="date-label" style="opacity: 0.6; font-size: 0.8rem;">Загрузка...</div>
-        </div>
-        <div class="glass-card"><table id="sched-table"></table></div>
-    </div>
-
-    <div id="p-quests" class="page">
-        <div class="glass-card">
-            <div id="q-box" class="q-text">Квесты</div>
-            <div class="progress-bar"><div id="progress-fill"></div></div>
-            <div id="quest-content"></div>
-            <button id="next-btn" class="btn-main" onclick="Engine.nextQuest()" style="display:none">Далее</button>
-            <button id="start-btn" class="btn-main" onclick="Engine.nextQuest()">Начать</button>
-            <div id="hint" style="text-align:center; margin-top:15px; font-weight:bold; min-height: 20px;"></div>
-            <div style="text-align:center; margin-top:20px; font-size:0.8rem; opacity:0.5;">
-                Выполнено: <span id="solved-count">0</span> / <span id="total-count">0</span>
-            </div>
-        </div>
-        <div style="text-align: center;"><span onclick="Engine.reset()" style="color:var(--error); font-size: 0.7rem; cursor:pointer; opacity: 0.5;">СБРОСИТЬ ПРОГРЕСС</span></div>
-    </div>
-</div>
-
-<nav class="nav">
-    <div class="nav-item active" onclick="Engine.tab('p-sched', this)"><span>📅</span>УРОКИ</div>
-    <div class="nav-item" onclick="Engine.tab('p-quests', this)"><span>🎯</span>КВЕСТЫ</div>
-</nav>
-
-<script>
-    const CONFIG = {
-        schedule: {
-            3: [{s:"09:00",e:"09:25",n:"Химия"},{s:"09:35",e:"10:00",n:"Основы здоровья"},{s:"10:10",e:"10:35",n:"Укр. лит"},{s:"10:45",e:"11:10",n:"Алгебра"},{s:"11:20",e:"11:45",n:"История Укр"},{s:"11:55",e:"12:20",n:"Англ. мова"},{s:"12:30",e:"12:50",n:"География"},{s:"13:00",e:"13:25",n:"Биология"}]
-            // ... остальные дни добавь по аналогии
-        },
-        quests: [
-            {q:"Алгебра: Дискриминант D = b² - ... ?", a:["4AC"]},
-            {q:"Физика: Единица измерения силы?", a:["НЬЮТОН", "N", "Н"]},
-            {q:"Химия: Какой газ мы выдыхаем?", a:["УГЛЕКИСЛЫЙ ГАЗ", "CO2", "УГЛЕКИСЛЫЙ"]},
-            {q:"Английский: Hello - это?", a:["ПРИВЕТ", "ЗДРАВСТВУЙ"], options:["Пока", "Привет", "Спасибо", "Друг"]},
-            {q:"География: Самый большой океан?", a:["ТИХИЙ"], options:["Атлантический", "Тихий", "Индийский"]},
-            {q:"История: Год крещения Руси?", a:["988"], options:["882", "988", "1147"]}
-            // Можешь дописать еще 20-30 штук сюда
+const CONFIG = {
+    // Расписание я оставил как на скриншоте (среда)
+    schedule: {
+        3: [
+            {s:"09:00",e:"09:25",n:"Химия"}, {s:"09:35",e:"10:00",n:"Основы здоровья"},
+            {s:"10:10",e:"10:35",n:"Укр. лит"}, {s:"10:45",e:"11:10",n:"Алгебра"},
+            {s:"11:30",e:"11:55",n:"История Укр"}, {s:"12:05",e:"12:30",n:"Англ. мова"},
+            {s:"12:40",e:"13:05",n:"География"}, {s:"13:15",e:"13:40",n:"Биология"}
         ]
-    };
+    },
+    quests: [
+        {q:"Химия: Какой газ мы выдыхаем?", a:["УГЛЕКИСЛЫЙ", "CO2", "УГЛЕКИСЛЫЙ ГАЗ"]},
+        {q:"Геометрия: Пифагоровы штаны во все стороны...?", a:["РАВНЫ"]},
+        {q:"Алгебра: Дискриминант D = b² - ... ?", a:["4AC"]},
+        {q:"Физика: Единица измерения силы?", a:["НЬЮТОН", "N", "Н"]},
+        {q:"Английский: Hello - это?", a:["ПРИВЕТ", "ЗДРАВСТВУЙ"], options:["Пока", "Привет", "Спасибо"]},
+        {q:"География: Самый большой океан?", a:["ТИХИЙ"], options:["Атлантический", "Тихий", "Индийский"]}
+        // Добавь сюда остальные свои вопросы
+    ]
+};
 
-    const Engine = {
-        solved: JSON.parse(localStorage.getItem('sh_solved_v5') || "[]"),
-        current: null,
+const Engine = {
+    solved: JSON.parse(localStorage.getItem('sh_solved_final') || "[]"),
+    current: null,
 
-        init() {
-            this.startFX();
-            this.updateClock();
-            setInterval(() => this.updateClock(), 1000);
-            document.getElementById('total-count').innerText = CONFIG.quests.length;
-            this.updateUI();
-        },
+    init() {
+        this.updateClock();
+        setInterval(() => this.updateClock(), 1000);
+        this.updateUI();
+    },
 
-        startFX() {
-            const fx = document.getElementById('fx-layer');
-            const gr = document.getElementById('ground-layer');
-            for(let i=0; i<15; i++) {
-                let d = document.createElement('div'); d.className='flower'; d.innerText="🌸";
-                d.style.left = Math.random()*100+"vw"; d.style.animationDuration = Math.random()*5+5+"s";
-                fx.appendChild(d);
-            }
-            for(let i=0; i<10; i++) {
-                let g = document.createElement('div'); g.className='grass'; g.innerText="🌱";
-                gr.appendChild(g);
-            }
-        },
+    updateClock() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        const days = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+        document.getElementById('clock').innerText = timeStr;
+        document.getElementById('date-label').innerText = days[now.getDay()] + " " + timeStr;
+        this.renderSched(now);
+    },
 
-        updateClock() {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('date-label').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'short'});
-            this.renderSched(now);
-        },
+    renderSched(now) {
+        const day = now.getDay();
+        const mins = now.getHours()*60 + now.getMinutes();
+        const table = document.getElementById('sched-table');
+        let html = "";
+        (CONFIG.schedule[day] || []).forEach(l => {
+            const [sh, sm] = l.s.split(':').map(Number);
+            const [eh, em] = l.e.split(':').map(Number);
+            const active = mins >= (sh*60+sm) && mins <= (eh*60+em);
+            html += `<tr class="${active ? 'active-lesson' : ''}"><td>${l.s}—${l.e}</td><td>${l.n}</td></tr>`;
+        });
+        table.innerHTML = html || "<tr><td style='text-align:center'>Уроков сейчас нет! Отдыхай!</td></tr>";
+    },
 
-        renderSched(now) {
-            const day = now.getDay();
-            const mins = now.getHours()*60 + now.getMinutes();
-            const table = document.getElementById('sched-table');
-            let html = "";
-            (CONFIG.schedule[day] || []).forEach(l => {
-                const [sh, sm] = l.s.split(':').map(Number);
-                const [eh, em] = l.e.split(':').map(Number);
-                const active = mins >= (sh*60+sm) && mins <= (eh*60+em);
-                html += `<tr class="${active ? 'active-lesson' : ''}"><td>${l.s}</td><td>${l.n}</td></tr>`;
-            });
-            table.innerHTML = html || "<tr><td style='text-align:center'>Уроков сейчас нет</td></tr>";
-        },
+    tab(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById(id).classList.add('active'); el.classList.add('active');
+    },
 
-        tab(id, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(id).classList.add('active'); el.classList.add('active');
-        },
+    nextQuest() {
+        document.getElementById('start-btn').style.display = "none";
+        document.getElementById('next-btn').style.display = "none";
+        document.getElementById('hint').innerText = "";
+        const pool = CONFIG.quests.filter(q => !this.solved.includes(q.q));
+        if(pool.length === 0) {
+            document.getElementById('q-box').innerText = "🏆 ВСЕ КВЕСТЫ ВЫПОЛНЕНЫ!";
+            document.getElementById('quest-content').innerHTML = "";
+            return;
+        }
+        this.current = pool[Math.floor(Math.random()*pool.length)];
+        document.getElementById('q-box').innerText = this.current.q;
+        this.renderQuestBody();
+    },
 
-        nextQuest() {
-            document.getElementById('start-btn').style.display = "none";
-            document.getElementById('next-btn').style.display = "none";
-            document.getElementById('hint').innerText = "";
-            const pool = CONFIG.quests.filter(q => !this.solved.includes(q.q));
-            if(pool.length === 0) {
-                document.getElementById('q-box').innerText = "🏆 КРАСАВА! ВСЁ РЕШИЛ!";
-                document.getElementById('quest-content').innerHTML = "";
-                return;
-            }
-            this.current = pool[Math.floor(Math.random()*pool.length)];
-            document.getElementById('q-box').innerText = this.current.q;
-            this.renderQuestBody();
-        },
-
-        renderQuestBody() {
-            const container = document.getElementById('quest-content');
-            container.innerHTML = "";
-            container.style.pointerEvents = "auto";
-
-            if(this.current.options) {
-                const grid = document.createElement('div');
-                grid.className = 'options-grid';
-                this.current.options.forEach(opt => {
-                    const btn = document.createElement('button');
-                    btn.className = 'opt-btn'; btn.innerText = opt;
-                    btn.onclick = () => this.checkAns(opt, btn);
-                    grid.appendChild(btn);
-                });
-                container.appendChild(grid);
-            } else {
-                const input = document.createElement('input');
-                input.className = 'input-box'; input.id = 'ans-input';
-                input.placeholder = "Твой ответ...";
-                input.onkeyup = (e) => { if(e.key === "Enter") this.checkAns(input.value); };
-                container.appendChild(input);
+    renderQuestBody() {
+        const container = document.getElementById('quest-content');
+        container.innerHTML = "";
+        if(this.current.options) {
+            const grid = document.createElement('div');
+            grid.className = 'options-grid';
+            this.current.options.forEach(opt => {
                 const b = document.createElement('button');
-                b.className = 'btn-main'; b.innerText = "Проверить";
-                b.onclick = () => this.checkAns(input.value);
-                container.appendChild(b);
+                b.className = 'opt-btn'; b.innerText = opt;
+                b.onclick = () => this.checkAns(opt, b);
+                grid.appendChild(b);
+            });
+            container.appendChild(grid);
+        } else {
+            const input = document.createElement('input');
+            input.className = 'input-box'; input.id = 'ans-input';
+            input.placeholder = "Напиши ответ...";
+            input.onkeyup = (e) => { if(e.key === "Enter") this.checkAns(input.value); };
+            container.appendChild(input);
+            const b = document.createElement('button');
+            b.className = 'btn-main'; b.innerText = "Проверить";
+            b.onclick = () => this.checkAns(input.value);
+            container.appendChild(b);
+        }
+    },
+
+    checkAns(val, btn = null) {
+        if(!val) return;
+        
+        // НОРМАЛИЗАЦИЯ: убираем всё лишнее, приводим к одному регистру
+        const userVal = val.toString().toLowerCase().trim();
+        
+        const isCorrect = this.current.a.some(correct => {
+            const c = correct.toLowerCase().trim();
+            // Проверяем: либо полное совпадение, либо ответ содержится внутри (для фраз)
+            return userVal === c || userVal.includes(c) || c.includes(userVal);
+        });
+
+        const h = document.getElementById('hint');
+        if(isCorrect) {
+            if(btn) btn.classList.add('opt-correct');
+            h.innerText = "Верно! 🔥"; h.style.color = "var(--accent)";
+            this.solved.push(this.current.q);
+            localStorage.setItem('sh_solved_final', JSON.stringify(this.solved));
+            document.getElementById('quest-content').style.pointerEvents = "none";
+            document.getElementById('next-btn').style.display = "block";
+            this.updateUI();
+        } else {
+            if(btn) {
+                btn.classList.add('opt-wrong');
+                setTimeout(() => btn.classList.remove('opt-wrong'), 500);
             }
-        },
+            h.innerText = "Неверно ❌"; h.style.color = "var(--error)";
+        }
+    },
 
-        checkAns(val, btn = null) {
-            // УМНАЯ ПРОВЕРКА: убираем формулы, лишние пробелы и меняем раскладку
-            let clean = val.toUpperCase().trim()
-                .replace("D = B² - ", "").replace("D = B2 - ", "")
-                .replace(/Н/g,'H').replace(/О/g,'O').replace(/С/g,'C').replace(/В/g,'B').replace(/А/g,'A');
-            
-            const isCorrect = this.current.a.some(correct => clean.includes(correct.toUpperCase()) || correct.toUpperCase() === clean);
+    updateUI() {
+        const count = this.solved.length;
+        document.getElementById('solved-count').innerText = count;
+        document.getElementById('total-count').innerText = CONFIG.quests.length;
+        document.getElementById('progress-fill').style.width = (count / CONFIG.quests.length * 100) + "%";
+    },
 
-            const h = document.getElementById('hint');
-            if(isCorrect) {
-                if(btn) btn.classList.add('opt-correct');
-                h.innerText = "Верно! 🔥"; h.style.color = "var(--accent)";
-                this.solved.push(this.current.q);
-                localStorage.setItem('sh_solved_v5', JSON.stringify(this.solved));
-                document.getElementById('quest-content').style.pointerEvents = "none";
-                document.getElementById('next-btn').style.display = "block";
-                this.updateUI();
-            } else {
-                if(btn) btn.classList.add('opt-wrong');
-                h.innerText = "Не-а, подумай еще ❌"; h.style.color = "var(--error)";
-            }
-        },
+    reset() { if(confirm("Сбросить?")) { localStorage.clear(); location.reload(); } }
+};
 
-        updateUI() {
-            const count = this.solved.length;
-            document.getElementById('solved-count').innerText = count;
-            document.getElementById('progress-fill').style.width = (count / CONFIG.quests.length * 100) + "%";
-        },
-
-        reset() { if(confirm("Сбросить?")) { localStorage.removeItem('sh_solved_v5'); location.reload(); } }
-    };
-
-    Engine.init();
-</script>
-</body>
-</html>
+Engine.init();
