@@ -3,73 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub | 8 Class</title>
+    <title>StudyHub 8-Class</title>
     <style>
         :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc; --success: #22c55e; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
         
-        /* Навигация */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #334155; z-index: 100; }
-        .nav-item { color: #94a3b8; cursor: pointer; font-size: 0.9rem; font-weight: bold; }
-        .nav-item.active { color: var(--accent); }
+        /* Нижнее меню */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #1e293b; display: flex; border-top: 2px solid var(--accent); z-index: 1000; }
+        .nav-btn { flex: 1; padding: 20px; text-align: center; cursor: pointer; font-weight: bold; color: #94a3b8; border: none; background: none; font-size: 1rem; }
+        .nav-btn.active { color: var(--accent); background: rgba(56, 189, 248, 0.1); }
 
-        .container { width: 90%; max-width: 500px; padding-top: 20px; }
+        .container { padding: 20px; max-width: 500px; margin: 0 auto; }
         .page { display: none; }
         .page.active { display: block; }
 
-        /* Карточки */
-        .card { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid #334155; box-shadow: 0 10px 20px rgba(0,0,0,0.3); text-align: center; }
-        .lesson-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #334155; }
-        .current-lesson { border: 2px solid var(--accent); background: rgba(56, 189, 248, 0.1); }
+        .card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #334155; margin-bottom: 20px; text-align: center; }
+        .lesson-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #334155; }
+        .now { border-left: 5px solid var(--accent); background: rgba(56, 189, 248, 0.1); }
 
-        .btn { background: var(--accent); color: #0f172a; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; margin-top: 15px; cursor: pointer; }
-        .input-ans { width: 80%; padding: 12px; margin: 15px 0; border-radius: 10px; border: 1px solid var(--accent); background: #0f172a; color: white; text-align: center; font-size: 1.1rem; }
-        .hidden { display: none; }
+        .input-box { width: 100%; padding: 12px; margin: 15px 0; border-radius: 10px; border: 1px solid var(--accent); background: #0f172a; color: white; box-sizing: border-box; font-size: 1.1rem; }
+        .btn-main { background: var(--accent); color: #0f172a; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="sched-page" class="page active">
-            <h2 style="color: var(--accent)">📅 Мой День</h2>
-            <div id="clock" style="margin-bottom: 15px; opacity: 0.7;"></div>
-            <div id="schedule-list"></div>
+<div class="container">
+    <div id="p-sched" class="page active">
+        <h1 style="color: var(--accent)">📅 Уроки</h1>
+        <div id="clock" style="margin-bottom: 20px; font-weight: bold;"></div>
+        <div id="notif-setup">
+            <button onclick="enableNotifs()" id="n-status" class="btn-main" style="background: none; border: 1px solid var(--accent); color: var(--accent); margin-bottom: 20px;">🔔 Включить уведомления навсегда</button>
         </div>
-
-        <div id="tasks-page" class="page">
-            <h2 style="color: var(--accent)">🎯 Карточки</h2>
-            <div class="card" id="task-card">
-                <div id="task-info" style="font-size: 0.8rem; color: var(--accent); margin-bottom: 10px;">ГОТОВ К КВЕСТУ?</div>
-                <div id="task-text" style="font-size: 1.2rem; min-height: 60px;">Нажми кнопку, чтобы вытянуть карточку</div>
-                
-                <div id="ans-block" class="hidden">
-                    <input type="text" id="user-input" class="input-ans" placeholder="Ответ...">
-                </div>
-
-                <button class="btn" id="main-btn" onclick="drawCard()">Вытянуть карточку</button>
-                <button class="btn hidden" id="check-btn" onclick="checkTask()" style="background: var(--success); color: white;">Проверить</button>
-                <button class="btn hidden" id="skip-btn" onclick="drawCard()" style="background: transparent; border: 1px solid #475569; color: #94a3b8;">Другое задание</button>
-            </div>
-            <p style="text-align: center; font-size: 0.8rem; opacity: 0.5; margin-top: 20px;">Выполнено: <span id="count">0</span></p>
-        </div>
+        <div id="schedule-box"></div>
     </div>
 
-    <div class="nav-bar">
-        <div class="nav-item active" onclick="showPage('sched-page', this)">РАСПИСАНИЕ</div>
-        <div class="nav-item" onclick="showPage('tasks-page', this)">КАРТОЧКИ</div>
+    <div id="p-cards" class="page">
+        <h1 style="color: var(--accent)">🎯 Карточки 8-А</h1>
+        <div class="card">
+            <div id="q-text" style="font-size: 1.2rem; margin-bottom: 15px;">Нажми кнопку ниже</div>
+            <input type="text" id="ans-input" class="input-box" placeholder="Твой ответ..." style="display:none">
+            <button id="card-btn" onclick="nextCard()" class="btn-main">Взять карточку</button>
+            <p id="msg" style="margin-top: 10px; font-weight: bold;"></p>
+        </div>
+        <div style="text-align: center; opacity: 0.6;">Решено за всё время: <span id="total-done">0</span></div>
     </div>
+</div>
+
+<nav class="bottom-nav">
+    <button class="nav-btn active" onclick="tab('p-sched', this)">УРОКИ</button>
+    <button class="nav-btn" onclick="tab('p-cards', this)">КАРТОЧКИ</button>
+</nav>
 
 <script>
-    // --- ДАННЫЕ ---
-    const tasks = [
-        { id: 1, q: "Алгебра: Реши 5x - 15 = 0", a: "3", type: "math" },
-        { id: 2, q: "Геометрия: Сумма углов треугольника?", a: "180", type: "math" },
-        { id: 3, q: "Физика: Формула силы (закон Ньютона)? F = m * ...", a: "a", type: "math" },
-        { id: 4, q: "Химия: Формула воды?", a: "H2O", type: "math" },
-        { id: 5, q: "История: В каком году началась Вторая мировая?", a: "1939", type: "math" }
-    ];
-
-    const schedule = {
+    const subjects = {
         1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
         2: ["Англ", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис", "Физра", "Гром. освіта"],
         3: ["Химия", "Основы здоровья", "Укр. лит", "Алгебра", "История Укр", "Англ", "География", "Биология"],
@@ -77,82 +63,97 @@
         5: ["Физра", "Укр. язык", "Укр. лит", "Алгебра", "Зарубежка", "Информатика", "Немецкий"]
     };
 
-    let doneIds = JSON.parse(localStorage.getItem('doneIds')) || [];
-    let current = null;
+    const cards = [
+        {id:1, q:"Алгебра: Дискриминант D = b² - ... ?", a:"4ac"},
+        {id:2, q:"Физика: Единица измерения силы?", a:"ньютон"},
+        {id:3, q:"Геометрия: Площадь квадрата со стороной 5?", a:"25"},
+        {id:4, q:"Химия: Валентность Кислорода (O)?", a:"2"},
+        {id:5, q:"Англ: 3-я форма глагола 'Go'?", a:"gone"}
+    ];
 
-    // --- ЛОГИКА СТРАНИЦ ---
-    function showPage(id, el) {
+    let done = JSON.parse(localStorage.getItem('solved_ids') || "[]");
+    let currentQ = null;
+
+    // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+    function tab(id, btn) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        el.classList.add('active');
+        btn.classList.add('active');
     }
 
-    // --- ЛОГИКА КАРТОЧЕК ---
-    function drawCard() {
-        const available = tasks.filter(t => !doneIds.includes(t.id));
-        if (available.length === 0) {
-            document.getElementById('task-text').innerText = "Все карточки пройдены! Ты лучший!";
-            return;
-        }
-        current = available[Math.floor(Math.random() * available.length)];
-        
-        document.getElementById('task-text').innerText = current.q;
-        document.getElementById('main-btn').classList.add('hidden');
-        document.getElementById('ans-block').classList.remove('hidden');
-        document.getElementById('check-btn').classList.remove('hidden');
-        document.getElementById('skip-btn').classList.remove('hidden');
-        document.getElementById('user-input').value = "";
-    }
-
-    function checkTask() {
-        const val = document.getElementById('user-input').value.trim().toLowerCase();
-        if (val == current.a.toLowerCase()) {
-            doneIds.push(current.id);
-            localStorage.setItem('doneIds', JSON.stringify(doneIds));
-            updateCounter();
-            alert("Верно! Карточка улетает в выполненные.");
-            resetCard();
-        } else {
-            alert("Неправильно. Подумай еще!");
-        }
-    }
-
-    function resetCard() {
-        document.getElementById('ans-block').classList.add('hidden');
-        document.getElementById('check-btn').classList.add('hidden');
-        document.getElementById('skip-btn').classList.add('hidden');
-        document.getElementById('main-btn').classList.remove('hidden');
-        document.getElementById('task-text').innerText = "Готов к следующей?";
-    }
-
-    function updateCounter() {
-        document.getElementById('count').innerText = doneIds.length;
-    }
-
-    // --- РАСПИСАНИЕ ---
-    function updateSched() {
-        const now = new Date();
-        const day = now.getDay();
-        const min = now.getHours() * 60 + now.getMinutes();
-        document.getElementById('clock').innerText = now.toLocaleTimeString();
-
-        const list = document.getElementById('schedule-list');
-        list.innerHTML = "";
-        
-        (schedule[day] || []).forEach((name, i) => {
-            const start = 540 + (i * 35);
-            const end = start + 25;
-            const div = document.createElement('div');
-            div.className = 'lesson-row' + (min >= start && min < end ? ' current-lesson' : '');
-            div.innerHTML = `<span>${name}</span> <span>${Math.floor(start/60)}:${(start%60).toString().padStart(2,'0')}</span>`;
-            list.appendChild(div);
+    // УВЕДОМЛЕНИЯ
+    function enableNotifs() {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                localStorage.setItem('notifs_on', 'true');
+                document.getElementById('n-status').innerText = "✅ Уведомления активны";
+            }
         });
     }
 
-    setInterval(updateSched, 1000);
-    updateSched();
-    updateCounter();
+    // ЛОГИКА КАРТОЧЕК
+    function nextCard() {
+        const input = document.getElementById('ans-input');
+        const btn = document.getElementById('card-btn');
+        const msg = document.getElementById('msg');
+
+        if (btn.innerText === "Проверить") {
+            if (input.value.toLowerCase().trim() === currentQ.a.toLowerCase()) {
+                msg.innerText = "🔥 В точку! Красава!";
+                msg.style.color = "var(--success)";
+                done.push(currentQ.id);
+                localStorage.setItem('solved_ids', JSON.stringify(done));
+                document.getElementById('total-done').innerText = done.length;
+                btn.innerText = "Взять еще";
+                input.style.display = "none";
+            } else {
+                msg.innerText = "❌ Не-а, подумай еще";
+                msg.style.color = "#ef4444";
+            }
+            return;
+        }
+
+        const available = cards.filter(c => !done.includes(c.id));
+        if (available.length === 0) {
+            document.getElementById('q-text').innerText = "Ты прошел все карточки! Жди обновлений.";
+            input.style.display = "none";
+            btn.style.display = "none";
+            return;
+        }
+
+        currentQ = available[Math.floor(Math.random() * available.length)];
+        document.getElementById('q-text').innerText = currentQ.q;
+        input.value = "";
+        input.style.display = "block";
+        btn.innerText = "Проверить";
+        msg.innerText = "";
+    }
+
+    // РАСПИСАНИЕ
+    function update() {
+        const now = new Date();
+        const d = now.getDay();
+        const m = now.getHours() * 60 + now.getMinutes();
+        document.getElementById('clock').innerText = now.toLocaleTimeString();
+
+        const box = document.getElementById('schedule-box');
+        box.innerHTML = "";
+        
+        (subjects[d] || []).forEach((name, i) => {
+            const start = 540 + (i * 35);
+            const end = start + 25;
+            const item = document.createElement('div');
+            item.className = 'lesson-item' + (m >= start && m < end ? ' now' : '');
+            item.innerHTML = `<span>${name}</span> <span>${Math.floor(start/60)}:${(start%60).toString().padStart(2,'0')}</span>`;
+            box.appendChild(item);
+        });
+    }
+
+    setInterval(update, 1000);
+    update();
+    document.getElementById('total-done').innerText = done.length;
+    if(localStorage.getItem('notifs_on') === 'true') document.getElementById('n-status').innerText = "✅ Уведомления активны";
 </script>
 </body>
 </html>
