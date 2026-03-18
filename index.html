@@ -3,26 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub OS v2.0</title>
+    <title>StudyHub Ultimate Fix</title>
     <style>
-        /* --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ --- */
         :root {
-            --bg: #0f172a;
+            --bg: #064e3b; /* Весенний темно-зеленый */
             --nav-bg: #1e293b;
             --text: #f8fafc;
-            --accent: #38bdf8;
-            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent: #4ade80;
+            --card-bg: rgba(15, 23, 42, 0.8);
             --success: #4ade80;
             --error: #f87171;
-            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* --- БАЗОВЫЕ СТИЛИ --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
-            padding: 0;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
@@ -31,446 +27,269 @@
             flex-direction: column;
         }
 
-        /* --- СЛОИ ЖИВОГО ФОНА --- */
-        #sky-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        #weather-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        /* --- ФОНОВЫЕ ЭФФЕКТЫ --- */
+        #fx-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         #ground-layer { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 60px; 
-            z-index: 2; 
-            pointer-events: none; 
-            display: flex; 
-            justify-content: space-around; 
-            align-items: flex-end;
-            padding-bottom: 5px;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; 
+            z-index: 2; pointer-events: none; display: flex; 
+            justify-content: space-around; align-items: flex-end; padding-bottom: 85px; 
         }
 
-        /* --- АНИМАЦИИ --- */
-        .falling-item {
-            position: absolute;
-            top: -10%;
-            animation: fallAnimation linear infinite;
-        }
-
-        @keyframes fallAnimation {
+        .flower { position: absolute; top: -10%; animation: fall linear infinite; }
+        @keyframes fall {
             0% { transform: translateY(0vh) rotate(0deg); opacity: 0; }
             10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
         }
 
-        .ground-plant {
-            font-size: 24px;
-            filter: drop-shadow(0 0 5px rgba(0,0,0,0.3));
-            animation: sway 3s ease-in-out infinite alternate;
-            transform-origin: bottom;
-        }
-
-        @keyframes sway {
-            from { transform: rotate(-5deg); }
-            to { transform: rotate(5deg); }
-        }
+        .grass { font-size: 30px; animation: sway 3s ease-in-out infinite alternate; transform-origin: bottom; }
+        @keyframes sway { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
 
         /* --- КОНТЕНТ --- */
-        .app-container {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px 20px 100px 20px;
-            flex-grow: 1;
+        .container {
+            position: relative; z-index: 10; width: 100%; max-width: 600px;
+            margin: 0 auto; padding: 20px 20px 100px 20px;
         }
 
         .page { display: none; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .glass-card {
             background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
 
-        /* --- РАСПИСАНИЕ --- */
-        .sched-header { text-align: center; margin-bottom: 20px; }
-        .sched-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        .sched-row { background: rgba(255,255,255,0.03); transition: var(--transition); }
-        .sched-row td { padding: 15px; }
-        .sched-row td:first-child { border-radius: 12px 0 0 12px; font-weight: bold; width: 110px; }
-        .sched-row td:last-child { border-radius: 0 12px 12px 0; }
+        /* --- ТАБЛИЦА --- */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        tr { transition: 0.3s; }
+        td { padding: 15px; background: rgba(255,255,255,0.03); }
+        td:first-child { border-radius: 12px 0 0 12px; font-weight: bold; width: 120px; color: var(--accent); }
+        td:last-child { border-radius: 0 12px 12px 0; }
         
-        .row-active { 
-            background: var(--accent) !important; 
-            color: #000; 
-            transform: scale(1.02);
-            box-shadow: 0 4px 15px var(--accent);
-        }
+        .active-lesson { background: var(--accent) !important; color: #000 !important; transform: scale(1.02); font-weight: bold; }
+        .active-lesson td { background: transparent; color: #000; }
 
         /* --- КВЕСТЫ --- */
-        .quest-display { font-size: 1.4rem; font-weight: 600; margin: 20px 0; min-height: 80px; display: flex; align-items: center; justify-content: center; }
-        .input-field {
-            width: 100%;
-            background: rgba(0,0,0,0.2);
-            border: 2px solid var(--accent);
-            border-radius: 16px;
-            padding: 15px;
-            color: #white;
-            font-size: 1.1rem;
-            text-align: center;
-            outline: none;
-            margin-bottom: 20px;
-            transition: 0.3s;
+        .q-text { font-size: 1.3rem; margin: 20px 0; text-align: center; min-height: 50px; }
+        .input-box {
+            width: 100%; background: rgba(0,0,0,0.3); border: 2px solid var(--accent);
+            border-radius: 12px; padding: 15px; color: #fff; text-align: center;
+            font-size: 1.1rem; outline: none; margin-bottom: 15px;
         }
-        .input-field:focus { box-shadow: 0 0 15px var(--accent); }
-
         .btn {
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 16px;
-            border-radius: 16px;
-            font-size: 1rem;
-            font-weight: 800;
-            width: 100%;
-            cursor: pointer;
-            transition: var(--transition);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            background: var(--accent); color: #000; border: none; padding: 15px;
+            border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer;
         }
-        .btn:active { transform: scale(0.96); }
 
         /* --- НАВИГАЦИЯ --- */
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 75px;
-            background: var(--nav-bg);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 1000;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: env(safe-area-inset-bottom);
+        .nav {
+            position: fixed; bottom: 0; width: 100%; height: 70px;
+            background: var(--nav-bg); display: flex; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000;
         }
-
         .nav-item {
-            flex: 1;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: #64748b;
-            text-decoration: none;
-            font-size: 0.75rem;
-            font-weight: 600;
-            transition: 0.3s;
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; color: #94a3b8; text-decoration: none; font-size: 0.7rem;
         }
-        .nav-item.active { color: var(--accent); }
-        .nav-icon { font-size: 1.5rem; margin-bottom: 4px; }
-
-        /* --- ТЕМАТИЧЕСКИЕ ЦВЕТА --- */
-        [data-season="spring"] { --bg: #064e3b; --accent: #4ade80; }
-        [data-season="summer"] { --bg: #0c4a6e; --accent: #facc15; }
-        [data-season="autumn"] { --bg: #451a03; --accent: #fb923c; }
-        [data-season="winter"] { --bg: #0f172a; --accent: #38bdf8; }
+        .nav-item.active { color: var(--accent); background: rgba(255,255,255,0.03); }
     </style>
 </head>
 <body>
 
-    <div id="sky-layer"></div>
-    <div id="weather-layer"></div>
+    <div id="fx-layer"></div>
     <div id="ground-layer"></div>
 
-    <div class="app-container">
-        <div id="page-schedule" class="page active">
-            <div class="glass-card sched-header">
-                <div id="live-clock" style="font-size: 2.5rem; font-weight: 800;">00:00</div>
-                <div id="live-date" style="opacity: 0.6; text-transform: capitalize;">Загрузка...</div>
-            </div>
-            
-            <div class="glass-card" style="padding: 10px;">
-                <table class="sched-table" id="table-render">
-                    </table>
-            </div>
-        </div>
-
-        <div id="page-quests" class="page">
-            <div class="glass-card" style="text-align:center">
-                <div style="font-size: 0.8rem; opacity: 0.5; text-transform: uppercase;">Задание 8-А</div>
-                <div id="q-box" class="quest-display">Нажми "Начать", чтобы получить первый квест!</div>
-                
-                <div id="input-zone" style="display: none;">
-                    <input type="text" id="user-answer" class="input-field" placeholder="Введите ответ...">
-                </div>
-
-                <button id="action-btn" class="btn" onclick="QuestManager.handleAction()">Начать</button>
-                <div id="feedback" style="margin-top: 15px; font-weight: bold; min-height: 20px;"></div>
-            </div>
-
-            <div class="glass-card" style="display: flex; justify-content: space-around; text-align: center;">
-                <div><div id="stat-solved" style="font-size: 1.5rem; font-weight: bold;">0</div><div style="font-size: 0.7rem; opacity: 0.6;">РЕШЕНО</div></div>
-                <div><div id="stat-total" style="font-size: 1.5rem; font-weight: bold;">0</div><div style="font-size: 0.7rem; opacity: 0.6;">ВСЕГО</div></div>
-            </div>
-        </div>
-
-        <div id="page-classroom" class="page">
+    <div class="container">
+        <div id="p-sched" class="page active">
             <div class="glass-card" style="text-align: center;">
-                <div style="font-size: 4rem;">🏫</div>
-                <h2>Google Classroom</h2>
-                <p style="opacity: 0.7;">Здесь будут отображаться домашние задания после подключения вашего аккаунта.</p>
-                <button class="btn" style="opacity: 0.5; cursor: not-allowed;">Подключить (Скоро)</button>
+                <div id="clock" style="font-size: 2.5rem; font-weight: 800;">00:00:00</div>
+                <div id="date-label" style="opacity: 0.7;">Загрузка...</div>
+            </div>
+            <div class="glass-card">
+                <table id="sched-table"></table>
+            </div>
+        </div>
+
+        <div id="p-quests" class="page">
+            <div class="glass-card">
+                <div id="q-box" class="q-text">Нажми "Начать"</div>
+                <input type="text" id="ans-input" class="input-box" style="display:none">
+                <button id="quest-btn" class="btn" onclick="Engine.questAction()">Начать</button>
+                <div id="hint" style="text-align:center; margin-top:10px; font-weight:bold;"></div>
+            </div>
+        </div>
+
+        <div id="p-class" class="page">
+            <div class="glass-card" style="text-align: center;">
+                <div style="font-size: 3rem;">📚</div>
+                <h3>Google Classroom</h3>
+                <p>Задания появятся здесь позже.</p>
             </div>
         </div>
     </div>
 
-    <nav class="nav-bar">
-        <a href="#" class="nav-item active" onclick="Navigation.switch('page-schedule', this)">
-            <span class="nav-icon">📅</span><span>УРОКИ</span>
-        </a>
-        <a href="#" class="nav-item" onclick="Navigation.switch('page-quests', this)">
-            <span class="nav-icon">🎯</span><span>КВЕСТЫ</span>
-        </a>
-        <a href="#" class="nav-item" onclick="Navigation.switch('page-classroom', this)">
-            <span class="nav-icon">📚</span><span>CLASSROOM</span>
-        </a>
+    <nav class="nav">
+        <div class="nav-item active" onclick="Engine.tab('p-sched', this)"><span>📅</span>УРОКИ</div>
+        <div class="nav-item" onclick="Engine.tab('p-quests', this)"><span>🎯</span>КВЕСТЫ</div>
+        <div class="nav-item" onclick="Engine.tab('p-class', this)"><span>🏫</span>CLASSROOM</div>
     </nav>
 
     <script>
-        /**
-         * 1. КОНФИГУРАЦИЯ ДАННЫХ
-         */
-        const DATA = {
+        const CONFIG = {
+            // Расписание с твоими правками времени
             schedule: {
-                1: [ // Понедельник
+                1: [ // ПН
                     {s:"09:00", e:"09:25", n:"Алгебра"}, {s:"09:35", e:"10:00", n:"География"},
-                    {s:"10:10", e:"10:35", n:"Укр. мова"}, {s:"10:55", e:"11:20", n:"Биология"},
-                    {s:"11:30", e:"11:55", n:"Укр. мова"}, {s:"12:05", e:"12:30", n:"Химия"},
-                    {s:"12:40", e:"13:05", n:"Информатика"}
+                    {s:"10:10", e:"10:35", n:"Укр. мова"}, {s:"10:45", e:"11:10", n:"Биология"},
+                    {s:"11:20", e:"11:45", n:"Укр. мова"}, {s:"11:55", e:"12:20", n:"Химия"},
+                    {s:"12:30", e:"12:50", n:"Информатика"}
                 ],
-                2: [ // Вторник
+                2: [ // ВТ
                     {s:"09:00", e:"09:25", n:"Англ. мова"}, {s:"09:35", e:"10:00", n:"Геометрия"},
-                    {s:"10:10", e:"10:35", n:"Физика"}, {s:"10:55", e:"11:20", n:"Укр. мова"},
-                    {s:"11:30", e:"11:55", n:"Биология"}, {s:"12:05", e:"12:30", n:"Муз/Рис"},
-                    {s:"12:40", e:"13:05", n:"Физра"}, {s:"13:15", e:"13:40", n:"Гром. освіта"},
+                    {s:"10:10", e:"10:35", n:"Физика"}, {s:"10:45", e:"11:10", n:"Укр. мова"},
+                    {s:"11:20", e:"11:45", n:"Биология"}, {s:"11:55", e:"12:20", n:"Муз/Рис"},
+                    {s:"12:30", e:"12:50", n:"Физра"}, {s:"13:00", e:"13:25", n:"Гром. освіта"},
                     {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}
                 ],
-                3: [ // Среда
+                3: [ // СР
                     {s:"09:00", e:"09:25", n:"Химия"}, {s:"09:35", e:"10:00", n:"Основы здоровья"},
-                    {s:"10:10", e:"10:35", n:"Укр. лит"}, {s:"10:55", e:"11:20", n:"Алгебра"},
-                    {s:"11:30", e:"11:55", n:"История Укр"}, {s:"12:05", e:"12:30", n:"Англ. мова"},
-                    {s:"12:40", e:"13:05", n:"География"}, {s:"13:15", e:"13:40", n:"Биология"}
+                    {s:"10:10", e:"10:35", n:"Укр. лит"}, {s:"10:45", e:"11:10", n:"Алгебра"},
+                    {s:"11:20", e:"11:45", n:"История Укр"}, {s:"11:55", e:"12:20", n:"Англ. мова"},
+                    {s:"12:30", e:"12:50", n:"География"}, {s:"13:00", e:"13:25", n:"Биология"}
                 ],
-                4: [ // Четверг
+                4: [ // ЧТ
                     {s:"09:00", e:"09:25", n:"Геометрия"}, {s:"09:35", e:"10:00", n:"Физика"},
-                    {s:"10:10", e:"10:35", n:"Физра"}, {s:"10:55", e:"11:20", n:"Всемирка"},
-                    {s:"11:30", e:"11:55", n:"Технологии"}, {s:"12:05", e:"12:30", n:"Англ. мова"},
+                    {s:"10:10", e:"10:35", n:"Физра"}, {s:"10:45", e:"11:10", n:"Всемирка"},
+                    {s:"11:20", e:"11:45", n:"Технологии"}, {s:"11:55", e:"12:20", n:"Англ. мова"},
                     {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}
                 ],
-                5: [ // Пятница
+                5: [ // ПТ
                     {s:"09:00", e:"09:25", n:"Физра"}, {s:"09:35", e:"10:00", n:"Укр. мова"},
-                    {s:"10:10", e:"10:35", n:"Укр. лит"}, {s:"10:55", e:"11:20", n:"Алгебра"},
-                    {s:"11:30", e:"11:55", n:"Зарубежка"}, {s:"12:05", e:"12:30", n:"Информатика"},
-                    {s:"12:40", e:"13:05", n:"Немецкий"}
+                    {s:"10:10", e:"10:35", n:"Укр. лит"}, {s:"10:45", e:"11:10", n:"Алгебра"},
+                    {s:"11:20", e:"11:45", n:"Зарубежка"}, {s:"11:55", e:"12:20", n:"Информатика"},
+                    {s:"12:30", e:"12:50", n:"Немецкий"}
                 ]
             },
             quests: [
-                {q: "Формула воды?", a: ["H2O", "H20", "АШ2О"]},
+                {q: "Химия: Формула воды?", a: ["H2O", "H20"]},
                 {q: "Алгебра: Дискриминант D = ?", a: ["B2-4AC", "B^2-4AC"]},
-                {q: "Столица Украины?", a: ["КИЕВ", "KYIV"]},
-                {q: "Сколько будет 7 x 8?", a: ["56"]},
-                {q: "Физика: Сила измеряется в...?", a: ["НЬЮТОНАХ", "НЬЮТОН", "N"]}
+                {q: "Физика: Единица силы?", a: ["НЬЮТОН", "N"]},
+                {q: "Геометрия: Сумма углов треугольника?", a: ["180"]},
+                {q: "Английский: 3-я форма GO?", a: ["GONE"]}
             ]
         };
 
-        /**
-         * 2. ДВИЖОК НАВИГАЦИИ
-         */
-        const Navigation = {
-            switch: function(pageId, element) {
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                
-                document.getElementById(pageId).classList.add('active');
-                element.classList.add('active');
-                
-                if(pageId === 'page-quests') QuestManager.init();
-            }
-        };
+        const Engine = {
+            currentQuest: null,
+            solved: [],
 
-        /**
-         * 3. УПРАВЛЕНИЕ ПОГОДОЙ И СЕЗОНАМИ
-         */
-        const WorldManager = {
             init: function() {
-                const month = new Date().getMonth() + 1;
-                let season = "winter";
-                let dropChar = "❄";
-                let groundChars = ["❄", "🧊"];
-
-                if (month >= 3 && month <= 5) {
-                    season = "spring"; dropChar = "🌸"; groundChars = ["🌱", "🌿", "🌼", "🍀"];
-                } else if (month >= 6 && month <= 8) {
-                    season = "summer"; dropChar = "☀️"; groundChars = ["🌻", "🌿", "🦋", "🌸"];
-                } else if (month >= 9 && month <= 11) {
-                    season = "autumn"; dropChar = "🍂"; groundChars = ["🍁", "🍄", "🌾", "🍂"];
-                }
-
-                document.body.setAttribute('data-season', season);
-                this.startWeather(dropChar);
-                this.startGround(groundChars);
+                this.startFX();
+                this.updateClock();
+                setInterval(() => this.updateClock(), 1000);
             },
-            startWeather: function(char) {
-                const layer = document.getElementById('weather-layer');
-                for (let i = 0; i < 25; i++) {
-                    const item = document.createElement('div');
-                    item.className = 'falling-item';
-                    item.innerText = char;
-                    item.style.left = Math.random() * 100 + "vw";
-                    item.style.fontSize = Math.random() * 20 + 10 + "px";
-                    item.style.animationDuration = Math.random() * 5 + 5 + "s";
-                    item.style.animationDelay = Math.random() * 8 + "s";
-                    layer.appendChild(item);
+
+            startFX: function() {
+                const fx = document.getElementById('fx-layer');
+                const gr = document.getElementById('ground-layer');
+                // Цветы
+                for(let i=0; i<25; i++) {
+                    let d = document.createElement('div');
+                    d.className = 'flower'; d.innerText = "🌸";
+                    d.style.left = Math.random()*100+"vw";
+                    d.style.animationDuration = Math.random()*5+5+"s";
+                    d.style.animationDelay = Math.random()*5+"s";
+                    fx.appendChild(d);
+                }
+                // Трава
+                for(let i=0; i<15; i++) {
+                    let g = document.createElement('div');
+                    g.className = 'grass'; g.innerText = ["🌿","🌱","🌼"][Math.floor(Math.random()*3)];
+                    gr.appendChild(g);
                 }
             },
-            startGround: function(chars) {
-                const layer = document.getElementById('ground-layer');
-                for (let i = 0; i < 12; i++) {
-                    const plant = document.createElement('div');
-                    plant.className = 'ground-plant';
-                    plant.innerText = chars[Math.floor(Math.random() * chars.length)];
-                    layer.appendChild(plant);
-                }
-            }
-        };
 
-        /**
-         * 4. МЕНЕДЖЕР РАСПИСАНИЯ
-         */
-        const SchedManager = {
-            render: function() {
+            updateClock: function() {
                 const now = new Date();
+                document.getElementById('clock').innerText = now.toLocaleTimeString();
+                document.getElementById('date-label').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
+                this.renderSched(now);
+            },
+
+            renderSched: function(now) {
                 const day = now.getDay();
-                const curTime = now.getHours() * 60 + now.getMinutes();
-                const table = document.getElementById('table-render');
+                const curMins = now.getHours()*60 + now.getMinutes();
+                const table = document.getElementById('sched-table');
+                const lessons = CONFIG.schedule[day] || [];
                 
-                document.getElementById('live-clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                document.getElementById('live-date').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
-
-                const todayLessons = DATA.schedule[day] || [];
-                table.innerHTML = "";
-
-                if(todayLessons.length === 0) {
-                    table.innerHTML = "<tr><td style='text-align:center; opacity:0.5'>На сегодня уроков нет. Отдыхай!</td></tr>";
-                    return;
-                }
-
-                todayLessons.forEach(l => {
+                let html = "";
+                lessons.forEach(l => {
                     const [sh, sm] = l.s.split(':').map(Number);
                     const [eh, em] = l.e.split(':').map(Number);
-                    const startTotal = sh * 60 + sm;
-                    const endTotal = eh * 60 + em;
-
-                    const row = document.createElement('tr');
-                    row.className = 'sched-row';
-                    if(curTime >= startTotal && curTime <= endTotal) row.classList.add('row-active');
-                    
-                    row.innerHTML = `<td>${l.s} — ${l.e}</td><td>${l.n}</td>`;
-                    table.appendChild(row);
+                    const isActive = curMins >= (sh*60+sm) && curMins <= (eh*60+em);
+                    html += `<tr class="${isActive ? 'active-lesson' : ''}"><td>${l.s}—${l.e}</td><td>${l.n}</td></tr>`;
                 });
-            }
-        };
-
-        /**
-         * 5. СИСТЕМА КВЕСТОВ (БЕЗ ПОВТОРОВ)
-         */
-        const QuestManager = {
-            current: null,
-            solved: [],
-            
-            init: function() {
-                document.getElementById('stat-total').innerText = DATA.quests.length;
-                this.updateStats();
+                table.innerHTML = html || "<tr><td colspan='2' style='text-align:center'>Сегодня выходной!</td></tr>";
             },
 
-            updateStats: function() {
-                document.getElementById('stat-solved').innerText = this.solved.length;
+            tab: function(id, el) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.getElementById(id).classList.add('active');
+                el.classList.add('active');
             },
 
-            handleAction: function() {
-                const btn = document.getElementById('action-btn');
-                const input = document.getElementById('user-answer');
-                const feedback = document.getElementById('feedback');
-
-                if (btn.innerText === "НАЧАТЬ" || btn.innerText === "ДАЛЕЕ") {
+            questAction: function() {
+                const btn = document.getElementById('quest-btn');
+                const input = document.getElementById('ans-input');
+                
+                if(btn.innerText === "Начать" || btn.innerText === "Далее") {
                     this.nextQuest();
                 } else {
-                    this.checkAnswer();
+                    this.checkAns();
                 }
             },
 
             nextQuest: function() {
-                const pool = DATA.quests.filter(q => !this.solved.includes(q.q));
-                
+                const pool = CONFIG.quests.filter(q => !this.solved.includes(q.q));
                 if(pool.length === 0) {
-                    document.getElementById('q-box').innerText = "🏆 ТЫ КРАСАВЧИК! ВСЕ РЕШЕНО!";
-                    document.getElementById('input-zone').style.display = "none";
-                    document.getElementById('action-btn').style.display = "none";
+                    document.getElementById('q-box').innerText = "🎉 Все квесты пройдены!";
+                    document.getElementById('ans-input').style.display = "none";
+                    document.getElementById('quest-btn').style.display = "none";
                     return;
                 }
-
-                this.current = pool[Math.floor(Math.random() * pool.length)];
-                document.getElementById('q-box').innerText = this.current.q;
-                document.getElementById('input-zone').style.display = "block";
-                document.getElementById('user-answer').value = "";
-                document.getElementById('user-answer').focus();
-                document.getElementById('action-btn').innerText = "ПРОВЕРИТЬ";
-                document.getElementById('feedback').innerText = "";
+                this.currentQuest = pool[Math.floor(Math.random()*pool.length)];
+                document.getElementById('q-box').innerText = this.currentQuest.q;
+                document.getElementById('ans-input').style.display = "block";
+                document.getElementById('ans-input').value = "";
+                document.getElementById('quest-btn').innerText = "Проверить";
+                document.getElementById('hint').innerText = "";
             },
 
-            checkAnswer: function() {
-                let userVal = document.getElementById('user-answer').value.trim().toUpperCase();
+            checkAns: function() {
+                let val = document.getElementById('ans-input').value.trim().toUpperCase();
+                // Фикс русской раскладки для формул (H2O, N, B2)
+                val = val.replace(/Н/g, 'H').replace(/О/g, 'O').replace(/С/g, 'C').replace(/В/g, 'B');
                 
-                // КРИТИЧЕСКИЙ ФИКС: Замена русских букв на латынь для формул
-                userVal = userVal.replace(/Н/g, 'H').replace(/О/g, 'O').replace(/С/g, 'C').replace(/В/g, 'B').replace(/А/g, 'A');
-
-                const isCorrect = this.current.a.some(ans => {
-                    let cleanAns = ans.toUpperCase().replace(/\s/g, '');
-                    return userVal.replace(/\s/g, '') === cleanAns;
-                });
-
-                const feedback = document.getElementById('feedback');
-                if(isCorrect) {
-                    feedback.innerText = "ВЕРНО! 🔥";
-                    feedback.style.color = "var(--success)";
-                    this.solved.push(this.current.q);
-                    this.updateStats();
-                    document.getElementById('action-btn').innerText = "ДАЛЕЕ";
+                const correct = this.currentQuest.a.some(a => val === a.toUpperCase());
+                const hint = document.getElementById('hint');
+                
+                if(correct) {
+                    hint.innerText = "Правильно! 🔥"; hint.style.color = "var(--success)";
+                    this.solved.push(this.currentQuest.q);
+                    document.getElementById('quest-btn').innerText = "Далее";
                 } else {
-                    feedback.innerText = "НЕПРАВИЛЬНО. ПОПРОБУЙ ЕЩЕ! ❌";
-                    feedback.style.color = "var(--error)";
-                    document.getElementById('user-answer').classList.add('shake');
-                    setTimeout(() => document.getElementById('user-answer').classList.remove('shake'), 500);
+                    hint.innerText = "Не-а, подумай еще ❌"; hint.style.color = "var(--error)";
                 }
             }
         };
 
-        // ЗАПУСК СИСТЕМЫ
-        WorldManager.init();
-        SchedManager.render();
-        setInterval(() => SchedManager.render(), 10000); // Обновлять расписание каждые 10 сек
-
+        Engine.init();
     </script>
 </body>
 </html>
