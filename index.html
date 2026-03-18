@@ -3,55 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub - Final Version</title>
+    <title>StudyHub - Final</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root { --bg: #064e3b; --accent: #4ade80; --text: #f8fafc; --card: rgba(15, 23, 42, 0.9); }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--text); min-height: 100vh; }
-        
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
         .container { max-width: 500px; margin: 0 auto; padding: 20px 20px 100px; position: relative; z-index: 10; }
         .glass { background: var(--card); backdrop-filter: blur(10px); border-radius: 24px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
-        
-        .page { display: none; animation: fadeIn 0.3s ease; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
-
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .btn-main { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: bold; cursor: pointer; font-size: 1rem; margin-top: 10px; }
-        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #1e293b; display: flex; border-top: 1px solid rgba(255,255,255,0.1); }
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #1e293b; display: flex; border-top: 1px solid rgba(255,255,255,0.1); z-index: 100; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; color: #64748b; cursor: pointer; }
         .nav-item.active { color: var(--accent); }
         .nav-item span { font-size: 1.5rem; }
-
-        .course-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; margin-top: 10px; border-left: 4px solid var(--accent); text-align: left; }
-        #fx-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .course-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; margin-top: 10px; border-left: 4px solid var(--accent); text-align: left; }
+        #fx { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         .flower { position: absolute; top: -10%; animation: fall linear infinite; font-size: 20px; }
         @keyframes fall { 0% { transform: translateY(0vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
     </style>
 </head>
 <body>
 
-<div id="fx-layer"></div>
+<div id="fx"></div>
 
 <div class="container">
     <div id="p-home" class="page active">
         <div class="glass">
-            <h1 id="clock" style="font-size: 3.5rem; margin: 0;">00:00</h1>
-            <p id="date" style="opacity: 0.7; text-transform: capitalize;"></p>
+            <h1 id="clock" style="font-size: 3rem; margin: 0;">00:00</h1>
+            <p id="date" style="opacity: 0.7"></p>
         </div>
-        <div class="glass">
-            <h3>Твои уроки на сегодня:</h3>
-            <div id="today-sched">Среда: Химия, Укр.лит, Алгебра...</div>
-        </div>
+        <div class="glass"><h3>Твой StudyHub готов! 🚀</h3><p>Переходи во вкладку "КЛАССЫ" для входа.</p></div>
     </div>
 
     <div id="p-class" class="page">
         <div class="glass">
             <h2>Google Classroom</h2>
-            <div id="auth-section">
-                <p>Нужно войти, чтобы увидеть задания</p>
-                <button class="btn-main" onclick="App.login()">ВОЙТИ ЧЕРЕЗ GOOGLE</button>
+            <div id="auth-box">
+                <button class="btn-main" onclick="App.login()">ВОЙТИ В АККАУНТ</button>
             </div>
-            <div id="course-list"></div>
+            <div id="courses-list"></div>
         </div>
     </div>
 </div>
@@ -62,40 +54,33 @@
 </nav>
 
 <script>
-    // Твой проверенный ID
     const CLIENT_ID = '747337328453-jdr5ok0n0q6sls2seodq6r0j3adeh7s.apps.googleusercontent.com';
 
     const App = {
         init() {
-            this.updateTime();
-            setInterval(() => this.updateTime(), 1000);
+            this.tick();
+            setInterval(() => this.tick(), 1000);
             this.flowers();
         },
-
-        updateTime() {
+        tick() {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-            document.getElementById('date').innerText = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
+            document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('date').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
         },
-
         tab(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             el.classList.add('active');
         },
-
         flowers() {
-            const fx = document.getElementById('fx-layer');
+            const fx = document.getElementById('fx');
             for(let i=0; i<15; i++) {
-                let f = document.createElement('div'); f.className = 'flower'; f.innerText = '🌸';
-                f.style.left = Math.random() * 100 + 'vw';
-                f.style.animationDuration = (Math.random() * 5 + 5) + 's';
-                f.style.animationDelay = (Math.random() * 5) + 's';
+                let f = document.createElement('div'); f.className='flower'; f.innerText='🌸';
+                f.style.left = Math.random()*100+'vw'; f.style.animationDuration = (Math.random()*5+5)+'s';
                 fx.appendChild(f);
             }
         },
-
         login() {
             const client = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
@@ -108,32 +93,23 @@
             });
             client.requestAccessToken({ prompt: 'select_account' });
         },
-
         async loadCourses(token) {
-            const list = document.getElementById('course-list');
-            list.innerHTML = "Загружаю данные...";
+            const list = document.getElementById('courses-list');
+            list.innerHTML = "Загрузка предметов...";
             try {
-                const response = await fetch('https://classroom.googleapis.com/v1/courses', {
+                const res = await fetch('https://classroom.googleapis.com/v1/courses', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const data = await response.json();
+                const data = await res.json();
                 if (data.courses) {
-                    document.getElementById('auth-section').style.display = 'none';
-                    list.innerHTML = data.courses.map(c => `
-                        <div class="course-item">
-                            <div style="font-weight:bold">${c.name}</div>
-                            <div style="font-size:0.8rem; opacity:0.6">${c.section || 'Учебный курс'}</div>
-                        </div>
-                    `).join('');
+                    document.getElementById('auth-box').style.display = 'none';
+                    list.innerHTML = data.courses.map(c => `<div class="course-card"><b>${c.name}</b></div>`).join('');
                 } else {
-                    list.innerHTML = "Курсы не найдены.";
+                    list.innerHTML = "У тебя нет созданных курсов.";
                 }
-            } catch (e) {
-                list.innerHTML = "Ошибка загрузки данных.";
-            }
+            } catch (e) { list.innerHTML = "Ошибка связи."; }
         }
     };
-
     App.init();
 </script>
 </body>
