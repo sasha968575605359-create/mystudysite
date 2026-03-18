@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub Live</title>
+    <title>StudyHub Full Edition</title>
     <style>
         :root { --bg: #0f172a; --text: #f8fafc; --accent: #38bdf8; --card-bg: rgba(30, 41, 59, 0.8); }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 80px; transition: 0.5s; color: var(--text); background: var(--bg); min-height: 100vh; overflow-x: hidden; }
@@ -24,9 +24,9 @@
         .nav-btn { flex: 1; padding: 15px; text-align: center; cursor: pointer; color: #94a3b8; background: none; border: none; font-weight: bold; }
         .nav-btn.active { color: var(--accent); background: rgba(255,255,255,0.05); }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
         td, th { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
-        .highlight { color: var(--accent); font-weight: bold; border-left: 4px solid var(--accent); }
+        .highlight { color: #000 !important; background: var(--accent) !important; font-weight: bold; border-radius: 5px; }
 
         /* Темы фона */
         [data-theme="spring"] { --bg: #064e3b; --accent: #4ade80; }
@@ -45,13 +45,13 @@
             <h2 id="day-now">Загрузка...</h2>
             <h1 id="lesson-text">Уроков сейчас нет</h1>
         </div>
-        <div class="card">
+        <div class="card" style="padding: 10px;">
             <table id="schedule-body"></table>
         </div>
     </div>
 
     <div id="p-cards" class="page">
-        <h1>Карточки 8-А</h1>
+        <h1>Квесты 8-А</h1>
         <div class="card">
             <div id="q-text" style="font-size: 1.2rem; margin-bottom: 15px;">Нажми, чтобы начать!</div>
             <input type="text" id="ans-input" class="input-box" style="display:none" placeholder="Твой ответ...">
@@ -62,7 +62,7 @@
 
     <div id="p-google" class="page">
         <h1>Classroom</h1>
-        <div class="card"><p>Тут будут задания из Google...</p></div>
+        <div class="card"><p>Тут будут задания из Classroom.</p></div>
     </div>
 </div>
 
@@ -73,24 +73,51 @@
 </nav>
 
 <script>
-    // Данные расписания
+    // --- ПОЛНОЕ РАСПИСАНИЕ ---
     const fullSchedule = {
-        1: [{s:"09:00", e:"09:25", n:"Алгебра"}, {s:"09:35", e:"10:00", n:"География"}],
-        2: [{s:"09:00", e:"09:25", n:"Англ"}, {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}],
-        3: [{s:"09:00", e:"09:25", n:"Химия"}, {s:"11:55", e:"12:20", n:"Англ"}],
-        4: [{s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}],
-        5: [{s:"09:00", e:"09:25", n:"Физра"}]
+        1: [ // Понедельник
+            {s:"09:00", e:"09:25", n:"Алгебра"}, {s:"09:35", e:"10:00", n:"География"},
+            {s:"10:10", e:"10:35", n:"Укр. мова"}, {s:"10:55", e:"11:20", n:"Биология"},
+            {s:"11:30", e:"11:55", n:"Укр. мова"}, {s:"12:05", e:"12:30", n:"Химия"},
+            {s:"12:40", e:"13:05", n:"Информатика"}
+        ],
+        2: [ // Вторник
+            {s:"09:00", e:"09:25", n:"Англ. мова"}, {s:"09:35", e:"10:00", n:"Геометрия"},
+            {s:"10:10", e:"10:35", n:"Физика"}, {s:"10:55", e:"11:20", n:"Укр. мова"},
+            {s:"11:30", e:"11:55", n:"Биология"}, {s:"12:05", e:"12:30", n:"Муз/Рис"},
+            {s:"12:40", e:"13:05", n:"Физра"}, {s:"13:15", e:"13:40", n:"Гром. освіта"},
+            {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}
+        ],
+        3: [ // Среда
+            {s:"09:00", e:"09:25", n:"Химия"}, {s:"09:35", e:"10:00", n:"Основы здоровья"},
+            {s:"10:10", e:"10:35", n:"Укр. лит"}, {s:"10:55", e:"11:20", n:"Алгебра"},
+            {s:"11:30", e:"11:55", n:"История Укр"}, {s:"12:05", e:"12:30", n:"Англ. мова"},
+            {s:"12:40", e:"13:05", n:"География"}, {s:"13:15", e:"13:40", n:"Биология"}
+        ],
+        4: [ // Четверг
+            {s:"09:00", e:"09:25", n:"Геометрия"}, {s:"09:35", e:"10:00", n:"Физика"},
+            {s:"10:10", e:"10:35", n:"Физра"}, {s:"10:55", e:"11:20", n:"Всемирка"},
+            {s:"11:30", e:"11:55", n:"Технологии"}, {s:"12:05", e:"12:30", n:"Англ. мова"},
+            {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}
+        ],
+        5: [ // Пятница
+            {s:"09:00", e:"09:25", n:"Физра"}, {s:"09:35", e:"10:00", n:"Укр. мова"},
+            {s:"10:10", e:"10:35", n:"Укр. лит"}, {s:"10:55", e:"11:20", n:"Алгебра"},
+            {s:"11:30", e:"11:55", n:"Зарубежка"}, {s:"12:05", e:"12:30", n:"Информатика"},
+            {s:"12:40", e:"13:05", n:"Немецкий"}
+        ]
     };
 
     const cardsBase = [
         {q: "Алгебра: Дискриминант D = b² - ... ?", a: "4ac"},
         {q: "Физика: Единица измерения силы?", a: "ньютон"},
-        {q: "Химия: Формула воды?", a: "h2o"}
+        {q: "Химия: Формула воды?", a: "h2o"},
+        {q: "Геометрия: Сумма углов треугольника?", a: "180"},
+        {q: "Английский: 3-я форма глагола GO?", a: "gone"}
     ];
 
     let currentCard = null;
 
-    // Вкладки
     function tab(id, btn) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -98,17 +125,14 @@
         btn.classList.add('active');
     }
 
-    // Живой фон
     function initFX() {
         const now = new Date();
         const month = now.getMonth() + 1;
         const layer = document.getElementById('fx-layer');
         let char = "❄"; let theme = "winter";
-
         if (month >= 3 && month <= 5) { theme="spring"; char="🌸"; }
         else if (month >= 6 && month <= 8) { theme="summer"; char="☀️"; }
         else if (month >= 9 && month <= 11) { theme="autumn"; char="🍂"; }
-        
         document.body.setAttribute('data-theme', theme);
         for (let i = 0; i < 25; i++) {
             let d = document.createElement('div');
@@ -120,11 +144,12 @@
         }
     }
 
-    // Обновление расписания
     function update() {
         const now = new Date();
         const day = now.getDay();
-        const time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        const hour = now.getHours().toString().padStart(2,'0');
+        const min = now.getMinutes().toString().padStart(2,'0');
+        const currentTime = hour + ":" + min;
         
         document.getElementById('day-now').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', hour:'2-digit', minute:'2-digit'});
         
@@ -134,7 +159,7 @@
         let found = false;
         (fullSchedule[day] || []).forEach(l => {
             let row = table.insertRow();
-            if (time >= l.s && time <= l.e) {
+            if (currentTime >= l.s && currentTime <= l.e) {
                 row.className = "highlight";
                 document.getElementById('lesson-text').innerText = "Сейчас: " + l.n;
                 found = true;
@@ -144,22 +169,17 @@
         if(!found) document.getElementById('lesson-text').innerText = "Уроков сейчас нет";
     }
 
-    // Карточки
     function nextCard() {
         const btn = document.getElementById('card-btn');
         const input = document.getElementById('ans-input');
         const msg = document.getElementById('msg');
-
         if (btn.innerText === "Проверить") {
             if (input.value.toLowerCase().trim() === currentCard.a) {
                 msg.innerText = "🔥 Верно!"; msg.style.color = "var(--accent)";
                 btn.innerText = "Взять еще"; input.style.display = "none";
-            } else {
-                msg.innerText = "❌ Попробуй еще"; msg.style.color = "red";
-            }
+            } else { msg.innerText = "❌ Попробуй еще"; msg.style.color = "red"; }
             return;
         }
-
         currentCard = cardsBase[Math.floor(Math.random() * cardsBase.length)];
         document.getElementById('q-text').innerText = currentCard.q;
         input.style.display = "block"; input.value = "";
