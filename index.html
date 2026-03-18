@@ -3,88 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub Ultimate</title>
+    <title>StudyHub Ultimate Live</title>
     <style>
-        /* --- БАЗОВЫЕ НАСТРОЙКИ (не меняются) --- */
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 100px; transition: 0.5s; background: var(--bg); color: var(--text); }
-        .container { padding: 20px; max-width: 500px; margin: 0 auto; }
+        /* --- БАЗОВЫЕ НАСТРОЙКИ (НЕ МЕНЯЮТСЯ) --- */
+        :root { --nav-bg: #1e293b; --text: #f8fafc; --accent: #38bdf8; --border: #334155; --card-bg: rgba(30, 41, 59, 0.85); }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 100px; transition: 0.5s; color: var(--text); background: var(--bg); position: relative; min-height: 100vh; }
+        
+        /* Слой для фоновых эффектов */
+        #bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; }
+
+        .container { padding: 20px; max-width: 500px; margin: 0 auto; position: relative; z-index: 10; }
         .page { display: none; }
         .page.active { display: block; }
-        .card { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 15px; text-align: center; transition: 0.3s; }
-        .btn-main { background: var(--accent); color: var(--btn-text); border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; font-size: 1rem; }
-        .input-box { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--accent); background: rgba(0,0,0,0.2); color: var(--text); box-sizing: border-box; }
+        
+        .card { background: var(--card-bg); padding: 15px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 15px; text-align: center; backdrop-filter: blur(5px); }
+        .btn-main { background: var(--accent); color: #000; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; font-size: 1rem; transition: 0.2s; }
+        .btn-main:hover { opacity: 0.8; }
+        .input-box { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--accent); background: rgba(0,0,0,0.3); color: var(--text); box-sizing: border-box; }
         
         /* Нижнее меню */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; border-top: 2px solid var(--accent); z-index: 1000; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); display: flex; border-top: 2px solid var(--accent); z-index: 1000; }
         .nav-btn { flex: 1; padding: 15px 5px; text-align: center; cursor: pointer; font-weight: bold; color: #94a3b8; border: none; background: none; font-size: 0.75rem; }
         .nav-btn.active { color: var(--accent); background: rgba(255,255,255,0.05); }
 
-        /* Элементы расписания */
+        /* Расписание */
         #schedule-box div { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
-        #schedule-box .now { border-left: 5px solid var(--accent); background: rgba(255,255,255,0.05); font-weight: bold; color: var(--accent); }
+        #schedule-box .now { border-left: 5px solid var(--accent); background: rgba(255,255,255,0.05); color: var(--accent); font-weight: bold; }
+        #schedule-box .extra { color: var(--accent); font-style: italic; opacity: 0.8; }
 
         /* ========================================= */
-        /* --- СЕЗОННЫЕ ТЕМЫ (НАСТРОЙКИ ЦВЕТОВ) --- */
+        /* --- АНИМАЦИИ И ЭФФЕКТЫ (NEW!) --- */
         /* ========================================= */
 
-        /* 🔵 1. СТАНДАРТНАЯ (Твоя текущая) */
-        :root, [data-theme="default"] {
-            --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #38bdf8; --border: #334155; --btn-text: #0f172a; --success: #22c55e;
+        /* ❄️ Снегопад (Зима/НГ) */
+        .snowflake { position: absolute; background: white; border-radius: 50%; opacity: 0.8; animation: fall linear infinite; pointer-events: none; }
+        @keyframes fall { to { transform: translateY(100vh); } }
+
+        /* 🍂 Листопад (Осень) */
+        .leaf { position: absolute; color: #f59e0b; opacity: 0.8; animation: leaf-fall linear infinite; pointer-events: none; font-size: 1.2rem; }
+        @keyframes leaf-fall { 
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
 
-        /* 🎃 2. ХЕЛЛОУИН (Октябрь/Ноябрь) */
-        [data-theme="halloween"] {
-            --bg: #000000; --card: #111111; --text: #ffffff; --accent: #ff6600; --border: #444444; --btn-text: #000000; --success: #8800ff;
-        }
-        [data-theme="halloween"] .btn-main:hover { box-shadow: 0 0 15px #ff6600; }
-
-        /* ❄️ 3. НОВЫЙ ГОД (Декабрь/Январь) */
-        [data-theme="newyear"] {
-            --bg: #e0f2fe; --card: #ffffff; --text: #1e293b; --accent: #ef4444; --border: #bae6fd; --btn-text: #ffffff; --success: #16a34a;
-        }
-        [data-theme="newyear"] body { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZyBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNiYWU2ZmQiIGZpbGwtb3BhY2l0eT0iMC4zIj48cGF0aCBkPSJNMCAwaDR2NGgwVjB6bTQgNGg0djRoMFY0em00IDRoNHY0aDBWOHptNCA0aDR2NGgwVjEyek0wIDRoNHY0aDBWNHptNCA0hDR2vNGgwVjh6bTQgNGg0djRoMFYxMnpNMCA4aDR2NGgwVjh6bTQgNGg0djRoMFYxMnpNMCAxMmg0djRoMFYxMnoiLz48L2c+PC9nPjwvc3ZnPg=='); }
-
-        /* 💖 4. ДЕНЬ ВЛЮБЛЕННЫХ (Февраль) */
-        [data-theme="love"] {
-            --bg: #2d0a13; --card: #4c1d24; --text: #ffe4e6; --accent: #f43f5e; --border: #881337; --btn-text: #ffffff; --success: #f472b6;
+        /* 🦇 Летучие мыши (Хеллоуин) */
+        .bat { position: absolute; color: #555; animation: bat-fly linear infinite; pointer-events: none; font-size: 1.5rem; }
+        @keyframes bat-fly {
+            0% { transform: translate(-50px, 50px) scaleX(1); opacity: 0; }
+            10% { opacity: 0.8; }
+            50% { transform: translate(50vw, 0px) scaleX(-1); }
+            90% { opacity: 0.8; }
+            100% { transform: translate(105vw, 50px) scaleX(1); opacity: 0; }
         }
 
-        /* 🎖️ 5. 23 ФЕВРАЛЯ (Конец Февраля) */
-        [data-theme="military"] {
-            --bg: #252a1e; --card: #3f4a32; --text: #e0e7d8; --accent: #a3b18a; --border: #58614c; --btn-text: #1a1d14; --success: #bfdbfe;
-        }
+        /* 🎄 Гирлянда (Новый Год) */
+        #lights { position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, #ff0000 25%, #00ff00 25%, #00ff00 50%, #0000ff 50%, #0000ff 75%, #ffff00 75%); background-size: 20px 5px; animation: glow 1s linear infinite; z-index: 1001; display: none; }
+        @keyframes glow { from { background-position: 0 0; } to { background-position: 20px 0; } }
 
-        /* 🌱 6. ВЕСНА/ЛЕТО (Март - Август) */
-        [data-theme="summer"] {
-            --bg: #f0fdf4; --card: #ffffff; --text: #166534; --accent: #16a34a; --border: #bbf7d0; --btn-text: #ffffff; --success: #15803d;
-        }
+        /* ========================================= */
+        /* --- СЕЗОННЫЕ ТЕМЫ (ЦВЕТА И ФОНЫ) --- */
+        /* ========================================= */
+
+        /* 🌱 2. ВЕСНА (Цветы и зелень) */
+        [data-theme="spring"] { --bg: #f0fdf4; --text: #166534; --accent: #16a34a; --border: #bbf7d0; --card-bg: rgba(255,255,255,0.85); --nav-bg: #f0fdf4; }
+        [data-theme="spring"] #bg-overlay { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZyBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMxNmEzNGEiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMCAwaDR2NGgwVjB6bTQgNGg0djRoMFY0em00IDRoNHY0aDBWOHptNCA0aDR2NGgwVjEyek0wIDRoNHY0aDBWNHptNCA0hDR2vNGgwVjh6bTQgNGg0djRoMFYxMnpNMCA8aDR2NGgwVjh6bTQgNGg0djRoMFYxMnpNMCAxMmg0djRoMFYxMnoiLz48L2c+PC9nPjwvc3ZnPg=='); }
+
+        /* ☀️ 3. ЛЕТО (Небо и бабочки) */
+        [data-theme="summer"] { --bg: #fffbeb; --text: #854d0e; --accent: #f59e0b; --border: #fef3c7; --card-bg: rgba(255,255,255,0.85); --nav-bg: #fffbeb; }
+        [data-theme="summer"] #bg-overlay { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZyBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmNTllMGIiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTI5IDI4YzEtMSAxLTMgMC00bC02LTZsNi02YzEtMSAxLTMgMC00 Dietary Restricted --><div class="wz-sc wz-sc-restrict restriction restriction-text">... (svg too long, cut to keep post valid) ...</div>'); }
+
+        /* 🍂 4. ОСЕНЬ (Золотая) */
+        [data-theme="autumn"] { --bg: #fff7ed; --text: #9a3412; --accent: #ea580c; --border: #ffedd5; --card-bg: rgba(255,255,255,0.85); --nav-bg: #fff7ed; }
+
+        /* 🎃 5. ХЕЛЛОУИН */
+        [data-theme="halloween"] { --bg: #000000; --text: #ffffff; --accent: #ff6600; --border: #444444; --card-bg: rgba(17,17,17,0.9); --nav-bg: #000; }
+
+        /* ❄️ 6. ЗИМА (Снегопад) */
+        [data-theme="winter"] { --bg: #f0f9ff; --text: #075985; --accent: #0284c7; --border: #e0f2fe; --card-bg: rgba(255,255,255,0.85); --nav-bg: #f0f9ff; }
+
+        /* 🎄 7. НОВЫЙ ГОД */
+        [data-theme="newyear"] { --bg: #111827; --text: #f9fafb; --accent: #ef4444; --border: #374151; --card-bg: rgba(31, 41, 55, 0.9); --nav-bg: #111827; }
+
+        /* 💖 8. ЛЮБОВЬ */
+        [data-theme="love"] { --bg: #fff1f2; --text: #9f1239; --accent: #e11d48; --border: #fecdd3; --card-bg: rgba(255,255,255,0.85); --nav-bg: #fff1f2; }
+        [data-theme="love"] #bg-overlay { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj48ZyBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNlMTFkNDgiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMCAzLjI1QzEwIDMuMjUgOC41IDEuNSA2IDEuNUMzLjUgMS41IDEuNSAzLjUgMS41IDZDMS41IDguNSA0LjUgMTAuNSAxMCAxNkMxNS41IDEwLjUgMTguNSA4LjUgMTguNSA2QzE4LjUgMy41IDE2LjUgMS41IDE0IDEuNUMxMS41IDEuNSAxMCAzLjI1IDEwIDMuMjVaIvPjwvZz48L2c+PC9zdmc+'); }
+
+        /* 🎖️ 9. МИЛИТАРИ */
+        [data-theme="military"] { --bg: #2d302a; --text: #e7e9e4; --accent: #a3b18a; --border: #4a513f; --card-bg: rgba(58, 65, 49, 0.9); --nav-bg: #2d302a; }
+        [data-theme="military"] #bg-overlay { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZyBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNhM2IxOGEiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMCAwaDR2NGgwVjB6bTQgNGg0djRoMFY0em00IDRoNHY0aDBWOHptNCA0aDR2NGgwVjEyek0wIDRoNHY0aDBWNHptNCA0hDR2vNGgwVjh6bTQgNGg0djRoMFYxMnpNMCA8aDR2NGgwVjh6bTQgNGg0djRoMFYxMnpNMCAxMmg0djRoMFYxMnoiLz48L2c+PC9nPjwvc3ZnPg=='); }
+        
+        /* 🔵 1. ДЕФОЛТНАЯ */
+        :root, [data-theme="default"] { --bg: #0f172a; --nav-bg: #1e293b; --text: #f8fafc; --accent: #38bdf8; --border: #334155; --card-bg: rgba(30, 41, 59, 0.85); }
+
     </style>
 </head>
 <body>
 
+<div id="bg-overlay"></div>
+<div id="lights"></div>
+
 <div class="container">
     <div id="p-sched" class="page active">
         <h1 id="sched-title">📅 Сегодня</h1>
-        <div id="clock" style="font-weight: bold; margin-bottom: 15px; opacity: 0.7;"></div>
+        <div id="clock" style="font-weight: bold; margin-bottom: 15px; opacity: 0.7; text-align: center;">--:--:--</div>
         <div id="schedule-box" class="card" style="padding: 0; text-align: left;"></div>
     </div>
 
     <div id="p-cards" class="page">
-        <h1>🎯 Квесты</h1>
+        <h1>🎯 Бесконечные Квесты</h1>
         <div class="card">
-            <div id="q-text" style="font-size: 1.1rem; margin-bottom: 15px; min-height: 50px;">Нажми, чтобы взять карточку</div>
+            <div id="q-text" style="font-size: 1.1rem; margin-bottom: 15px; min-height: 50px; color: var(--text);">Нажми, чтобы взять карточку</div>
             <input type="text" id="ans-input" class="input-box" style="display:none" placeholder="Ответ...">
             <button id="card-btn" onclick="nextCard()" class="btn-main">Взять карточку</button>
             <p id="msg" style="margin-top: 10px; font-weight: bold;"></p>
         </div>
-        <div style="text-align: center; opacity: 0.6; font-size: 0.8rem;">Решено: <span id="total-done">0</span></div>
+        <div style="text-align: center; opacity: 0.6; font-size: 0.8rem;">Авто-задание: <span id="auto-status">ожидание...</span> | Решено: <span id="total-done">0</span></div>
     </div>
 
     <div id="p-google" class="page">
         <h1>🏫 Classroom</h1>
         <div class="card">
             <p>Скоро здесь будут твои реальные дедлайны из Google Classroom.</p>
-            <p style="font-size: 0.8rem; opacity: 0.7;">Жду команду на подключение API!</p>
+            <p style="font-size: 0.8rem; opacity: 0.7;">Жду твою команду на подключение API!</p>
         </div>
     </div>
 </div>
@@ -96,66 +137,230 @@
 </nav>
 
 <script>
-    // --- ДАННЫЕ (Твои уроки и карточки) ---
+    // ==========================================
+    // --- ДАННЫЕ (Уроки и Карточки) ---
+    // ==========================================
     const scheduleData = {
         1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
-        2: ["Англ", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис", "Физра", "Гром. освіта"],
+        2: ["Англ", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис", "Физра", "Гром. освіта"], // Вторник
         3: ["Химия", "Основы здоровья", "Укр. лит", "Алгебра", "История Укр", "Англ", "География", "Биология"],
         4: ["Геометрия", "Физика", "Физра", "Всемирка", "Технологии", "Англ"],
         5: ["Физра", "Укр. язык", "Укр. лит", "Алгебра", "Зарубежка", "Информатика", "Немецкий"]
     };
 
-    const cardsData = [
+    const baseCards = [
         {id:1, q:"Алгебра: Дискриминант D = b² - ... ?", a:"4ac"},
         {id:2, q:"Физика: Единица измерения силы?", a:"ньютон"},
-        {id:3, q:"Геометрия: Площадь квадрата со стороной 5?", a:"25"},
-        {id:4, q:"Химия: Валентность Кислорода (O)?", a:"2"},
-        {id:5, q:"Англ: 3-я форма глагола 'Go'?", a:"gone"}
+        {id:3, q:"Химия: Формула воды?", a:"h2o"}
     ];
 
     let solvedIds = JSON.parse(localStorage.getItem('solved_ids') || "[]");
     let currentQ = null;
+    let autoTaskTimer = null; // Таймер для бесконечных заданий
 
     // ==========================================
-    // --- 🧠 ЛОГИКА АВТО-ТЕМ (NEW!) ---
+    // --- 🧠 ЛОГИКА АВТО-ТЕМ И ЭФФЕКТОВ ---
     // ==========================================
-    function setTheme() {
+    function initLiveTheme() {
         const now = new Date();
-        const month = now.getMonth() + 1; // Январь - 1, Декабрь - 12
+        const month = now.getMonth() + 1; // Январь - 1
         const day = now.getDate();
-        const html = document.documentElement;
+        const overlay = document.getElementById('bg-overlay');
+        const lights = document.getElementById('lights');
         let theme = 'default';
         let title = '📅 Сегодня';
 
-        // 1. Праздники (приоритет)
-        if (month === 12 || month === 1) {
-            theme = 'newyear';
-            title = '🎄 С Новым Годом!';
-        } 
-        else if (month === 2 && day >= 10 && day <= 16) {
-            theme = 'love';
-            title = '💖 Study & Love';
-        }
-        else if (month === 2 && day >= 20 && day <= 25) {
-            theme = 'military';
-            title = '🎖️ С 23 Февраля!';
-        }
-        else if (month === 10 && day >= 25 || month === 11 && day <= 5) {
-            theme = 'halloween';
-            title = '🎃 Study or Treat?';
-        }
-        // 2. Сезоны (если нет праздников)
-        else if (month >= 3 && month <= 8) {
-            theme = 'summer';
-            title = '🌱 Весна/Лето';
-        }
+        // 1. Определение Темы
+        // Праздники
+        if (month === 10 && day >= 25 || month === 11 && day <= 5) { theme = 'halloween'; title = '🎃 Study or Treat?'; }
+        else if (month === 12 && day >= 20 || month === 1 && day <= 10) { theme = 'newyear'; title = '🎄 С Новым Годом!'; }
+        else if (month === 2 && day >= 10 && day <= 16) { theme = 'love'; title = '💖 StudyHub Love'; }
+        else if (month === 2 && day >= 20 && day <= 25) { theme = 'military'; title = '🎖️ С 23 Февраля!'; }
+        // Сезоны
+        else if (month >= 3 && month <= 5) theme = 'spring';
+        else if (month >= 6 && month <= 8) theme = 'summer';
+        else if (month >= 9 && month <= 10) theme = 'autumn'; // Осень только до хеллоуина
+        else if (month === 11 || month <= 2) theme = 'winter'; // Ноябрь и зима - снегопад
 
-        html.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-theme', theme);
         document.getElementById('sched-title').innerText = title;
-        console.log(`Установлена тема: ${theme}`);
+
+        // 2. Запуск фоновых спецэффектов
+        overlay.innerHTML = ''; // Очистка старых эффектов
+        lights.style.display = 'none';
+
+        if (theme === 'winter' || theme === 'newyear') {
+            createSnow(50); // Снегопад
+            if (theme === 'newyear') lights.style.display = 'block'; // Включить гирлянду
+        } 
+        else if (theme === 'autumn') {
+            createLeaves(30); // Листопад
+        }
+        else if (theme === 'halloween') {
+            createBats(5); // Летучие мыши
+        }
     }
 
-    // --- ОСТАЛЬНАЯ ЛОГИКА (Вкладки, Уроки, Карточки) ---
+    // Вспомогательные функции для анимаций
+    function createSnow(count) {
+        const overlay = document.getElementById('bg-overlay');
+        for (let i = 0; i < count; i++) {
+            const snow = document.createElement('div');
+            snow.className = 'snowflake';
+            snow.style.left = Math.random() * 100 + 'vw';
+            snow.style.width = snow.style.height = Math.random() * 5 + 3 + 'px';
+            snow.style.animationDuration = Math.random() * 3 + 2 + 's'; // 2-5 секунд падения
+            snow.style.animationDelay = Math.random() * 5 + 's';
+            overlay.appendChild(snow);
+        }
+    }
+
+    function createLeaves(count) {
+        const overlay = document.getElementById('bg-overlay');
+        const leafChars = ['🍂', '🍁', '🍃'];
+        for (let i = 0; i < count; i++) {
+            const leaf = document.createElement('div');
+            leaf.className = 'leaf';
+            leaf.innerText = leafChars[Math.floor(Math.random() * leafChars.length)];
+            leaf.style.left = Math.random() * 100 + 'vw';
+            leaf.style.animationDuration = Math.random() * 5 + 5 + 's'; // 5-10 секунд
+            leaf.style.animationDelay = Math.random() * 10 + 's';
+            overlay.appendChild(leaf);
+        }
+    }
+
+    function createBats(count) {
+        const overlay = document.getElementById('bg-overlay');
+        for (let i = 0; i < count; i++) {
+            const bat = document.createElement('div');
+            bat.className = 'bat';
+            bat.innerText = '🦇';
+            bat.style.top = Math.random() * 50 + 'vh';
+            bat.style.animationDuration = Math.random() * 10 + 10 + 's'; // 10-20 секунд полета
+            bat.style.animationDelay = Math.random() * 15 + 's';
+            overlay.appendChild(bat);
+        }
+    }
+
+    // ==========================================
+    // --- 🗓️ ЛОГИКА РАСПИСАНИЯ (+ДОП. АНГЛ) ---
+    // ==========================================
+    function updateSched() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString();
+        
+        const day = now.getDay(); // 0-Вс, 1-Пн...
+        const m = now.getHours() * 60 + now.getMinutes();
+        const box = document.getElementById('schedule-box');
+        box.innerHTML = "";
+        
+        // 1. Основные уроки
+        (scheduleData[day] || []).forEach((name, i) => {
+            const start = 540 + (i * 35); // Старт в 9:00, уроки 25, перемены 10
+            const end = start + 25;
+            createSchedItem(box, name, start, end, m, false);
+        });
+
+        // 2. Дополнительные уроки (ВТ и ЧТ)
+        if (day === 2 || day === 4) { // 2-Вторник, 4-Четверг
+            // Доп. Английский: 16:00 (960 мин) - 17:00 (1020 мин)
+            createSchedItem(box, "🇬🇧 Доп. Английский", 960, 1020, m, true);
+        }
+    }
+
+    function createSchedItem(box, name, start, end, currentMin, isExtra) {
+        const item = document.createElement('div');
+        if (isExtra) item.className = 'extra'; // Доп. урок
+        if (currentMin >= start && currentMin < end) item.className += ' now'; // Идет сейчас
+        
+        const formatTime = (time) => `${Math.floor(time/60)}:${(time%60).toString().padStart(2,'0')}`;
+        item.innerHTML = `<span>${name}</span> <span>${formatTime(start)}</span>`;
+        box.appendChild(item);
+    }
+
+    // ==========================================
+    // --- 🎯 ЛОГИКА БЕСКОНЕЧНЫХ КВЕСТОВ ---
+    // ==========================================
+    function nextCard() {
+        const input = document.getElementById('ans-input');
+        const btn = document.getElementById('card-btn');
+        const msg = document.getElementById('msg');
+        const status = document.getElementById('auto-status');
+
+        if (btn.innerText === "Проверить" || btn.innerText === "Выполнено!") {
+            let isCorrect = false;
+            
+            // Если карточка из базы, проверяем ответ
+            if (currentQ.a) {
+                let userAns = input.value.toLowerCase().trim().replace(/\s+/g, ''); 
+                if (userAns === currentQ.a.toLowerCase()) isCorrect = true;
+            } else {
+                // Если авто-задание (текстовое), просто засчитываем
+                isCorrect = true;
+            }
+
+            if (isCorrect) {
+                msg.innerText = "🔥 Верно!";
+                msg.style.color = "var(--success)";
+                if (currentQ.a) solvedIds.push(currentQ.id); // Базовые сохраняем
+                localStorage.setItem('solved_ids', JSON.stringify(solvedIds));
+                btn.innerText = "Взять квест";
+                input.style.display = "none";
+                updateSolvedCount();
+                
+                // Запуск таймера для бесконечных заданий
+                status.innerText = "60с";
+                if(autoTaskTimer) clearTimeout(autoTaskTimer);
+                autoTaskTimer = setTimeout(generateAndShowAutoTask, 60000); // Через 60 сек
+            } else {
+                msg.innerText = "❌ Не-а, подумай еще";
+                msg.style.color = "#ef4444";
+            }
+            return;
+        }
+
+        // --- Выдача новой карточки ---
+        // 1. Сначала пытаемся выдать из основной базы
+        const available = baseCards.filter(c => !solvedIds.includes(c.id));
+        
+        if (available.length > 0) {
+            currentQ = available[Math.floor(Math.random() * available.length)];
+            input.style.display = "block";
+            btn.innerText = "Проверить";
+            status.innerText = "ожидание...";
+        } else {
+            // 2. Если база кончилась, генерируем бесконечное задание
+            generateAndShowAutoTask();
+        }
+
+        document.getElementById('q-text').innerText = currentQ.q;
+        input.value = "";
+        msg.innerText = "";
+    }
+
+    function generateAndShowAutoTask() {
+        if(autoTaskTimer) clearTimeout(autoTaskTimer); // Сбросить таймер, если решили сами
+        
+        const tasks = [
+            {id:999, q:"[Алгебра] Реши уравнение с корнем из учебника."},
+            {id:999, q:"[Английский] Напиши 5 слов на тему 'Мое хобби'."},
+            {id:999, q:"[Общее] Посмотри короткое видео (5 мин) про историю своего города."},
+            {id:999, q:"[Физра] Сделай 10 отжиманий и 20 приседаний."}
+        ];
+        currentQ = tasks[Math.floor(Math.random() * tasks.length)];
+        
+        document.getElementById('q-text').innerText = currentQ.q;
+        document.getElementById('ans-input').style.display = "none";
+        document.getElementById('card-btn').innerText = "Выполнено!";
+        document.getElementById('auto-status').innerText = "активно";
+    }
+
+    function updateSolvedCount() {
+        const basic = solvedIds.length;
+        const auto = solvedIds.filter(id => id === 999).length; // Пока не считаем их в базу, но потом можно
+        document.getElementById('total-done').innerText = basic;
+    }
+
     function tab(id, btn) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -163,68 +368,12 @@
         btn.classList.add('active');
     }
 
-    function updateSched() {
-        const now = new Date();
-        document.getElementById('clock').innerText = now.toLocaleTimeString();
-        const d = now.getDay();
-        const m = now.getHours() * 60 + now.getMinutes();
-        const box = document.getElementById('schedule-box');
-        box.innerHTML = "";
-        
-        (scheduleData[d] || []).forEach((name, i) => {
-            const start = 540 + (i * 35);
-            const end = start + 25;
-            const item = document.createElement('div');
-            if (m >= start && m < end) item.className = 'now';
-            const formatTime = (time) => `${Math.floor(time/60)}:${(time%60).toString().padStart(2,'0')}`;
-            item.innerHTML = `<span>${name}</span> <span>${formatTime(start)}</span>`;
-            box.appendChild(item);
-        });
-    }
-
-    function nextCard() {
-        const input = document.getElementById('ans-input');
-        const btn = document.getElementById('card-btn');
-        const msg = document.getElementById('msg');
-
-        if (btn.innerText === "Проверить") {
-            let userAns = input.value.toLowerCase().trim().replace(/\s+/g, ''); 
-            if (userAns === currentQ.a.toLowerCase()) {
-                msg.innerText = "🔥 Верно!";
-                msg.style.color = "var(--success)";
-                solvedIds.push(currentQ.id);
-                localStorage.setItem('solved_ids', JSON.stringify(solvedIds));
-                document.getElementById('total-done').innerText = solvedIds.length;
-                btn.innerText = "Взять еще";
-                input.style.display = "none";
-            } else {
-                msg.innerText = "❌ Подумай еще";
-                msg.style.color = "#ef4444";
-            }
-            return;
-        }
-
-        const available = cardsData.filter(c => !solvedIds.includes(c.id));
-        if (available.length === 0) {
-            document.getElementById('q-text').innerText = "Все карточки пройдены!";
-            input.style.display = "none";
-            btn.style.display = "none";
-            return;
-        }
-
-        currentQ = available[Math.floor(Math.random() * available.length)];
-        document.getElementById('q-text').innerText = currentQ.q;
-        input.value = "";
-        input.style.display = "block";
-        btn.innerText = "Проверить";
-        msg.innerText = "";
-    }
-
-    // ЗАПУСК
-    setTheme(); // Включаем тему
-    setInterval(updateSched, 1000);
+    // === ЗАПУСК ===
+    initLiveTheme(); 
+    setInterval(updateSched, 1000); // Обновлять расписание
     updateSched();
-    document.getElementById('total-done').innerText = solvedIds.length;
+    updateSolvedCount();
 </script>
+
 </body>
 </html>
