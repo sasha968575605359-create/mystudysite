@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub Quiz Edition</title>
+    <title>StudyHub Quiz Fixed</title>
     <style>
         :root {
             --bg: #064e3b;
@@ -49,7 +49,8 @@
         /* ТАБЛИЦА РАСПИСАНИЯ */
         table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
         td { padding: 14px; background: rgba(255,255,255,0.03); border-radius: 12px; transition: 0.3s; }
-        .active-lesson td { background: var(--accent) !important; color: #000 !important; font-weight: bold; transform: scale(1.02); }
+        .active-lesson { transform: scale(1.02); }
+        .active-lesson td { background: var(--accent) !important; color: #000 !important; font-weight: bold; }
 
         /* КВЕСТЫ */
         .q-text { font-size: 1.3rem; font-weight: 600; margin: 15px 0; text-align: center; min-height: 50px; }
@@ -100,8 +101,7 @@
             <div id="q-box" class="q-text">Нажми "Начать"</div>
             <div class="progress-bar"><div id="progress-fill"></div></div>
             
-            <div id="quest-content">
-                </div>
+            <div id="quest-content"></div>
 
             <button id="next-btn" class="btn-main" onclick="Engine.nextQuest()" style="display:none">Далее</button>
             <button id="start-btn" class="btn-main" onclick="Engine.nextQuest()">Начать</button>
@@ -143,7 +143,7 @@
             {q:"Алгебра: √81 = ?", a:["9"], options:["7","8","9","10"]},
             {q:"Физика: Кто открыл закон тяготения?", a:["НЬЮТОН"], options:["Эйнштейн","Тесла","Ньютон","Галилей"]},
             {q:"Биология: Сколько костей у взрослого (~)?", a:["206"], options:["150","206","300","100"]},
-            {q:"Английский: Прошедшее время глагола BE (ед.ч)?", a:["WAS"]},
+            {q:"Английский: Hello - это?", a:["ПРИВЕТ", "ЗДРАВСТВУЙ"], options: ["Пока", "Привет", "Спасибо", "Друг"]},
             {q:"География: Самая длинная река в мире?", a:["АМАЗОНКА","НИЛ"], options:["Днепр","Волга","Нил","Амазонка"]},
             {q:"История: Первый космонавт?", a:["ГАГАРИН"], options:["Титов","Леонов","Гагарин","Армстронг"]},
             {q:"Химия: Какой газ мы выдыхаем?", a:["УГЛЕКИСЛЫЙ","CO2"]},
@@ -152,14 +152,14 @@
             {q:"Алгебра: На что нельзя делить?", a:["0","НОЛЬ"]},
             {q:"Геометрия: Пифагоровы штаны во все стороны...?", a:["РАВНЫ"]},
             {q:"Биология: Процесс питания растений на свету?", a:["ФОТОСИНТЕЗ"], options:["Дыхание","Фотосинтез","Рост","Питание"]},
-            {q:"Английский: Hello - это?", a:["ПРИВЕТ"]},
             {q:"География: В какой стране пирамиды?", a:["ЕГИПЕТ"], options:["Мексика","Китай","Египет","Греция"]},
-            {q:"Физика: Температура кипения воды (°C)?", a:["100"], options:["90","100","110","120"]}
+            {q:"Физика: Температура кипения воды (°C)?", a:["100"], options:["90","100","110","120"]},
+            {q:"Английский: Apple - это?", a:["ЯБЛОКО"]}
         ]
     };
 
     const Engine = {
-        solved: JSON.parse(localStorage.getItem('sh_solved_v3') || "[]"),
+        solved: JSON.parse(localStorage.getItem('sh_solved_v4') || "[]"),
         current: null,
 
         init() {
@@ -231,6 +231,7 @@
         renderQuestBody() {
             const container = document.getElementById('quest-content');
             container.innerHTML = "";
+            container.style.pointerEvents = "auto";
 
             if(this.current.options) {
                 const grid = document.createElement('div');
@@ -260,13 +261,14 @@
         },
 
         checkOption(val, btn) {
-            const correct = this.current.a.some(a => val.toUpperCase() === a.toUpperCase());
+            const correct = this.current.a.some(a => val.trim().toUpperCase() === a.trim().toUpperCase());
             if(correct) {
                 btn.classList.add('opt-correct');
                 this.markSolved();
             } else {
                 btn.classList.add('opt-wrong');
                 document.getElementById('hint').innerText = "Ошибка ❌";
+                document.getElementById('hint').style.color = "var(--error)";
             }
         },
 
@@ -274,18 +276,20 @@
             const input = document.getElementById('ans-input');
             let val = input.value.trim().toUpperCase()
                       .replace(/Н/g,'H').replace(/О/g,'O').replace(/С/g,'C').replace(/В/g,'B').replace(/А/g,'A');
-            const correct = this.current.a.some(a => val === a.toUpperCase());
+            
+            const correct = this.current.a.some(a => val === a.trim().toUpperCase());
             if(correct) {
                 this.markSolved();
             } else {
                 document.getElementById('hint').innerText = "Неверно ❌";
+                document.getElementById('hint').style.color = "var(--error)";
             }
         },
 
         markSolved() {
             if(!this.solved.includes(this.current.q)) {
                 this.solved.push(this.current.q);
-                localStorage.setItem('sh_solved_v3', JSON.stringify(this.solved));
+                localStorage.setItem('sh_solved_v4', JSON.stringify(this.solved));
             }
             document.getElementById('hint').innerText = "Верно! 🔥";
             document.getElementById('hint').style.color = "var(--accent)";
@@ -301,7 +305,7 @@
         },
 
         reset() {
-            if(confirm("Сбросить?")) { localStorage.removeItem('sh_solved_v3'); location.reload(); }
+            if(confirm("Сбросить?")) { localStorage.removeItem('sh_solved_v4'); location.reload(); }
         }
     };
 
