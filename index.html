@@ -3,47 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub Full Edition</title>
+    <title>StudyHub Ultimate</title>
     <style>
-        :root { --bg: #0f172a; --text: #f8fafc; --accent: #38bdf8; --card-bg: rgba(30, 41, 59, 0.8); }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 80px; transition: 0.5s; color: var(--text); background: var(--bg); min-height: 100vh; overflow-x: hidden; }
+        :root { --bg: #0f172a; --text: #f8fafc; --accent: #38bdf8; --card-bg: rgba(30, 41, 59, 0.85); }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 100px; transition: 0.5s; color: var(--text); background: var(--bg); min-height: 100vh; overflow-x: hidden; }
         
+        /* Слой для падающих цветов/снега */
         #fx-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        /* Слой для травы внизу */
+        #grass-layer { position: fixed; bottom: 0; left: 0; width: 100%; height: 40px; z-index: 2; pointer-events: none; display: flex; justify-content: space-around; align-items: flex-end; font-size: 30px; }
+
         .drop { position: absolute; animation: fall linear infinite; }
-        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0.3; } }
+        @keyframes fall { 
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; } 
+            10% { opacity: 1; } 
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.3; } 
+        }
 
         .container { position: relative; z-index: 10; padding: 20px; max-width: 500px; margin: 0 auto; }
         .page { display: none; }
         .page.active { display: block; }
         
-        .card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; text-align: center; backdrop-filter: blur(10px); }
-        .btn-main { background: var(--accent); color: #000; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem; }
-        .input-box { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--accent); background: rgba(0,0,0,0.3); color: #fff; box-sizing: border-box; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; text-align: center; backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .btn-main { background: var(--accent); color: #000; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; font-size: 1rem; transition: 0.3s; }
+        .btn-main:active { transform: scale(0.95); }
+        .input-box { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--accent); background: rgba(0,0,0,0.5); color: #fff; box-sizing: border-box; outline: none; text-align: center; }
         
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #1e293b; display: flex; border-top: 2px solid var(--accent); z-index: 1000; }
-        .nav-btn { flex: 1; padding: 15px; text-align: center; cursor: pointer; color: #94a3b8; background: none; border: none; font-weight: bold; }
+        .nav-btn { flex: 1; padding: 15px; text-align: center; cursor: pointer; color: #94a3b8; background: none; border: none; font-weight: bold; font-size: 0.8rem; }
         .nav-btn.active { color: var(--accent); background: rgba(255,255,255,0.05); }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-        td, th { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
-        .highlight { color: #000 !important; background: var(--accent) !important; font-weight: bold; border-radius: 5px; }
+        td, th { padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
+        .highlight { color: #000 !important; background: var(--accent) !important; font-weight: bold; border-radius: 8px; }
 
-        /* Темы фона */
+        /* Темы */
         [data-theme="spring"] { --bg: #064e3b; --accent: #4ade80; }
         [data-theme="autumn"] { --bg: #451a03; --accent: #f59e0b; }
         [data-theme="winter"] { --bg: #1e293b; --accent: #38bdf8; }
-        [data-theme="halloween"] { --bg: #000; --accent: #ff6600; }
     </style>
 </head>
 <body>
 
 <div id="fx-layer"></div>
+<div id="grass-layer"></div>
 
 <div class="container">
     <div id="p-sched" class="page active">
         <div class="card">
-            <h2 id="day-now">Загрузка...</h2>
-            <h1 id="lesson-text">Уроков сейчас нет</h1>
+            <h2 id="day-now">Загрузка даты...</h2>
+            <h1 id="lesson-text" style="margin: 10px 0;">Уроков нет</h1>
         </div>
         <div class="card" style="padding: 10px;">
             <table id="schedule-body"></table>
@@ -51,71 +60,40 @@
     </div>
 
     <div id="p-cards" class="page">
-        <h1>Квесты 8-А</h1>
+        <h1 style="text-align:center">Квесты 8-А</h1>
         <div class="card">
-            <div id="q-text" style="font-size: 1.2rem; margin-bottom: 15px;">Нажми, чтобы начать!</div>
-            <input type="text" id="ans-input" class="input-box" style="display:none" placeholder="Твой ответ...">
-            <button id="card-btn" onclick="nextCard()" class="btn-main">Взять карточку</button>
-            <p id="msg" style="margin-top: 10px; font-weight: bold;"></p>
+            <div id="q-text" style="font-size: 1.2rem; min-height: 60px; display: flex; align-items: center; justify-content: center;">Нажми кнопку ниже!</div>
+            <input type="text" id="ans-input" class="input-box" style="display:none" placeholder="Напиши ответ...">
+            <button id="card-btn" onclick="handleCard()" class="btn-main">Взять карточку</button>
+            <p id="msg" style="margin-top: 15px; font-weight: bold;"></p>
         </div>
-    </div>
-
-    <div id="p-google" class="page">
-        <h1>Classroom</h1>
-        <div class="card"><p>Тут будут задания из Classroom.</p></div>
+        <div style="text-align:center; opacity: 0.5; font-size: 0.8rem;">Решено: <span id="solved-count">0</span></div>
     </div>
 </div>
 
 <nav class="bottom-nav">
     <button class="nav-btn active" onclick="tab('p-sched', this)">УРОКИ</button>
     <button class="nav-btn" onclick="tab('p-cards', this)">КВЕСТЫ</button>
-    <button class="nav-btn" onclick="tab('p-google', this)">GOOGLE</button>
 </nav>
 
 <script>
-    // --- ПОЛНОЕ РАСПИСАНИЕ ---
     const fullSchedule = {
-        1: [ // Понедельник
-            {s:"09:00", e:"09:25", n:"Алгебра"}, {s:"09:35", e:"10:00", n:"География"},
-            {s:"10:10", e:"10:35", n:"Укр. мова"}, {s:"10:55", e:"11:20", n:"Биология"},
-            {s:"11:30", e:"11:55", n:"Укр. мова"}, {s:"12:05", e:"12:30", n:"Химия"},
-            {s:"12:40", e:"13:05", n:"Информатика"}
-        ],
-        2: [ // Вторник
-            {s:"09:00", e:"09:25", n:"Англ. мова"}, {s:"09:35", e:"10:00", n:"Геометрия"},
-            {s:"10:10", e:"10:35", n:"Физика"}, {s:"10:55", e:"11:20", n:"Укр. мова"},
-            {s:"11:30", e:"11:55", n:"Биология"}, {s:"12:05", e:"12:30", n:"Муз/Рис"},
-            {s:"12:40", e:"13:05", n:"Физра"}, {s:"13:15", e:"13:40", n:"Гром. освіта"},
-            {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}
-        ],
-        3: [ // Среда
-            {s:"09:00", e:"09:25", n:"Химия"}, {s:"09:35", e:"10:00", n:"Основы здоровья"},
-            {s:"10:10", e:"10:35", n:"Укр. лит"}, {s:"10:55", e:"11:20", n:"Алгебра"},
-            {s:"11:30", e:"11:55", n:"История Укр"}, {s:"12:05", e:"12:30", n:"Англ. мова"},
-            {s:"12:40", e:"13:05", n:"География"}, {s:"13:15", e:"13:40", n:"Биология"}
-        ],
-        4: [ // Четверг
-            {s:"09:00", e:"09:25", n:"Геометрия"}, {s:"09:35", e:"10:00", n:"Физика"},
-            {s:"10:10", e:"10:35", n:"Физра"}, {s:"10:55", e:"11:20", n:"Всемирка"},
-            {s:"11:30", e:"11:55", n:"Технологии"}, {s:"12:05", e:"12:30", n:"Англ. мова"},
-            {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}
-        ],
-        5: [ // Пятница
-            {s:"09:00", e:"09:25", n:"Физра"}, {s:"09:35", e:"10:00", n:"Укр. мова"},
-            {s:"10:10", e:"10:35", n:"Укр. лит"}, {s:"10:55", e:"11:20", n:"Алгебра"},
-            {s:"11:30", e:"11:55", n:"Зарубежка"}, {s:"12:05", e:"12:30", n:"Информатика"},
-            {s:"12:40", e:"13:05", n:"Немецкий"}
-        ]
+        1: [{s:"09:00", e:"09:25", n:"Алгебра"}, {s:"09:35", e:"10:00", n:"География"}, {s:"10:10", e:"10:35", n:"Укр. мова"}, {s:"10:55", e:"11:20", n:"Биология"}, {s:"11:30", e:"11:55", n:"Укр. мова"}, {s:"12:05", e:"12:30", n:"Химия"}],
+        2: [{s:"09:00", e:"09:25", n:"Англ. мова"}, {s:"09:35", e:"10:00", n:"Геометрия"}, {s:"10:10", e:"10:35", n:"Физика"}, {s:"10:55", e:"11:20", n:"Укр. мова"}, {s:"11:30", e:"11:55", n:"Биология"}, {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}],
+        3: [{s:"09:00", e:"09:25", n:"Химия"}, {s:"10:55", e:"11:20", n:"Алгебра"}, {s:"12:05", e:"12:30", n:"Англ. мова"}],
+        4: [{s:"09:00", e:"09:25", n:"Геометрия"}, {s:"10:10", e:"10:35", n:"Физра"}, {s:"12:05", e:"12:30", n:"Англ. мова"}, {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}],
+        5: [{s:"09:00", e:"09:25", n:"Физра"}, {s:"10:55", e:"11:20", n:"Алгебра"}, {s:"12:40", e:"13:05", n:"Немецкий"}]
     };
 
     const cardsBase = [
-        {q: "Алгебра: Дискриминант D = b² - ... ?", a: "4ac"},
-        {q: "Физика: Единица измерения силы?", a: "ньютон"},
-        {q: "Химия: Формула воды?", a: "h2o"},
+        {q: "Химия: Формула воды?", a: "H2O"},
+        {q: "Алгебра: D = b² - ... ?", a: "4ac"},
+        {q: "Физика: Сила измеряется в?", a: "ньютонах"},
         {q: "Геометрия: Сумма углов треугольника?", a: "180"},
-        {q: "Английский: 3-я форма глагола GO?", a: "gone"}
+        {q: "Биология: Главный орган кровообращения?", a: "сердце"}
     ];
 
+    let solvedCards = [];
     let currentCard = null;
 
     function tab(id, btn) {
@@ -126,67 +104,99 @@
     }
 
     function initFX() {
-        const now = new Date();
-        const month = now.getMonth() + 1;
-        const layer = document.getElementById('fx-layer');
-        let char = "❄"; let theme = "winter";
-        if (month >= 3 && month <= 5) { theme="spring"; char="🌸"; }
-        else if (month >= 6 && month <= 8) { theme="summer"; char="☀️"; }
-        else if (month >= 9 && month <= 11) { theme="autumn"; char="🍂"; }
+        const month = new Date().getMonth() + 1;
+        const fx = document.getElementById('fx-layer');
+        const grass = document.getElementById('grass-layer');
+        let char = "❄"; let theme = "winter"; let grassChar = "";
+
+        if (month >= 3 && month <= 5) { 
+            theme="spring"; char="🌸"; grassChar = "🌿🌱🌼🌱🌿"; 
+        } else if (month >= 9 && month <= 11) { 
+            theme="autumn"; char="🍂"; grassChar = "🍂🌾🍂";
+        }
+
         document.body.setAttribute('data-theme', theme);
-        for (let i = 0; i < 25; i++) {
+        
+        // Падающие штуки
+        for (let i = 0; i < 20; i++) {
             let d = document.createElement('div');
             d.className = 'drop'; d.innerText = char;
             d.style.left = Math.random() * 100 + "vw";
-            d.style.animationDuration = (Math.random() * 5 + 5) + "s";
+            d.style.fontSize = Math.random() * 20 + 15 + "px";
+            d.style.animationDuration = Math.random() * 5 + 5 + "s";
             d.style.animationDelay = Math.random() * 5 + "s";
-            layer.appendChild(d);
+            fx.appendChild(d);
+        }
+
+        // Трава внизу
+        if(grassChar) {
+            for(let i=0; i<15; i++) {
+                let g = document.createElement('span');
+                g.innerText = grassChar[Math.floor(Math.random()*grassChar.length)];
+                grass.appendChild(g);
+            }
         }
     }
 
-    function update() {
+    function updateSched() {
         const now = new Date();
         const day = now.getDay();
-        const hour = now.getHours().toString().padStart(2,'0');
-        const min = now.getMinutes().toString().padStart(2,'0');
-        const currentTime = hour + ":" + min;
+        const time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         
-        document.getElementById('day-now').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', hour:'2-digit', minute:'2-digit'});
+        document.getElementById('day-now').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'short'});
         
         const table = document.getElementById('schedule-body');
         table.innerHTML = "<tr><th>Время</th><th>Урок</th></tr>";
         
-        let found = false;
+        let activeLesson = "Уроков нет";
         (fullSchedule[day] || []).forEach(l => {
             let row = table.insertRow();
-            if (currentTime >= l.s && currentTime <= l.e) {
+            if (time >= l.s && time <= l.e) {
                 row.className = "highlight";
-                document.getElementById('lesson-text').innerText = "Сейчас: " + l.n;
-                found = true;
+                activeLesson = "Сейчас: " + l.n;
             }
             row.innerHTML = `<td>${l.s}-${l.e}</td><td>${l.n}</td>`;
         });
-        if(!found) document.getElementById('lesson-text').innerText = "Уроков сейчас нет";
+        document.getElementById('lesson-text').innerText = activeLesson;
     }
 
-    function nextCard() {
+    function handleCard() {
         const btn = document.getElementById('card-btn');
         const input = document.getElementById('ans-input');
         const msg = document.getElementById('msg');
+
         if (btn.innerText === "Проверить") {
-            if (input.value.toLowerCase().trim() === currentCard.a) {
-                msg.innerText = "🔥 Верно!"; msg.style.color = "var(--accent)";
-                btn.innerText = "Взять еще"; input.style.display = "none";
-            } else { msg.innerText = "❌ Попробуй еще"; msg.style.color = "red"; }
+            // УМНАЯ ПРОВЕРКА (замена русских букв на латынь)
+            let userAns = input.value.toUpperCase().trim()
+                .replace(/Н/g, 'H').replace(/О/g, 'O').replace(/С/g, 'C');
+            
+            if (userAns === currentCard.a.toUpperCase()) {
+                msg.innerText = "✅ ПРАВИЛЬНО!"; msg.style.color = "var(--accent)";
+                solvedCards.push(currentCard.q);
+                document.getElementById('solved-count').innerText = solvedCards.length;
+                btn.innerText = "Взять карточку";
+                input.style.display = "none";
+            } else {
+                msg.innerText = "❌ ОШИБКА"; msg.style.color = "#ff4444";
+            }
             return;
         }
-        currentCard = cardsBase[Math.floor(Math.random() * cardsBase.length)];
+
+        // Выбор карточки без повторов
+        let pool = cardsBase.filter(c => !solvedCards.includes(c.q));
+        if (pool.length === 0) {
+            document.getElementById('q-text').innerText = "🎉 Все карточки решены!";
+            input.style.display = "none"; btn.style.display = "none";
+            return;
+        }
+
+        currentCard = pool[Math.floor(Math.random() * pool.length)];
         document.getElementById('q-text').innerText = currentCard.q;
         input.style.display = "block"; input.value = "";
         btn.innerText = "Проверить"; msg.innerText = "";
     }
 
-    initFX(); update(); setInterval(update, 30000);
+    initFX(); updateSched(); setInterval(updateSched, 30000);
 </script>
 </body>
 </html>
