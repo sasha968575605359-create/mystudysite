@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub Ultra 25+</title>
+    <title>StudyHub Quiz Edition</title>
     <style>
         :root {
             --bg: #064e3b;
@@ -11,8 +11,8 @@
             --text: #f8fafc;
             --accent: #4ade80;
             --card-bg: rgba(15, 23, 42, 0.9);
-            --success: #4ade80;
-            --error: #f87171;
+            --success: #22c55e;
+            --error: #ef4444;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -36,7 +36,7 @@
         @keyframes sway { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
 
         /* КОНТЕНТ */
-        .container { position: relative; z-index: 10; width: 100%; max-width: 600px; margin: 0 auto; padding: 20px 20px 100px 20px; }
+        .container { position: relative; z-index: 10; width: 100%; max-width: 600px; margin: 0 auto; padding: 20px 20px 110px 20px; }
         .page { display: none; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -46,27 +46,38 @@
             border-radius: 24px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
 
-        /* ТАБЛИЦА */
+        /* ТАБЛИЦА РАСПИСАНИЯ */
         table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
         td { padding: 14px; background: rgba(255,255,255,0.03); border-radius: 12px; transition: 0.3s; }
         .active-lesson td { background: var(--accent) !important; color: #000 !important; font-weight: bold; transform: scale(1.02); }
 
         /* КВЕСТЫ */
-        .q-text { font-size: 1.3rem; font-weight: 600; margin: 20px 0; text-align: center; min-height: 60px; }
+        .q-text { font-size: 1.3rem; font-weight: 600; margin: 15px 0; text-align: center; min-height: 50px; }
         .input-box {
             width: 100%; background: rgba(0,0,0,0.5); border: 2px solid var(--accent);
             border-radius: 15px; padding: 15px; color: #fff; text-align: center; font-size: 1.1rem; outline: none;
         }
-        .btn {
+        
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .opt-btn { 
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
+            padding: 15px; border-radius: 12px; color: #fff; cursor: pointer; font-weight: 600; transition: 0.2s;
+        }
+        .opt-btn:active { transform: scale(0.95); }
+        .opt-correct { background: var(--success) !important; border-color: var(--success); color: #000; }
+        .opt-wrong { background: var(--error) !important; border-color: var(--error); color: #fff; }
+
+        .btn-main {
             background: var(--accent); color: #000; border: none; padding: 18px;
             border-radius: 15px; font-weight: 900; width: 100%; cursor: pointer; margin-top: 15px;
         }
+
         .progress-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; margin: 15px 0; overflow: hidden; }
         #progress-fill { height: 100%; background: var(--accent); width: 0%; transition: 0.5s; }
 
         /* НАВИГАЦИЯ */
-        .nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--nav-bg); display: flex; z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; font-size: 0.7rem; font-weight: bold; }
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--nav-bg); display: flex; z-index: 1000; border-top: 1px solid rgba(255,255,255,0.1); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; font-size: 0.75rem; font-weight: bold; }
         .nav-item.active { color: var(--accent); background: rgba(255,255,255,0.03); }
     </style>
 </head>
@@ -86,18 +97,21 @@
 
     <div id="p-quests" class="page">
         <div class="glass-card">
-            <div id="q-box" class="q-text">Нажми "Начать", чтобы открыть 25 квестов!</div>
+            <div id="q-box" class="q-text">Нажми "Начать"</div>
             <div class="progress-bar"><div id="progress-fill"></div></div>
-            <div id="input-area" style="display: none;">
-                <input type="text" id="ans-input" class="input-box" placeholder="Твой ответ...">
-            </div>
-            <button id="quest-btn" class="btn" onclick="Engine.questAction()">Начать</button>
-            <div id="hint" style="text-align:center; margin-top:15px; font-weight:bold;"></div>
+            
+            <div id="quest-content">
+                </div>
+
+            <button id="next-btn" class="btn-main" onclick="Engine.nextQuest()" style="display:none">Далее</button>
+            <button id="start-btn" class="btn-main" onclick="Engine.nextQuest()">Начать</button>
+
+            <div id="hint" style="text-align:center; margin-top:15px; font-weight:bold; min-height: 20px;"></div>
             <div style="text-align:center; margin-top:20px; font-size:0.8rem; opacity:0.5;">
-                Выполнено: <span id="solved-count">0</span> / <span id="total-count">25</span>
+                Выполнено: <span id="solved-count">0</span> / <span id="total-count">0</span>
             </div>
-            <div onclick="Engine.resetProgress()" style="text-align:center; color:var(--error); font-size:0.6rem; margin-top:20px; cursor:pointer; text-decoration:underline;">СБРОСИТЬ ВСЁ</div>
         </div>
+        <div style="text-align: center;"><span onclick="Engine.reset()" style="color:var(--error); font-size: 0.7rem; cursor:pointer; opacity: 0.5;">СБРОСИТЬ ПРОГРЕСС</span></div>
     </div>
 </div>
 
@@ -116,24 +130,36 @@
             5: [{s:"09:00",e:"09:25",n:"Физра"},{s:"09:35",e:"10:00",n:"Укр. мова"},{s:"10:10",e:"10:35",n:"Укр. лит"},{s:"10:45",e:"11:10",n:"Алгебра"},{s:"11:20",e:"11:45",n:"Зарубежка"},{s:"11:55",e:"12:20",n:"Информатика"},{s:"12:30",e:"12:50",n:"Немецкий"}]
         },
         quests: [
-            {q:"Химия: Формула воды?", a:["H2O","H20"]}, {q:"Алгебра: D = b² - ?", a:["4AC"]},
-            {q:"Геометрия: Сумма углов треугольника?", a:["180"]}, {q:"Физика: Единица силы?", a:["НЬЮТОН","N"]},
-            {q:"Английский: 3-я форма GO?", a:["GONE"]}, {q:"Биология: Орган дыхания рыб?", a:["ЖАБРЫ"]},
-            {q:"География: Самый большой океан?", a:["ТИХИЙ"]}, {q:"История: Кто крестил Русь?", a:["ВЛАДИМИР"]},
-            {q:"Информатика: Основа кода сайта?", a:["HTML"]}, {q:"Укр. мова: Частина мови 'читати'?", a:["ДІЄСЛОВО","ГЛАГОЛ"]},
-            {q:"Химия: Формула соли?", a:["NACL"]}, {q:"Алгебра: √144 = ?", a:["12"]},
-            {q:"Физика: Скорость света ~300 тыс... ?", a:["КМ/С"]}, {q:"Геометрия: Сторона квадрата 5, площадь?", a:["25"]},
-            {q:"Биология: Сколько камер в сердце человека?", a:["4"]}, {q:"Английский: Apple - это?", a:["ЯБЛОКО"]},
-            {q:"География: Столица Франции?", a:["ПАРИЖ"]}, {q:"История: Год начала Второй мировой?", a:["1939"]},
-            {q:"Химия: Газ для дыхания?", a:["КИСЛОРОД","O2"]}, {q:"Алгебра: 2 + 2 * 2 = ?", a:["6"]},
-            {q:"Физика: Кто открыл закон тяготения?", a:["НЬЮТОН"]}, {q:"Укр. лит: Автор 'Кобзаря'?", a:["ШЕВЧЕНКО"]},
-            {q:"Информатика: Устройство ввода текста?", a:["КЛАВИАТУРА"]}, {q:"Немецкий: 'Ja' - это?", a:["ДА"]},
-            {q:"Общее: Спутник Земли?", a:["ЛУНА"]}
+            {q:"Формула воды?", a:["H2O","H20"], options:["H2O","HO2","O2H","H3O"]},
+            {q:"Алгебра: D = b² - ?", a:["4AC"]},
+            {q:"Геометрия: Сумма углов треугольника?", a:["180"], options:["90","180","360","270"]},
+            {q:"Физика: В чем измеряется сила?", a:["НЬЮТОН","N"], options:["Джоуль","Ватт","Ньютон","Паскаль"]},
+            {q:"Английский: 3-я форма GO?", a:["GONE"]},
+            {q:"Биология: Орган дыхания рыб?", a:["ЖАБРЫ"], options:["Легкие","Жабры","Кожа","Плавники"]},
+            {q:"География: Самый большой океан?", a:["ТИХИЙ"], options:["Атлантический","Тихий","Индийский","Северный"]},
+            {q:"История: Год крещения Руси?", a:["988"], options:["882","988","1147","1240"]},
+            {q:"Информатика: Главный мозг компьютера?", a:["ПРОЦЕССОР"], options:["Монитор","Процессор","Мышь","Память"]},
+            {q:"Химия: Формула поваренной соли?", a:["NACL"]},
+            {q:"Алгебра: √81 = ?", a:["9"], options:["7","8","9","10"]},
+            {q:"Физика: Кто открыл закон тяготения?", a:["НЬЮТОН"], options:["Эйнштейн","Тесла","Ньютон","Галилей"]},
+            {q:"Биология: Сколько костей у взрослого (~)?", a:["206"], options:["150","206","300","100"]},
+            {q:"Английский: Прошедшее время глагола BE (ед.ч)?", a:["WAS"]},
+            {q:"География: Самая длинная река в мире?", a:["АМАЗОНКА","НИЛ"], options:["Днепр","Волга","Нил","Амазонка"]},
+            {q:"История: Первый космонавт?", a:["ГАГАРИН"], options:["Титов","Леонов","Гагарин","Армстронг"]},
+            {q:"Химия: Какой газ мы выдыхаем?", a:["УГЛЕКИСЛЫЙ","CO2"]},
+            {q:"Информатика: 1 байт = ... бит?", a:["8"], options:["4","8","16","32"]},
+            {q:"Укр. мова: Скільки букв в алфавіті?", a:["33"], options:["32","33","31","30"]},
+            {q:"Алгебра: На что нельзя делить?", a:["0","НОЛЬ"]},
+            {q:"Геометрия: Пифагоровы штаны во все стороны...?", a:["РАВНЫ"]},
+            {q:"Биология: Процесс питания растений на свету?", a:["ФОТОСИНТЕЗ"], options:["Дыхание","Фотосинтез","Рост","Питание"]},
+            {q:"Английский: Hello - это?", a:["ПРИВЕТ"]},
+            {q:"География: В какой стране пирамиды?", a:["ЕГИПЕТ"], options:["Мексика","Китай","Египет","Греция"]},
+            {q:"Физика: Температура кипения воды (°C)?", a:["100"], options:["90","100","110","120"]}
         ]
     };
 
     const Engine = {
-        solved: JSON.parse(localStorage.getItem('study_solved') || "[]"),
+        solved: JSON.parse(localStorage.getItem('sh_solved_v3') || "[]"),
         current: null,
 
         init() {
@@ -148,12 +174,12 @@
             const fx = document.getElementById('fx-layer');
             const gr = document.getElementById('ground-layer');
             for(let i=0; i<20; i++) {
-                let d = document.createElement('div'); d.className = 'flower'; d.innerText = "🌸";
+                let d = document.createElement('div'); d.className='flower'; d.innerText="🌸";
                 d.style.left = Math.random()*100+"vw"; d.style.animationDuration = Math.random()*5+5+"s";
                 fx.appendChild(d);
             }
-            for(let i=0; i<10; i++) {
-                let g = document.createElement('div'); g.className = 'grass'; g.innerText = "🌿";
+            for(let i=0; i<12; i++) {
+                let g = document.createElement('div'); g.className='grass'; g.innerText="🌱";
                 gr.appendChild(g);
             }
         },
@@ -185,53 +211,97 @@
             document.getElementById(id).classList.add('active'); el.classList.add('active');
         },
 
-        questAction() {
-            const btn = document.getElementById('quest-btn');
-            if(btn.innerText === "Начать" || btn.innerText === "Далее") this.nextQuest();
-            else this.checkAns();
-        },
-
         nextQuest() {
+            document.getElementById('start-btn').style.display = "none";
+            document.getElementById('next-btn').style.display = "none";
+            document.getElementById('hint').innerText = "";
+            
             const pool = CONFIG.quests.filter(q => !this.solved.includes(q.q));
             if(pool.length === 0) {
-                document.getElementById('q-box').innerText = "🏆 ВСЁ РЕШЕНО!";
-                document.getElementById('input-area').style.display = "none";
-                document.getElementById('quest-btn').style.display = "none";
+                document.getElementById('q-box').innerText = "🏆 ВСЕ КВЕСТЫ ВЫПОЛНЕНЫ!";
+                document.getElementById('quest-content').innerHTML = "";
                 return;
             }
+
             this.current = pool[Math.floor(Math.random()*pool.length)];
             document.getElementById('q-box').innerText = this.current.q;
-            document.getElementById('input-area').style.display = "block";
-            document.getElementById('ans-input').value = ""; document.getElementById('ans-input').focus();
-            document.getElementById('quest-btn').innerText = "Проверить";
-            document.getElementById('hint').innerText = "";
+            this.renderQuestBody();
         },
 
-        checkAns() {
-            let val = document.getElementById('ans-input').value.trim().toUpperCase()
-                      .replace(/Н/g,'H').replace(/О/g,'O').replace(/С/g,'C').replace(/В/g,'B').replace(/А/g,'A');
-            const ok = this.current.a.some(a => val === a.toUpperCase());
-            const h = document.getElementById('hint');
-            if(ok) {
-                h.innerText = "Верно! 🔥"; h.style.color = "var(--accent)";
-                this.solved.push(this.current.q);
-                localStorage.setItem('study_solved', JSON.stringify(this.solved));
-                this.updateUI();
-                document.getElementById('quest-btn').innerText = "Далее";
+        renderQuestBody() {
+            const container = document.getElementById('quest-content');
+            container.innerHTML = "";
+
+            if(this.current.options) {
+                const grid = document.createElement('div');
+                grid.className = 'options-grid';
+                this.current.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'opt-btn';
+                    btn.innerText = opt;
+                    btn.onclick = () => this.checkOption(opt, btn);
+                    grid.appendChild(btn);
+                });
+                container.appendChild(grid);
             } else {
-                h.innerText = "Ошибка ❌"; h.style.color = "var(--error)";
+                const input = document.createElement('input');
+                input.className = 'input-box';
+                input.id = 'ans-input';
+                input.placeholder = "Напиши ответ...";
+                input.onkeyup = (e) => { if(e.key === "Enter") this.checkInput(); };
+                container.appendChild(input);
+                
+                const checkBtn = document.createElement('button');
+                checkBtn.className = 'btn-main';
+                checkBtn.innerText = "Проверить";
+                checkBtn.onclick = () => this.checkInput();
+                container.appendChild(checkBtn);
             }
+        },
+
+        checkOption(val, btn) {
+            const correct = this.current.a.some(a => val.toUpperCase() === a.toUpperCase());
+            if(correct) {
+                btn.classList.add('opt-correct');
+                this.markSolved();
+            } else {
+                btn.classList.add('opt-wrong');
+                document.getElementById('hint').innerText = "Ошибка ❌";
+            }
+        },
+
+        checkInput() {
+            const input = document.getElementById('ans-input');
+            let val = input.value.trim().toUpperCase()
+                      .replace(/Н/g,'H').replace(/О/g,'O').replace(/С/g,'C').replace(/В/g,'B').replace(/А/g,'A');
+            const correct = this.current.a.some(a => val === a.toUpperCase());
+            if(correct) {
+                this.markSolved();
+            } else {
+                document.getElementById('hint').innerText = "Неверно ❌";
+            }
+        },
+
+        markSolved() {
+            if(!this.solved.includes(this.current.q)) {
+                this.solved.push(this.current.q);
+                localStorage.setItem('sh_solved_v3', JSON.stringify(this.solved));
+            }
+            document.getElementById('hint').innerText = "Верно! 🔥";
+            document.getElementById('hint').style.color = "var(--accent)";
+            document.getElementById('quest-content').style.pointerEvents = "none";
+            document.getElementById('next-btn').style.display = "block";
+            this.updateUI();
         },
 
         updateUI() {
             const count = this.solved.length;
-            const total = CONFIG.quests.length;
             document.getElementById('solved-count').innerText = count;
-            document.getElementById('progress-fill').style.width = (count / total * 100) + "%";
+            document.getElementById('progress-fill').style.width = (count / CONFIG.quests.length * 100) + "%";
         },
 
-        resetProgress() {
-            if(confirm("Сбросить?")) { localStorage.removeItem('study_solved'); location.reload(); }
+        reset() {
+            if(confirm("Сбросить?")) { localStorage.removeItem('sh_solved_v3'); location.reload(); }
         }
     };
 
