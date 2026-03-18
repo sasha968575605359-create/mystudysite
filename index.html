@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub Ultimate Fix</title>
+    <title>StudyHub OS Pro (with Memory)</title>
     <style>
         :root {
-            --bg: #064e3b; /* Весенний темно-зеленый */
+            --bg: #064e3b;
             --nav-bg: #1e293b;
             --text: #f8fafc;
             --accent: #4ade80;
-            --card-bg: rgba(15, 23, 42, 0.8);
+            --card-bg: rgba(15, 23, 42, 0.85);
             --success: #4ade80;
             --error: #f87171;
         }
@@ -27,12 +27,12 @@
             flex-direction: column;
         }
 
-        /* --- ФОНОВЫЕ ЭФФЕКТЫ --- */
-        #fx-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        /* --- ЭФФЕКТЫ ФОНА --- */
+        #fx-layer, #ground-layer { position: fixed; left: 0; width: 100%; pointer-events: none; }
+        #fx-layer { top: 0; height: 100%; z-index: 1; }
         #ground-layer { 
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; 
-            z-index: 2; pointer-events: none; display: flex; 
-            justify-content: space-around; align-items: flex-end; padding-bottom: 85px; 
+            bottom: 0; height: 100px; z-index: 2; 
+            display: flex; justify-content: space-around; align-items: flex-end; padding-bottom: 85px; 
         }
 
         .flower { position: absolute; top: -10%; animation: fall linear infinite; }
@@ -42,7 +42,7 @@
             100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
         }
 
-        .grass { font-size: 30px; animation: sway 3s ease-in-out infinite alternate; transform-origin: bottom; }
+        .grass { font-size: 32px; animation: sway 3s ease-in-out infinite alternate; transform-origin: bottom; }
         @keyframes sway { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
 
         /* --- КОНТЕНТ --- */
@@ -51,52 +51,61 @@
             margin: 0 auto; padding: 20px 20px 100px 20px;
         }
 
-        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page { display: none; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .glass-card {
             background: var(--card-bg);
             backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
         }
 
-        /* --- ТАБЛИЦА --- */
+        /* --- ТАБЛИЦА РАСПИСАНИЯ --- */
         table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        tr { transition: 0.3s; }
-        td { padding: 15px; background: rgba(255,255,255,0.03); }
-        td:first-child { border-radius: 12px 0 0 12px; font-weight: bold; width: 120px; color: var(--accent); }
-        td:last-child { border-radius: 0 12px 12px 0; }
+        td { padding: 16px; background: rgba(255,255,255,0.03); transition: 0.3s; }
+        td:first-child { border-radius: 14px 0 0 14px; font-weight: 800; width: 120px; color: var(--accent); border-left: 3px solid transparent; }
+        td:last-child { border-radius: 0 14px 14px 0; }
         
-        .active-lesson { background: var(--accent) !important; color: #000 !important; transform: scale(1.02); font-weight: bold; }
-        .active-lesson td { background: transparent; color: #000; }
+        .active-lesson { transform: scale(1.03); z-index: 5; }
+        .active-lesson td { background: var(--accent) !important; color: #000 !important; }
+        .active-lesson td:first-child { border-left: 3px solid #fff; }
 
-        /* --- КВЕСТЫ --- */
-        .q-text { font-size: 1.3rem; margin: 20px 0; text-align: center; min-height: 50px; }
+        /* --- ИНТЕРФЕЙС КВЕСТОВ --- */
+        .q-text { font-size: 1.4rem; font-weight: 600; margin: 25px 0; text-align: center; min-height: 60px; line-height: 1.4; }
         .input-box {
-            width: 100%; background: rgba(0,0,0,0.3); border: 2px solid var(--accent);
-            border-radius: 12px; padding: 15px; color: #fff; text-align: center;
-            font-size: 1.1rem; outline: none; margin-bottom: 15px;
+            width: 100%; background: rgba(0,0,0,0.4); border: 2px solid var(--accent);
+            border-radius: 16px; padding: 18px; color: #fff; text-align: center;
+            font-size: 1.2rem; outline: none; margin-bottom: 20px; transition: 0.3s;
         }
+        .input-box:focus { box-shadow: 0 0 20px rgba(74, 222, 128, 0.3); }
+
         .btn {
-            background: var(--accent); color: #000; border: none; padding: 15px;
-            border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer;
+            background: var(--accent); color: #000; border: none; padding: 18px;
+            border-radius: 16px; font-weight: 900; width: 100%; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px; transition: 0.2s;
         }
+        .btn:active { transform: scale(0.96); }
+        
+        .reset-link { display: block; margin-top: 20px; color: var(--error); font-size: 0.7rem; text-decoration: underline; cursor: pointer; opacity: 0.6; }
 
         /* --- НАВИГАЦИЯ --- */
         .nav {
-            position: fixed; bottom: 0; width: 100%; height: 70px;
+            position: fixed; bottom: 0; width: 100%; height: 75px;
             background: var(--nav-bg); display: flex; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom);
         }
         .nav-item {
             flex: 1; display: flex; flex-direction: column; align-items: center;
-            justify-content: center; color: #94a3b8; text-decoration: none; font-size: 0.7rem;
+            justify-content: center; color: #64748b; text-decoration: none; font-size: 0.75rem; font-weight: 700;
         }
         .nav-item.active { color: var(--accent); background: rgba(255,255,255,0.03); }
+        .nav-icon { font-size: 1.4rem; margin-bottom: 4px; }
     </style>
 </head>
 <body>
@@ -107,68 +116,84 @@
     <div class="container">
         <div id="p-sched" class="page active">
             <div class="glass-card" style="text-align: center;">
-                <div id="clock" style="font-size: 2.5rem; font-weight: 800;">00:00:00</div>
-                <div id="date-label" style="opacity: 0.7;">Загрузка...</div>
+                <div id="clock" style="font-size: 2.8rem; font-weight: 900; letter-spacing: -1px;">00:00:00</div>
+                <div id="date-label" style="opacity: 0.7; font-weight: 500; text-transform: uppercase; font-size: 0.8rem;">Загрузка системы...</div>
             </div>
-            <div class="glass-card">
+            <div class="glass-card" style="padding: 10px;">
                 <table id="sched-table"></table>
             </div>
         </div>
 
         <div id="p-quests" class="page">
-            <div class="glass-card">
-                <div id="q-box" class="q-text">Нажми "Начать"</div>
-                <input type="text" id="ans-input" class="input-box" style="display:none">
+            <div class="glass-card" style="text-align: center;">
+                <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 2px;">QUEST MODE v2.1</div>
+                <div id="q-box" class="q-text">Готов начать проверку?</div>
+                
+                <div id="input-area" style="display: none;">
+                    <input type="text" id="ans-input" class="input-box" autocomplete="off" placeholder="Твой ответ...">
+                </div>
+
                 <button id="quest-btn" class="btn" onclick="Engine.questAction()">Начать</button>
-                <div id="hint" style="text-align:center; margin-top:10px; font-weight:bold;"></div>
+                <div id="hint" style="margin-top:15px; font-weight:bold; min-height: 24px;"></div>
+                
+                <div style="margin-top: 30px; font-size: 0.8rem; opacity: 0.5;">
+                    Решено: <span id="solved-count">0</span> / <span id="total-count">0</span>
+                </div>
+                <span class="reset-link" onclick="Engine.resetProgress()">Сбросить прогресс</span>
             </div>
         </div>
 
         <div id="p-class" class="page">
-            <div class="glass-card" style="text-align: center;">
-                <div style="font-size: 3rem;">📚</div>
-                <h3>Google Classroom</h3>
-                <p>Задания появятся здесь позже.</p>
+            <div class="glass-card" style="text-align: center; padding: 60px 20px;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">🏫</div>
+                <h2 style="margin: 0;">Classroom</h2>
+                <p style="opacity: 0.6; font-size: 0.9rem;">Интеграция с Google API в процессе разработки.</p>
             </div>
         </div>
     </div>
 
     <nav class="nav">
-        <div class="nav-item active" onclick="Engine.tab('p-sched', this)"><span>📅</span>УРОКИ</div>
-        <div class="nav-item" onclick="Engine.tab('p-quests', this)"><span>🎯</span>КВЕСТЫ</div>
-        <div class="nav-item" onclick="Engine.tab('p-class', this)"><span>🏫</span>CLASSROOM</div>
+        <div class="nav-item active" onclick="Engine.tab('p-sched', this)">
+            <span class="nav-icon">📅</span>УРОКИ
+        </div>
+        <div class="nav-item" onclick="Engine.tab('p-quests', this)">
+            <span class="nav-icon">🎯</span>КВЕСТЫ
+        </div>
+        <div class="nav-item" onclick="Engine.tab('p-class', this)">
+            <span class="nav-icon">📚</span>HW
+        </div>
     </nav>
 
     <script>
         const CONFIG = {
-            // Расписание с твоими правками времени
+            // ТВОЁ ТОЧНОЕ РАСПИСАНИЕ
             schedule: {
-                1: [ // ПН
+                1: [ // Понедельник
                     {s:"09:00", e:"09:25", n:"Алгебра"}, {s:"09:35", e:"10:00", n:"География"},
                     {s:"10:10", e:"10:35", n:"Укр. мова"}, {s:"10:45", e:"11:10", n:"Биология"},
                     {s:"11:20", e:"11:45", n:"Укр. мова"}, {s:"11:55", e:"12:20", n:"Химия"},
                     {s:"12:30", e:"12:50", n:"Информатика"}
                 ],
-                2: [ // ВТ
+                2: [ // Вторник
                     {s:"09:00", e:"09:25", n:"Англ. мова"}, {s:"09:35", e:"10:00", n:"Геометрия"},
                     {s:"10:10", e:"10:35", n:"Физика"}, {s:"10:45", e:"11:10", n:"Укр. мова"},
                     {s:"11:20", e:"11:45", n:"Биология"}, {s:"11:55", e:"12:20", n:"Муз/Рис"},
                     {s:"12:30", e:"12:50", n:"Физра"}, {s:"13:00", e:"13:25", n:"Гром. освіта"},
                     {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}
                 ],
-                3: [ // СР
+                3: [ // Среда
                     {s:"09:00", e:"09:25", n:"Химия"}, {s:"09:35", e:"10:00", n:"Основы здоровья"},
                     {s:"10:10", e:"10:35", n:"Укр. лит"}, {s:"10:45", e:"11:10", n:"Алгебра"},
                     {s:"11:20", e:"11:45", n:"История Укр"}, {s:"11:55", e:"12:20", n:"Англ. мова"},
                     {s:"12:30", e:"12:50", n:"География"}, {s:"13:00", e:"13:25", n:"Биология"}
                 ],
-                4: [ // ЧТ
+                4: [ // Четверг
                     {s:"09:00", e:"09:25", n:"Геометрия"}, {s:"09:35", e:"10:00", n:"Физика"},
                     {s:"10:10", e:"10:35", n:"Физра"}, {s:"10:45", e:"11:10", n:"Всемирка"},
                     {s:"11:20", e:"11:45", n:"Технологии"}, {s:"11:55", e:"12:20", n:"Англ. мова"},
                     {s:"16:00", e:"17:00", n:"🇬🇧 Доп. Англ"}
                 ],
-                5: [ // ПТ
+                5: [ // Пятница
                     {s:"09:00", e:"09:25", n:"Физра"}, {s:"09:35", e:"10:00", n:"Укр. мова"},
                     {s:"10:10", e:"10:35", n:"Укр. лит"}, {s:"10:45", e:"11:10", n:"Алгебра"},
                     {s:"11:20", e:"11:45", n:"Зарубежка"}, {s:"11:55", e:"12:20", n:"Информатика"},
@@ -176,11 +201,11 @@
                 ]
             },
             quests: [
-                {q: "Химия: Формула воды?", a: ["H2O", "H20"]},
+                {q: "Химия: Формула воды?", a: ["H2O", "H20", "АШ2О"]},
                 {q: "Алгебра: Дискриминант D = ?", a: ["B2-4AC", "B^2-4AC"]},
-                {q: "Физика: Единица силы?", a: ["НЬЮТОН", "N"]},
+                {q: "Физика: Единица силы?", a: ["НЬЮТОН", "НЬЮТОНАХ", "N"]},
                 {q: "Геометрия: Сумма углов треугольника?", a: ["180"]},
-                {q: "Английский: 3-я форма GO?", a: ["GONE"]}
+                {q: "Английский: 3-я форма глагола GO?", a: ["GONE"]}
             ]
         };
 
@@ -189,34 +214,43 @@
             solved: [],
 
             init: function() {
+                // Загружаем память
+                const saved = localStorage.getItem('studyhub_solved');
+                if(saved) this.solved = JSON.parse(saved);
+
                 this.startFX();
                 this.updateClock();
+                document.getElementById('total-count').innerText = CONFIG.quests.length;
+                this.updateStats();
+                
                 setInterval(() => this.updateClock(), 1000);
+            },
+
+            updateStats: function() {
+                document.getElementById('solved-count').innerText = this.solved.length;
             },
 
             startFX: function() {
                 const fx = document.getElementById('fx-layer');
                 const gr = document.getElementById('ground-layer');
-                // Цветы
-                for(let i=0; i<25; i++) {
+                for(let i=0; i<20; i++) {
                     let d = document.createElement('div');
                     d.className = 'flower'; d.innerText = "🌸";
                     d.style.left = Math.random()*100+"vw";
-                    d.style.animationDuration = Math.random()*5+5+"s";
+                    d.style.animationDuration = Math.random()*5+6+"s";
                     d.style.animationDelay = Math.random()*5+"s";
                     fx.appendChild(d);
                 }
-                // Трава
-                for(let i=0; i<15; i++) {
+                for(let i=0; i<12; i++) {
                     let g = document.createElement('div');
-                    g.className = 'grass'; g.innerText = ["🌿","🌱","🌼"][Math.floor(Math.random()*3)];
+                    g.className = 'grass'; g.innerText = ["🌿","🌱","🌼","☘️"][Math.floor(Math.random()*4)];
                     gr.appendChild(g);
                 }
             },
 
             updateClock: function() {
                 const now = new Date();
-                document.getElementById('clock').innerText = now.toLocaleTimeString();
+                document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
                 document.getElementById('date-label').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
                 this.renderSched(now);
             },
@@ -234,7 +268,7 @@
                     const isActive = curMins >= (sh*60+sm) && curMins <= (eh*60+em);
                     html += `<tr class="${isActive ? 'active-lesson' : ''}"><td>${l.s}—${l.e}</td><td>${l.n}</td></tr>`;
                 });
-                table.innerHTML = html || "<tr><td colspan='2' style='text-align:center'>Сегодня выходной!</td></tr>";
+                table.innerHTML = html || "<tr><td colspan='2' style='text-align:center; opacity:0.5'>Выходной. Набирайся сил!</td></tr>";
             },
 
             tab: function(id, el) {
@@ -246,9 +280,7 @@
 
             questAction: function() {
                 const btn = document.getElementById('quest-btn');
-                const input = document.getElementById('ans-input');
-                
-                if(btn.innerText === "Начать" || btn.innerText === "Далее") {
+                if(btn.innerText === "НАЧАТЬ" || btn.innerText === "ДАЛЕЕ") {
                     this.nextQuest();
                 } else {
                     this.checkAns();
@@ -258,38 +290,48 @@
             nextQuest: function() {
                 const pool = CONFIG.quests.filter(q => !this.solved.includes(q.q));
                 if(pool.length === 0) {
-                    document.getElementById('q-box').innerText = "🎉 Все квесты пройдены!";
-                    document.getElementById('ans-input').style.display = "none";
+                    document.getElementById('q-box').innerText = "🏆 КРАСАВА! ТЫ ПРОШЕЛ ВСЁ!";
+                    document.getElementById('input-area').style.display = "none";
                     document.getElementById('quest-btn').style.display = "none";
                     return;
                 }
                 this.currentQuest = pool[Math.floor(Math.random()*pool.length)];
                 document.getElementById('q-box').innerText = this.currentQuest.q;
-                document.getElementById('ans-input').style.display = "block";
+                document.getElementById('input-area').style.display = "block";
                 document.getElementById('ans-input').value = "";
-                document.getElementById('quest-btn').innerText = "Проверить";
+                document.getElementById('ans-input').focus();
+                document.getElementById('quest-btn').innerText = "ПРОВЕРИТЬ";
                 document.getElementById('hint').innerText = "";
             },
 
             checkAns: function() {
                 let val = document.getElementById('ans-input').value.trim().toUpperCase();
-                // Фикс русской раскладки для формул (H2O, N, B2)
-                val = val.replace(/Н/g, 'H').replace(/О/g, 'O').replace(/С/g, 'C').replace(/В/g, 'B');
+                // Умная замена раскладки
+                val = val.replace(/Н/g, 'H').replace(/О/g, 'O').replace(/С/g, 'C').replace(/В/g, 'B').replace(/А/g, 'A');
                 
-                const correct = this.currentQuest.a.some(a => val === a.toUpperCase());
+                const isCorrect = this.currentQuest.a.some(a => val === a.toUpperCase().replace(/\s/g, ''));
                 const hint = document.getElementById('hint');
                 
-                if(correct) {
-                    hint.innerText = "Правильно! 🔥"; hint.style.color = "var(--success)";
+                if(isCorrect) {
+                    hint.innerText = "В точку! 🔥"; hint.style.color = "var(--success)";
                     this.solved.push(this.currentQuest.q);
-                    document.getElementById('quest-btn').innerText = "Далее";
+                    localStorage.setItem('studyhub_solved', JSON.stringify(this.solved));
+                    this.updateStats();
+                    document.getElementById('quest-btn').innerText = "ДАЛЕЕ";
                 } else {
-                    hint.innerText = "Не-а, подумай еще ❌"; hint.style.color = "var(--error)";
+                    hint.innerText = "Мимо... Попробуй еще! ❌"; hint.style.color = "var(--error)";
+                }
+            },
+
+            resetProgress: function() {
+                if(confirm("Реально хочешь сбросить все решенные вопросы?")) {
+                    localStorage.removeItem('studyhub_solved');
+                    location.reload();
                 }
             }
         };
 
-        Engine.init();
+        window.onload = () => Engine.init();
     </script>
 </body>
 </html>
