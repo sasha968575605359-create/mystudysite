@@ -5,60 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudyHub Ultimate</title>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc; --success: #22c55e; --warning: #fbbf24; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
-        
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #1e293b; display: flex; border-top: 2px solid var(--accent); z-index: 1000; }
-        .nav-btn { flex: 1; padding: 15px 5px; text-align: center; cursor: pointer; font-weight: bold; color: #94a3b8; border: none; background: none; font-size: 0.75rem; transition: 0.3s; }
-        .nav-btn.active { color: var(--accent); background: rgba(56, 189, 248, 0.1); }
-
+        /* --- БАЗОВЫЕ НАСТРОЙКИ (не меняются) --- */
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 100px; transition: 0.5s; background: var(--bg); color: var(--text); }
         .container { padding: 20px; max-width: 500px; margin: 0 auto; }
         .page { display: none; }
         .page.active { display: block; }
-
-        .card { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #334155; margin-bottom: 15px; position: relative; }
-        .deadline-alert { border-left: 5px solid var(--warning); }
-        .status-tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 10px; float: right; font-weight: bold; }
+        .card { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 15px; text-align: center; transition: 0.3s; }
+        .btn-main { background: var(--accent); color: var(--btn-text); border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; font-size: 1rem; }
+        .input-box { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--accent); background: rgba(0,0,0,0.2); color: var(--text); box-sizing: border-box; }
         
-        .btn-main { background: var(--accent); color: #0f172a; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
-        .input-box { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--accent); background: #0f172a; color: white; box-sizing: border-box; }
+        /* Нижнее меню */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; border-top: 2px solid var(--accent); z-index: 1000; }
+        .nav-btn { flex: 1; padding: 15px 5px; text-align: center; cursor: pointer; font-weight: bold; color: #94a3b8; border: none; background: none; font-size: 0.75rem; }
+        .nav-btn.active { color: var(--accent); background: rgba(255,255,255,0.05); }
+
+        /* Элементы расписания */
+        #schedule-box div { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+        #schedule-box .now { border-left: 5px solid var(--accent); background: rgba(255,255,255,0.05); font-weight: bold; color: var(--accent); }
+
+        /* ========================================= */
+        /* --- СЕЗОННЫЕ ТЕМЫ (НАСТРОЙКИ ЦВЕТОВ) --- */
+        /* ========================================= */
+
+        /* 🔵 1. СТАНДАРТНАЯ (Твоя текущая) */
+        :root, [data-theme="default"] {
+            --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #38bdf8; --border: #334155; --btn-text: #0f172a; --success: #22c55e;
+        }
+
+        /* 🎃 2. ХЕЛЛОУИН (Октябрь/Ноябрь) */
+        [data-theme="halloween"] {
+            --bg: #000000; --card: #111111; --text: #ffffff; --accent: #ff6600; --border: #444444; --btn-text: #000000; --success: #8800ff;
+        }
+        [data-theme="halloween"] .btn-main:hover { box-shadow: 0 0 15px #ff6600; }
+
+        /* ❄️ 3. НОВЫЙ ГОД (Декабрь/Январь) */
+        [data-theme="newyear"] {
+            --bg: #e0f2fe; --card: #ffffff; --text: #1e293b; --accent: #ef4444; --border: #bae6fd; --btn-text: #ffffff; --success: #16a34a;
+        }
+        [data-theme="newyear"] body { background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZyBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNiYWU2ZmQiIGZpbGwtb3BhY2l0eT0iMC4zIj48cGF0aCBkPSJNMCAwaDR2NGgwVjB6bTQgNGg0djRoMFY0em00IDRoNHY0aDBWOHptNCA0aDR2NGgwVjEyek0wIDRoNHY0aDBWNHptNCA0hDR2vNGgwVjh6bTQgNGg0djRoMFYxMnpNMCA4aDR2NGgwVjh6bTQgNGg0djRoMFYxMnpNMCAxMmg0djRoMFYxMnoiLz48L2c+PC9nPjwvc3ZnPg=='); }
+
+        /* 💖 4. ДЕНЬ ВЛЮБЛЕННЫХ (Февраль) */
+        [data-theme="love"] {
+            --bg: #2d0a13; --card: #4c1d24; --text: #ffe4e6; --accent: #f43f5e; --border: #881337; --btn-text: #ffffff; --success: #f472b6;
+        }
+
+        /* 🎖️ 5. 23 ФЕВРАЛЯ (Конец Февраля) */
+        [data-theme="military"] {
+            --bg: #252a1e; --card: #3f4a32; --text: #e0e7d8; --accent: #a3b18a; --border: #58614c; --btn-text: #1a1d14; --success: #bfdbfe;
+        }
+
+        /* 🌱 6. ВЕСНА/ЛЕТО (Март - Август) */
+        [data-theme="summer"] {
+            --bg: #f0fdf4; --card: #ffffff; --text: #166534; --accent: #16a34a; --border: #bbf7d0; --btn-text: #ffffff; --success: #15803d;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="p-sched" class="page active">
-        <h1 style="color: var(--accent)">📅 Сегодня</h1>
-        <div id="clock" style="font-weight: bold; margin-bottom: 15px;"></div>
-        <div id="schedule-box"></div>
+        <h1 id="sched-title">📅 Сегодня</h1>
+        <div id="clock" style="font-weight: bold; margin-bottom: 15px; opacity: 0.7;"></div>
+        <div id="schedule-box" class="card" style="padding: 0; text-align: left;"></div>
     </div>
 
     <div id="p-cards" class="page">
-        <h1 style="color: var(--accent)">🎯 Квесты</h1>
+        <h1>🎯 Квесты</h1>
         <div class="card">
-            <div id="q-text" style="font-size: 1.1rem; margin-bottom: 15px;">Нажми, чтобы начать</div>
-            <input type="text" id="ans-input" class="input-box" style="display:none">
+            <div id="q-text" style="font-size: 1.1rem; margin-bottom: 15px; min-height: 50px;">Нажми, чтобы взять карточку</div>
+            <input type="text" id="ans-input" class="input-box" style="display:none" placeholder="Ответ...">
             <button id="card-btn" onclick="nextCard()" class="btn-main">Взять карточку</button>
             <p id="msg" style="margin-top: 10px; font-weight: bold;"></p>
         </div>
+        <div style="text-align: center; opacity: 0.6; font-size: 0.8rem;">Решено: <span id="total-done">0</span></div>
     </div>
 
     <div id="p-google" class="page">
-        <h1 style="color: var(--accent)">🏫 Classroom</h1>
-        <p style="font-size: 0.8rem; opacity: 0.7;">(Синхронизация в процессе...)</p>
-        
-        <div id="google-tasks">
-            <div class="card deadline-alert">
-                <span class="status-tag" style="background: var(--warning); color: #000;">2 ЧАСА!</span>
-                <div style="font-weight: bold;">Алгебра: Тест №4</div>
-                <div style="font-size: 0.8rem; opacity: 0.6;">Сдать до: Сегодня 20:00</div>
-            </div>
-
-            <div class="card">
-                <span class="status-tag" style="background: var(--success); color: #fff;">СДАНО</span>
-                <div style="font-weight: bold; opacity: 0.5;">Физика: Лабораторная</div>
-                <div style="font-size: 0.8rem; opacity: 0.4;">Проверено ИИ</div>
-            </div>
+        <h1>🏫 Classroom</h1>
+        <div class="card">
+            <p>Скоро здесь будут твои реальные дедлайны из Google Classroom.</p>
+            <p style="font-size: 0.8rem; opacity: 0.7;">Жду команду на подключение API!</p>
         </div>
     </div>
 </div>
@@ -70,8 +96,8 @@
 </nav>
 
 <script>
-    // Весь твой предыдущий JavaScript (Расписание и Карточки)
-    const schedule = {
+    // --- ДАННЫЕ (Твои уроки и карточки) ---
+    const scheduleData = {
         1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
         2: ["Англ", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис", "Физра", "Гром. освіта"],
         3: ["Химия", "Основы здоровья", "Укр. лит", "Алгебра", "История Укр", "Англ", "География", "Биология"],
@@ -79,6 +105,57 @@
         5: ["Физра", "Укр. язык", "Укр. лит", "Алгебра", "Зарубежка", "Информатика", "Немецкий"]
     };
 
+    const cardsData = [
+        {id:1, q:"Алгебра: Дискриминант D = b² - ... ?", a:"4ac"},
+        {id:2, q:"Физика: Единица измерения силы?", a:"ньютон"},
+        {id:3, q:"Геометрия: Площадь квадрата со стороной 5?", a:"25"},
+        {id:4, q:"Химия: Валентность Кислорода (O)?", a:"2"},
+        {id:5, q:"Англ: 3-я форма глагола 'Go'?", a:"gone"}
+    ];
+
+    let solvedIds = JSON.parse(localStorage.getItem('solved_ids') || "[]");
+    let currentQ = null;
+
+    // ==========================================
+    // --- 🧠 ЛОГИКА АВТО-ТЕМ (NEW!) ---
+    // ==========================================
+    function setTheme() {
+        const now = new Date();
+        const month = now.getMonth() + 1; // Январь - 1, Декабрь - 12
+        const day = now.getDate();
+        const html = document.documentElement;
+        let theme = 'default';
+        let title = '📅 Сегодня';
+
+        // 1. Праздники (приоритет)
+        if (month === 12 || month === 1) {
+            theme = 'newyear';
+            title = '🎄 С Новым Годом!';
+        } 
+        else if (month === 2 && day >= 10 && day <= 16) {
+            theme = 'love';
+            title = '💖 Study & Love';
+        }
+        else if (month === 2 && day >= 20 && day <= 25) {
+            theme = 'military';
+            title = '🎖️ С 23 Февраля!';
+        }
+        else if (month === 10 && day >= 25 || month === 11 && day <= 5) {
+            theme = 'halloween';
+            title = '🎃 Study or Treat?';
+        }
+        // 2. Сезоны (если нет праздников)
+        else if (month >= 3 && month <= 8) {
+            theme = 'summer';
+            title = '🌱 Весна/Лето';
+        }
+
+        html.setAttribute('data-theme', theme);
+        document.getElementById('sched-title').innerText = title;
+        console.log(`Установлена тема: ${theme}`);
+    }
+
+    // --- ОСТАЛЬНАЯ ЛОГИКА (Вкладки, Уроки, Карточки) ---
     function tab(id, btn) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -86,38 +163,68 @@
         btn.classList.add('active');
     }
 
-    function update() {
+    function updateSched() {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString();
-        
-        const day = now.getDay();
-        const min = now.getHours() * 60 + now.getMinutes();
+        const d = now.getDay();
+        const m = now.getHours() * 60 + now.getMinutes();
         const box = document.getElementById('schedule-box');
         box.innerHTML = "";
         
-        (schedule[day] || []).forEach((name, i) => {
+        (scheduleData[d] || []).forEach((name, i) => {
             const start = 540 + (i * 35);
             const end = start + 25;
             const item = document.createElement('div');
-            item.style.padding = "15px";
-            item.style.borderBottom = "1px solid #334155";
-            if (min >= start && min < end) {
-                item.style.borderLeft = "5px solid var(--accent)";
-                item.style.background = "rgba(56, 189, 248, 0.1)";
-            }
-            item.innerHTML = `<span>${name}</span> <span style="float:right">${Math.floor(start/60)}:${(start%60).toString().padStart(2,'0')}</span>`;
+            if (m >= start && m < end) item.className = 'now';
+            const formatTime = (time) => `${Math.floor(time/60)}:${(time%60).toString().padStart(2,'0')}`;
+            item.innerHTML = `<span>${name}</span> <span>${formatTime(start)}</span>`;
             box.appendChild(item);
         });
     }
 
-    setInterval(update, 1000);
-    update();
-
-    // Карточки (оставляем твою логику)
     function nextCard() {
-        // Тут код из предыдущего ответа
-        alert("Вкладка работает! Карточки подгружаются...");
+        const input = document.getElementById('ans-input');
+        const btn = document.getElementById('card-btn');
+        const msg = document.getElementById('msg');
+
+        if (btn.innerText === "Проверить") {
+            let userAns = input.value.toLowerCase().trim().replace(/\s+/g, ''); 
+            if (userAns === currentQ.a.toLowerCase()) {
+                msg.innerText = "🔥 Верно!";
+                msg.style.color = "var(--success)";
+                solvedIds.push(currentQ.id);
+                localStorage.setItem('solved_ids', JSON.stringify(solvedIds));
+                document.getElementById('total-done').innerText = solvedIds.length;
+                btn.innerText = "Взять еще";
+                input.style.display = "none";
+            } else {
+                msg.innerText = "❌ Подумай еще";
+                msg.style.color = "#ef4444";
+            }
+            return;
+        }
+
+        const available = cardsData.filter(c => !solvedIds.includes(c.id));
+        if (available.length === 0) {
+            document.getElementById('q-text').innerText = "Все карточки пройдены!";
+            input.style.display = "none";
+            btn.style.display = "none";
+            return;
+        }
+
+        currentQ = available[Math.floor(Math.random() * available.length)];
+        document.getElementById('q-text').innerText = currentQ.q;
+        input.value = "";
+        input.style.display = "block";
+        btn.innerText = "Проверить";
+        msg.innerText = "";
     }
+
+    // ЗАПУСК
+    setTheme(); // Включаем тему
+    setInterval(updateSched, 1000);
+    updateSched();
+    document.getElementById('total-done').innerText = solvedIds.length;
 </script>
 </body>
 </html>
