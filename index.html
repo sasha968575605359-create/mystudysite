@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY HUB: MATB OS v3.6 ULTIMATE EXTREME</title>
+    <title>STUDY HUB: MATB OS v3.7 ULTIMATE EXTREME</title>
     <!-- Google Identity Services for Classroom API -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
@@ -43,7 +43,6 @@
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
-            /* Эффект зернистости для текстуры */
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3BaseFilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
             background-attachment: fixed;
         }
@@ -331,7 +330,7 @@
             </div>
 
             <div class="section-card">
-                <div class="section-header"><i>📅</i> Расписание</div>
+                <div class="section-header"><i>📅</i> Расписание (25/10)</div>
                 <div id="schedule-container">
                     <!-- Рендерится скриптом -->
                 </div>
@@ -408,31 +407,40 @@
 
     <script>
         /**
-         * STUDY HUB CORE ENGINE v3.6
-         * Разработано специально для MATB.
-         * Содержит полную логику управления временем, расписанием и интеграцией с API.
+         * STUDY HUB CORE ENGINE v3.7
+         * РАСПИСАНИЕ: Урок 25 мин, Перемена 10 мин.
+         * Старт: 09:00
          */
 
         const CLIENT_ID = '747337328453-pp0c1ncoagvotsjrephg9vlbf300ko90.apps.googleusercontent.com';
         
-        // Массив временных интервалов уроков (40 мин урок + перемены)
+        /**
+         * РАСЧЕТ СЕТКИ ВРЕМЕНИ (MATB SPECIAL)
+         * 1: 09:00 - 09:25
+         * 2: 09:35 - 10:00
+         * 3: 10:10 - 10:35
+         * 4: 10:45 - 11:10
+         * 5: 11:20 - 11:45
+         * 6: 11:55 - 12:20
+         * 7: 12:30 - 12:55
+         * 8: 13:05 - 13:30
+         */
         const LESSON_TIMES = [
-            { start: "09:00", end: "09:40" }, // 1
-            { start: "09:50", end: "10:30" }, // 2
-            { start: "10:50", end: "11:30" }, // 3
-            { start: "11:50", end: "12:30" }, // 4
-            { start: "12:40", end: "13:20" }, // 5
-            { start: "13:30", end: "14:10" }, // 6
-            { start: "14:20", end: "15:00" }, // 7
-            { start: "15:10", end: "15:50" }  // 8
+            { start: "09:00", end: "09:25" },
+            { start: "09:35", end: "10:00" },
+            { start: "10:10", end: "10:35" },
+            { start: "10:45", end: "11:10" },
+            { start: "11:20", end: "11:45" },
+            { start: "11:55", end: "12:20" },
+            { start: "12:30", end: "12:55" },
+            { start: "13:05", end: "13:30" }
         ];
 
-        // План на неделю
         const WEEKLY_PLAN = {
             1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
-            2: ["Геометрия", "Физика", "Укр. язык", "Биология", "Музыка", "Физкультура", "Гром. освіта", "Английский (16:00)"],
+            2: ["Геометрия", "Физика", "Укр. язык", "Биология", "Музыка", "Физкультура", "Гром. освіта", "Английский (Внеурочно)"],
             3: ["Химия", "Основы здоровья", "Укр. литература", "Алгебра", "История Украины", "Английский", "География", "Биология"],
-            4: ["Математика Доп (9:00)", "Физика", "Физкультура", "Всемирная история", "Технологии", "Английский"],
+            4: ["Математика Доп", "Физика", "Физкультура", "Всемирная история", "Технологии", "Английский"],
             5: ["Физкультура", "Укр. язык", "Укр. литература", "Алгебра", "Зарубежка", "Информатика", "Немецкий"]
         };
 
@@ -445,7 +453,6 @@
                 console.log("App initialized. Welcome back, MATB.");
                 this.updateTime();
                 
-                // Главный цикл обновлений (раз в секунду)
                 setInterval(() => {
                     this.updateTime();
                     this.logicEngine();
@@ -455,14 +462,12 @@
                 this.renderSchedule();
                 this.checkAlerts();
 
-                // Авто-логин при наличии токена
                 const savedToken = localStorage.getItem('g_token_v3');
                 if (savedToken) {
                     this.loadClassroomData(savedToken);
                 }
             },
 
-            // Обновление текущих часов и даты
             updateTime() {
                 const now = new Date();
                 const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -472,10 +477,6 @@
                 document.getElementById('date-display').innerText = dateStr;
             },
 
-            /**
-             * ГЛАВНЫЙ ЛОГИЧЕСКИЙ ДВИЖОК
-             * Обрабатывает уроки, перемены и таймеры
-             */
             logicEngine() {
                 const now = new Date();
                 const currentTotalMin = now.getHours() * 60 + now.getMinutes();
@@ -483,9 +484,9 @@
                 
                 let activeLessonIdx = -1;
                 let targetTimeMin = -1;
-                let mode = "NONE"; // NONE, LESSON, BREAK
+                let mode = "NONE"; 
 
-                // 1. Ищем, идет ли сейчас какой-то урок
+                // 1. Поиск активного урока
                 LESSON_TIMES.forEach((slot, i) => {
                     const start = this.toMin(slot.start);
                     const end = this.toMin(slot.end);
@@ -497,7 +498,7 @@
                     }
                 });
 
-                // 2. Если не урок, ищем, не перемена ли это сейчас
+                // 2. Поиск перемены
                 if (mode === "NONE") {
                     for (let i = 0; i < LESSON_TIMES.length - 1; i++) {
                         const breakStart = this.toMin(LESSON_TIMES[i].end);
@@ -511,7 +512,7 @@
                     }
                 }
 
-                // 3. Если все еще ничего, проверяем до начала первого урока
+                // 3. Ожидание первого урока
                 if (mode === "NONE" && currentTotalMin < this.toMin(LESSON_TIMES[0].start)) {
                     mode = "WAIT";
                     targetTimeMin = this.toMin(LESSON_TIMES[0].start);
@@ -520,15 +521,11 @@
                 this.updateUIStatus(mode, activeLessonIdx, targetTimeMin, currentTotalMin, currentSec);
             },
 
-            // Вспомогательная функция перевода времени в минуты
             toMin(str) {
                 const [h, m] = str.split(':').map(Number);
                 return h * 60 + m;
             },
 
-            /**
-             * Обновление визуального статуса и таймеров
-             */
             updateUIStatus(mode, lessonIdx, targetMin, currentMin, currentSec) {
                 const label = document.getElementById('timer-label');
                 const val = document.getElementById('timer-value');
@@ -558,14 +555,12 @@
                     statLesson.classList.remove('text-neon');
                 }
 
-                // Подсвечиваем урок в общем списке, если индекс изменился
                 if (this.currentLessonIdx !== lessonIdx) {
                     this.currentLessonIdx = lessonIdx;
                     this.updateScheduleHighlight();
                 }
             },
 
-            // Форматирование времени до события
             formatTime(target, current, sec) {
                 const diffMin = target - current - 1;
                 const diffSec = 60 - sec;
@@ -583,12 +578,10 @@
                 });
             },
 
-            // Генерация списка уроков
             renderSchedule() {
                 const day = new Date().getDay();
                 const container = document.getElementById('schedule-container');
                 
-                // Проверка на выходные
                 if (day === 0 || day === 6) {
                     container.innerHTML = `<div style="text-align:center; padding:30px; opacity:0.5; font-style:italic;">Свободный день. Отдыхай, MATB.</div>`;
                     return;
@@ -606,7 +599,6 @@
                 }).join('');
             },
 
-            // Красивые лепестки сакуры
             spawnPetals() {
                 const container = document.getElementById('fx-canvas');
                 for (let i = 0; i < 40; i++) {
@@ -621,7 +613,6 @@
                 }
             },
 
-            // Проверка особых уведомлений
             checkAlerts() {
                 const day = new Date().getDay();
                 const alertText = document.getElementById('alert-text');
@@ -641,9 +632,6 @@
                 window.scrollTo(0,0);
             },
 
-            /**
-             * CLASSROOM API INTEGRATION
-             */
             async loadClassroomData(token) {
                 const list = document.getElementById('tasks-list');
                 const authBlock = document.getElementById('auth-block');
@@ -665,7 +653,6 @@
                     list.innerHTML = "";
                     this.tasksFound = 0;
 
-                    // Фильтруем только нужные MATB предметы
                     for (let course of activeCourses) {
                         const name = course.name.toLowerCase();
                         const filter = ['биол', 'физи', 'хими', 'алгебр', 'геом', 'матем'];
@@ -678,7 +665,6 @@
                         
                         if (cwData.courseWork) {
                             for (let work of cwData.courseWork) {
-                                // Проверяем статус сдачи
                                 const sRes = await fetch(`https://classroom.googleapis.com/v1/courses/${course.id}/courseWork/${work.id}/studentSubmissions`, {
                                     headers: { Authorization: `Bearer ${token}` }
                                 });
@@ -762,7 +748,6 @@
             }
         };
 
-        // Запуск при полной загрузке
         window.onload = () => App.init();
 
     </script>
