@@ -3,34 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub Pro</title>
+    <title>StudyHub Ultra</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root { --bg: #064e3b; --accent: #4ade80; --text: #f8fafc; --card: rgba(15, 23, 42, 0.85); }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
-        
         #fx-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         .flower { position: absolute; top: -10%; animation: fall linear infinite; font-size: 20px; opacity: 0.6; }
         @keyframes fall { 0% { transform: translateY(0vh) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
-
         .container { max-width: 500px; margin: 0 auto; padding: 20px 20px 100px; position: relative; z-index: 10; }
-        .glass { background: var(--card); backdrop-filter: blur(15px); border-radius: 28px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        
-        .alert-box { background: linear-gradient(90deg, #ef4444, #f59e0b); color: white; padding: 15px; border-radius: 18px; margin-bottom: 20px; font-weight: bold; text-align: center; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
-
-        .btn-action { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 800; cursor: pointer; transition: 0.3s; }
-        .btn-action:active { transform: scale(0.95); }
-
-        .item { background: rgba(255,255,255,0.05); padding: 14px; border-radius: 16px; margin-top: 10px; border-left: 4px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
-        .item.break { border-left-color: #3b82f6; opacity: 0.8; font-size: 0.9rem; }
-        
-        .nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); display: flex; border-top: 1px solid rgba(255,255,255,0.1); z-index: 100; }
+        .glass { background: var(--card); backdrop-filter: blur(15px); border-radius: 28px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-action { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 800; cursor: pointer; }
+        .item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 16px; margin-top: 8px; border-left: 4px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
+        .item.break { border-left-color: #3b82f6; opacity: 0.7; font-size: 0.85rem; }
+        .nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(30, 41, 59, 0.95); display: flex; border-top: 1px solid rgba(255,255,255,0.1); z-index: 100; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; color: #94a3b8; cursor: pointer; }
-        .nav-item.active { color: var(--accent); font-weight: bold; }
-        .nav-item span { font-size: 1.6rem; margin-bottom: 4px; }
-
-        .page { display: none; }
-        .page.active { display: block; animation: slideUp 0.4s ease-out; }
+        .nav-item.active { color: var(--accent); }
+        .page { display: none; } .page.active { display: block; animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -40,82 +29,75 @@
 
 <div class="container">
     <div id="p-home" class="page active">
-        <div class="glass" style="text-align: center; padding: 40px 20px;">
-            <h1 id="clock" style="font-size: 4rem; margin: 0; letter-spacing: -2px;">00:00</h1>
-            <p id="date" style="opacity: 0.8; text-transform: capitalize; font-size: 1.1rem;"></p>
-        </div>
-
-        <div class="alert-box">
-            🚀 СЕГОДНЯ: Геометрия в 09:00 + Доп. Математика!
+        <div class="glass" style="text-align: center;">
+            <h1 id="clock" style="font-size: 3.5rem; margin: 0;">00:00</h1>
+            <p id="date" style="opacity: 0.8; text-transform: capitalize;"></p>
         </div>
 
         <div class="glass">
-            <h3 style="margin-top: 0;">🔔 Умный контроль</h3>
-            <button class="btn-action" onclick="App.initNotify()">ВКЛЮЧИТЬ УВЕДОМЛЕНИЯ</button>
-            <p style="font-size: 0.8rem; text-align: center; margin-top: 10px; opacity: 0.6;">Сайт пришлет пуш перед началом и концом уроков.</p>
+            <h3 style="margin-top: 0;">📅 Расписание на сегодня</h3>
+            <div id="schedule-box"></div>
         </div>
 
         <div class="glass">
-            <h3 style="margin-top: 0;">📅 Расписание (Четверг)</h3>
-            <div id="schedule">
-                </div>
+            <h3>🔔 Уведомления</h3>
+            <button class="btn-action" onclick="App.initNotify()">ВКЛЮЧИТЬ ПУШИ</button>
         </div>
     </div>
 
     <div id="p-class" class="page">
         <div class="glass">
-            <h2 style="text-align: center;">📚 Мой Классрум</h2>
-            <div id="auth-ui" style="text-align: center;">
-                <button class="btn-action" onclick="App.login()">ОБНОВИТЬ СПИСОК КУРСОВ</button>
-            </div>
-            <div id="courses-list" style="margin-top: 15px;"></div>
+            <h2 style="text-align: center;">🎓 Classroom</h2>
+            <div id="auth-ui" style="text-align: center;"><button class="btn-action" onclick="App.login()">ВОЙТИ</button></div>
+            <div id="courses-list"></div>
         </div>
     </div>
 </div>
 
 <nav class="nav">
-    <div class="nav-item active" onclick="App.tab('p-home', this)"><span>🏠</span>ГЛАВНАЯ</div>
-    <div class="nav-item" onclick="App.tab('p-class', this)"><span>🎓</span>КЛАССЫ</div>
+    <div class="nav-item active" onclick="App.tab('p-home', this)">🏠 ГЛАВНАЯ</div>
+    <div class="nav-item" onclick="App.tab('p-class', this)">🎓 КЛАССЫ</div>
 </nav>
 
 <script>
     const CLIENT_ID = '747337328453-pp0c1ncoagvotsjrephg9vlbf300ko90.apps.googleusercontent.com';
 
-    // Твое расписание (Четверг)
-    const DAILY_PLAN = [
-        { time: "09:00", name: "Геометрия (+ Доп. Мат)", type: "lesson" },
-        { time: "09:45", name: "Перемена", type: "break" },
-        { time: "09:55", name: "2-й Урок", type: "lesson" },
-        { time: "10:40", name: "Перемена", type: "break" },
-        { time: "10:50", name: "3-й Урок", type: "lesson" },
-        { time: "11:35", name: "Большая перемена", type: "break" },
-        { time: "11:55", name: "4-й Урок", type: "lesson" }
-    ];
+    const TIMING = ["09:00", "09:35", "10:10", "10:45", "11:20", "11:55", "12:30", "13:05"];
+    
+    const FULL_SCHEDULE = {
+        1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
+        2: ["Английский", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис.", "Физра", "Гром. освіта"],
+        3: ["Химия", "Основы здоровья", "Укр. литература", "Алгебра", "История Украины", "Английский", "География", "Биология"],
+        4: ["Геометрия", "Физика", "Физра", "Всемирная история", "Технологии", "Английский"],
+        5: ["Физра", "Укр. язык", "Укр. литература", "Алгебра", "Зарубежка", "Информатика", "Немецкий"]
+    };
 
     const App = {
         init() {
             this.tick();
             setInterval(() => this.tick(), 1000);
-            this.renderSchedule();
+            this.renderToday();
             this.flowers();
         },
         tick() {
             const now = new Date();
-            const timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('clock').innerText = timeStr;
+            const t = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('clock').innerText = t;
             document.getElementById('date').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
-            
-            // Проверка уведомлений каждую минуту
-            if (now.getSeconds() === 0) this.checkNotifications(timeStr);
+            if (now.getSeconds() === 0) this.checkNotify(t);
         },
-        renderSchedule() {
-            const container = document.getElementById('schedule');
-            container.innerHTML = DAILY_PLAN.map(item => `
-                <div class="item ${item.type}">
-                    <span>${item.name}</span>
-                    <b style="color:var(--accent)">${item.time}</b>
-                </div>
-            `).join('');
+        renderToday() {
+            const day = new Date().getDay(); // 1 - Mon, 5 - Fri
+            const container = document.getElementById('schedule-box');
+            if (day === 0 || day === 6) return container.innerHTML = "Сегодня выходной! Отдыхай, MATB! 😎";
+            
+            let lessons = FULL_SCHEDULE[day] || [];
+            let html = "";
+            lessons.forEach((name, i) => {
+                html += `<div class="item"><span>${name}</span><b>${TIMING[i] || '--:--'}</b></div>`;
+                html += `<div class="item break"><span>Перемена 10 мин</span></div>`;
+            });
+            container.innerHTML = html;
         },
         tab(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -124,27 +106,20 @@
             el.classList.add('active');
         },
         flowers() {
-            const layer = document.getElementById('fx-layer');
-            for(let i=0; i<20; i++) {
-                let f = document.createElement('div'); f.className = 'flower'; f.innerText = '🌸';
-                f.style.left = Math.random() * 100 + 'vw';
-                f.style.animationDuration = (Math.random() * 5 + 7) + 's';
-                f.style.animationDelay = (Math.random() * 5) + 's';
-                layer.appendChild(f);
+            for(let i=0; i<15; i++) {
+                let f = document.createElement('div'); f.className='flower'; f.innerText='🌸';
+                f.style.left=Math.random()*100+'vw'; f.style.animationDuration=(Math.random()*5+5)+'s';
+                document.getElementById('fx-layer').appendChild(f);
             }
         },
-        initNotify() {
-            Notification.requestPermission().then(p => {
-                if(p === 'granted') alert("Уведомления активированы! Я напомню о начале уроков.");
-            });
-        },
-        checkNotifications(currentTime) {
-            const event = DAILY_PLAN.find(e => e.time === currentTime);
-            if (event && Notification.permission === 'granted') {
-                new Notification("StudyHub: " + event.name, {
-                    body: event.type === 'lesson' ? "Урок начинается, бегом в зум/класс!" : "Урок окончен, отдыхай!",
-                    icon: "🌸"
-                });
+        initNotify() { Notification.requestPermission(); },
+        checkNotify(t) {
+            const day = new Date().getDay();
+            const lessons = FULL_SCHEDULE[day];
+            if (!lessons) return;
+            const idx = TIMING.indexOf(t);
+            if (idx !== -1 && Notification.permission === 'granted') {
+                new Notification("Погнали!", { body: `Начался урок: ${lessons[idx]}`, icon: "🌸" });
             }
         },
         login() {
@@ -157,33 +132,13 @@
         },
         async loadCourses(token) {
             const list = document.getElementById('courses-list');
-            list.innerHTML = "<p style='text-align:center'>Чистим архив и грузим курсы...</p>";
-            try {
-                const res = await fetch('https://classroom.googleapis.com/v1/courses', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                // Фильтруем только АКТИВНЫЕ курсы
-                const activeOnes = data.courses ? data.courses.filter(c => c.courseState === 'ACTIVE') : [];
-                
-                if (activeOnes.length > 0) {
-                    document.getElementById('auth-ui').style.display = 'none';
-                    list.innerHTML = activeOnes.map(c => `
-                        <div class="item">
-                            <div>
-                                <div style="font-weight:bold">${c.name}</div>
-                                <div style="font-size:0.7rem; opacity:0.6">${c.section || 'Активный курс'}</div>
-                            </div>
-                            <span style="font-size:1.2rem">📖</span>
-                        </div>
-                    `).join('');
-                } else {
-                    list.innerHTML = "Активных курсов не найдено.";
-                }
-            } catch (e) { list.innerHTML = "Ошибка связи с Google."; }
+            const res = await fetch('https://classroom.googleapis.com/v1/courses', { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            const active = data.courses ? data.courses.filter(c => c.courseState === 'ACTIVE') : [];
+            document.getElementById('auth-ui').style.display = 'none';
+            list.innerHTML = active.map(c => `<div class="item"><span>${c.name}</span></div>`).join('');
         }
     };
-
     App.init();
 </script>
 </body>
