@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0b0f1a">
-    
-    <title>STUDY HUB: MATB OS v9.0</title>
-    
+
+    <title>MATB OS v9.3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     
     <style>
@@ -19,344 +17,219 @@
             --bg: #0b0f1a;
             --card: #161c2d;
             --accent: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.5);
             --text: #ffffff;
             --text-dim: #94a3b8;
-            --danger: #ef4444;
             --success: #10b981;
         }
 
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-            outline: none;
-        }
-        
         body {
-            margin: 0; 
-            background: var(--bg); 
-            color: var(--text);
-            font-family: 'Inter', sans-serif; 
-            overflow: hidden; 
-            height: 100vh;
-            user-select: none;
+            margin: 0; background: var(--bg); color: var(--text);
+            font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .container {
-            height: 100vh; 
-            overflow-y: auto;
+            height: 100vh; overflow-y: auto;
             padding: calc(20px + env(safe-area-inset-top)) 20px 120px;
-            scroll-behavior: smooth;
+            box-sizing: border-box;
         }
 
-        /* Крупный виджет времени */
+        /* Таймер и часы */
         .time-widget {
-            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
-            border-radius: 45px;
-            padding: 50px 20px;
-            text-align: center;
-            margin-bottom: 25px;
-            border: 1px solid rgba(255,255,255,0.08);
-            position: relative;
-        }
-        
-        .main-clock { 
-            font-size: 5.5rem; 
-            font-weight: 900; 
-            letter-spacing: -3px; 
-            line-height: 1;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        
-        .main-date { 
-            color: var(--accent); 
-            font-weight: 800; 
-            text-transform: uppercase; 
-            font-size: 0.9rem; 
-            letter-spacing: 3px; 
-            margin-top: 15px; 
-            display: block;
-            opacity: 0.8;
-        }
-
-        /* Баннер статуса */
-        .status-banner {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            border-radius: 35px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.3);
-            position: relative; 
-            overflow: hidden;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .status-banner::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .status-label { font-size: 0.75rem; font-weight: 900; opacity: 0.7; text-transform: uppercase; letter-spacing: 2px; }
-        .status-name { font-size: 2.2rem; font-weight: 900; margin: 8px 0; line-height: 1.1; }
-        .status-timer { font-family: 'JetBrains Mono'; font-size: 3.8rem; font-weight: 700; letter-spacing: -2px; }
-
-        /* Списки и элементы */
-        .section-header {
-            display: flex; align-items: center; gap: 12px;
-            margin-bottom: 20px; padding-left: 10px;
-        }
-        .section-line { width: 4px; height: 22px; background: var(--accent); border-radius: 4px; box-shadow: 0 0 10px var(--accent-glow); }
-        .section-title { font-weight: 900; text-transform: uppercase; font-size: 0.9rem; color: var(--text-dim); letter-spacing: 1.5px; }
-
-        .item {
-            background: var(--card);
-            border-radius: 28px;
-            padding: 24px;
-            margin-bottom: 14px;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            border: 1px solid rgba(255,255,255,0.03);
-            transition: 0.3s all ease;
-        }
-        
-        .item.active { 
-            border-color: var(--accent); 
-            background: rgba(59, 130, 246, 0.12); 
-            transform: scale(1.02);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .item.past { opacity: 0.35; filter: grayscale(0.5); }
-
-        .item-info { flex: 1; }
-        .item-meta { font-size: 0.7rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
-        .item-name { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; }
-        .item-time { font-family: 'JetBrains Mono'; font-size: 1rem; color: var(--text-dim); font-weight: 700; opacity: 0.8; }
-
-        /* Нижняя навигация */
-        .nav {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(11, 15, 26, 0.85); 
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            display: flex; justify-content: space-around;
-            padding: 18px 0 calc(20px + env(safe-area-inset-bottom));
-            border-top: 1px solid rgba(255,255,255,0.06);
-            z-index: 1000;
-        }
-        
-        .nav-item { 
-            text-align: center; 
-            flex: 1; 
-            color: var(--text-dim); 
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-        }
-        
-        .nav-item.active { color: var(--accent); transform: translateY(-5px); }
-        .nav-item i { font-size: 1.6rem; display: block; margin-bottom: 6px; font-style: normal; }
-        .nav-item span { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* Уведомление встроенное */
-        #site-notif {
-            position: fixed; top: -120px; left: 5%; width: 90%;
-            background: #ffffff; color: #000000; 
-            padding: 22px; border-radius: 30px;
-            z-index: 9999; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-            display: flex; align-items: center; gap: 15px;
-        }
-        #site-notif.show { top: 25px; }
-        .notif-icon { width: 50px; height: 50px; background: var(--accent); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-
-        /* Настройки */
-        .settings-card {
-            background: var(--card);
-            border-radius: 35px;
-            padding: 30px;
-            margin-bottom: 20px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 40px; padding: 30px 20px; text-align: center; margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.05);
         }
         
-        .btn {
-            width: 100%; 
-            padding: 22px; 
-            border-radius: 22px; 
-            border: none;
-            font-weight: 900; 
-            font-size: 1rem; 
-            cursor: pointer; 
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.2s active;
+        .main-clock { font-size: 4.5rem; font-weight: 900; letter-spacing: -2px; line-height: 1; }
+        .main-date { color: var(--accent); font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; margin-top: 10px; display: block; }
+
+        .status-banner {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-radius: 30px; padding: 20px; margin-bottom: 25px;
+            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.15);
+            transition: all 0.5s ease;
+        }
+
+        .status-label { font-size: 0.65rem; font-weight: 900; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
+        .status-name { font-size: 1.6rem; font-weight: 900; margin: 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .status-timer { font-family: 'JetBrains Mono'; font-size: 3.2rem; font-weight: 700; line-height: 1; margin-top: 5px; }
+
+        /* Список уроков */
+        .schedule-title { font-size: 0.75rem; font-weight: 900; color: var(--text-dim); margin: 0 0 15px 5px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .item {
+            background: var(--card); border-radius: 22px; padding: 18px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid rgba(255,255,255,0.03);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .btn:active { transform: scale(0.96); opacity: 0.8; }
-        .btn-primary { background: var(--accent); color: white; box-shadow: 0 10px 20px var(--accent-glow); }
-        .btn-outline { background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); }
+        .item.active { border-color: var(--accent); background: rgba(59, 130, 246, 0.08); transform: scale(1.02); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .item.past { opacity: 0.25; filter: grayscale(0.5); }
+        .item-name { font-size: 1rem; font-weight: 800; color: #fff; }
+        .item-num { font-size: 0.65rem; color: var(--accent); font-weight: 900; margin-bottom: 2px; }
+        .item-time { font-family: 'JetBrains Mono'; color: var(--text-dim); font-size: 0.85rem; text-align: right; }
 
-        .hidden { display: none; }
+        /* Навигация */
+        .nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(11, 15, 26, 0.95); backdrop-filter: blur(20px);
+            display: flex; justify-content: space-around;
+            padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+            border-top: 1px solid rgba(255,255,255,0.05);
+            z-index: 100;
+        }
         
-        /* Скроллбар */
-        ::-webkit-scrollbar { width: 0; background: transparent; }
+        .nav-item { text-align: center; color: var(--text-dim); flex: 1; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item i { font-size: 1.3rem; display: block; margin-bottom: 3px; font-style: normal; }
+        .nav-item span { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
+
+        #site-notif {
+            position: fixed; top: -120px; left: 15px; right: 15px;
+            background: #fff; color: #000; padding: 15px 20px; border-radius: 24px;
+            z-index: 9999; transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+            display: flex; align-items: center; gap: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        #site-notif.show { top: 20px; }
+        .hidden { display: none; }
+
+        button.primary {
+            width: 100%; padding: 18px; border-radius: 20px; border: none; 
+            background: var(--accent); color: #fff; font-weight: 800; 
+            font-size: 0.9rem; letter-spacing: 0.5px;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+        }
     </style>
 </head>
 <body>
 
-    <!-- Внутренний пуш -->
+    <!-- Кастомное уведомление -->
     <div id="site-notif">
-        <div class="notif-icon">🔔</div>
+        <div style="font-size:1.8rem">⚡</div>
         <div>
-            <b id="nt-title" style="display:block; font-size: 1.1rem;">УВЕДОМЛЕНИЕ</b>
-            <span id="nt-body" style="font-size: 0.95rem; opacity: 0.7;">Текст сообщения</span>
+            <b id="nt-title" style="display:block; font-size: 1rem;">ВНИМАНИЕ</b>
+            <span id="nt-body" style="font-size:0.85rem; opacity:0.7">Пора входить в строй!</span>
         </div>
     </div>
 
     <div class="container">
-        <!-- Часы -->
+        <!-- Виджет времени -->
         <div class="time-widget">
             <div class="main-clock" id="wall-clock">00:00</div>
             <div class="main-date" id="wall-date">ЗАГРУЗКА...</div>
         </div>
 
-        <!-- Виджет статуса -->
+        <!-- Активное состояние -->
         <div id="active-widget" class="status-banner">
-            <div class="status-label" id="act-label">MATB OS</div>
-            <div class="status-name" id="act-name">ЗАГРУЗКА...</div>
+            <div class="status-label" id="act-label">MATB OS v9.3</div>
+            <div class="status-name" id="act-name">ПОДГОТОВКА...</div>
             <div class="status-timer" id="act-timer">00:00</div>
         </div>
 
-        <!-- Главная вкладка -->
+        <!-- Основной контент -->
         <div id="tab-main">
-            <div class="section-header">
-                <div class="section-line"></div>
-                <div class="section-title">РАСПИСАНИЕ НА СЕГОДНЯ</div>
-            </div>
-            <div id="schedule-list">
-                <!-- Сюда упадут уроки -->
-            </div>
+            <div class="schedule-title">План на сегодня</div>
+            <div id="schedule-list"></div>
         </div>
 
-        <!-- Настройки (OS) -->
+        <!-- Настройки -->
         <div id="tab-settings" class="hidden">
-            <div class="section-header">
-                <div class="section-line"></div>
-                <div class="section-title">КОНФИГУРАЦИЯ СИСТЕМЫ</div>
+            <div style="background:var(--card); padding:25px; border-radius:30px; border: 1px solid rgba(255,255,255,0.05);">
+                <h3 style="margin-top:0">СИСТЕМА</h3>
+                <p style="font-size:0.85rem; color:var(--text-dim); line-height:1.5">
+                    Урок: <b>25 мин</b><br>
+                    Перемена: <b>10 мин</b><br><br>
+                    Чтобы получать пуши в шторку Android, нажми кнопку и разреши доступ. 
+                    <i>Не забудь добавить сайт на главный экран!</i>
+                </p>
+                <button class="primary" onclick="App.enableNotifications()">ВКЛЮЧИТЬ ПУШИ</button>
             </div>
             
-            <div class="settings-card">
-                <h3 style="margin:0 0 10px 0;">УВЕДОМЛЕНИЯ</h3>
-                <p style="color:var(--text-dim); font-size:0.9rem; margin-bottom:20px;">
-                    Чтобы Android не блокировал пуши, обязательно добавь сайт на Главный Экран (PWA) и нажми кнопку активации.
-                </p>
-                <button class="btn btn-primary" onclick="App.enableNotifications()">🔔 АКТИВИРОВАТЬ ПУШИ</button>
-                <button class="btn btn-outline" onclick="App.testPush()">🧪 ТЕСТ (ЧЕРЕЗ 5 СЕК)</button>
-            </div>
-
-            <div class="settings-card">
-                <h3 style="margin:0 0 10px 0;">О СИСТЕМЕ</h3>
-                <div style="font-size: 0.9rem; line-height: 1.6;">
-                    <div style="display:flex; justify-content:space-between"><span>Версия:</span> <b>9.0 UNLIMITED</b></div>
-                    <div style="display:flex; justify-content:space-between"><span>Владелец:</span> <b>MATB</b></div>
-                    <div style="display:flex; justify-content:space-between"><span>Статус:</span> <b style="color:var(--success)">ONLINE</b></div>
-                </div>
+            <div style="margin-top: 20px; text-align: center; font-size: 0.7rem; color: var(--text-dim); opacity: 0.5;">
+                StudyHub MATB Edition • Build 2026.03
             </div>
         </div>
     </div>
 
-    <!-- Навигация -->
+    <!-- Таббар -->
     <nav class="nav">
-        <div class="nav-item active" onclick="App.switchTab('main', this)">
-            <i>🏠</i><span>БАЗА</span>
-        </div>
-        <div class="nav-item" onclick="App.switchTab('tasks', this)">
-            <i>📝</i><span>ЗАДАЧИ</span>
-        </div>
-        <div class="nav-item" onclick="App.switchTab('settings', this)">
-            <i>⚙️</i><span>OS</span>
-        </div>
+        <div class="nav-item active" onclick="App.switchTab('main', this)"><i>📅</i><span>ПЛАН</span></div>
+        <div class="nav-item" onclick="App.switchTab('settings', this)"><i>🛠️</i><span>OS</span></div>
     </nav>
 
     <script>
         const CONFIG = {
-            // Исправленная сетка по твоим скринам (Геометрия в 9:00)
-            grid: [
-                { s: "09:00", e: "09:45" }, // 1
-                { s: "10:00", e: "10:45" }, // 2
-                { s: "11:00", e: "11:45" }, // 3
-                { s: "12:00", e: "12:45" }, // 4
-                { s: "13:00", e: "13:45" }, // 5
-                { s: "14:00", e: "14:45" }, // 6
-                { s: "15:00", e: "15:45" }  // 7
-            ],
+            lesson_len: 25, // ИСПРАВЛЕНО: 25 минут
+            break_len: 10,  // ИСПРАВЛЕНО: 10 минут
+            start_time: "09:00",
             schedule: {
-                1: ["Алгебра", "География", "Физика", "История", "Укр. Мова", "Биология", "Физ-ра"],
-                2: ["Геометрия", "Химия", "Английский", "Зарубежка", "Информатика", "Физика", "Труды"],
-                3: ["История", "Укр. Лит", "Алгебра", "Биология", "География", "Химия", "Английский"],
-                4: ["Физ-ра", "Геометрия", "Укр. Мова", "История", "Физика", "Английский", "ОБЖ"],
-                5: ["Информатика", "Зарубежка", "Алгебра", "Химия", "География", "Укр. Лит", "Искусство"]
+                1: ["Алгебра", "География", "Укр.Мова", "Биология", "Укр.Мова", "Химия", "Информ."], 
+                2: ["Англ.Яз", "Геометрия", "Физика", "Укр.Мова", "Биология", "Обр.Мист.", "Физика", "Гром.Осв."],
+                3: ["Химия", "Осн.Здоровья", "Укр.Лит", "Алгебра", "Ист.Укр.", "Англ.Яз", "География", "Биология"],
+                4: ["Геометрия", "Физика", "Физ-ра", "Вс.История", "Технологии", "Англ.Яз", "Финансы"],
+                5: ["Физ-ра", "Укр.Мова", "Укр.Лит", "Алгебра", "Зар.Лит", "Информ.", "Немецкий"]
             }
         };
 
         const App = {
             timeline: [],
-            audioCtx: null,
-            lastTriggeredKey: "",
+            lastM: -1,
+            lastS: -1,
 
             init() {
                 this.buildTimeline();
                 this.renderSchedule();
-                
-                // Запуск циклов
+                this.initSW();
                 setInterval(() => this.tick(), 1000);
                 this.tick();
+            },
 
-                // Fake Service Worker для PWA (Android Chrome требует для пушей)
+            // Инициализация сервис-воркера для пушей в шторку
+            initSW() {
                 if ('serviceWorker' in navigator) {
-                    const swCode = `self.addEventListener('push', e => {});`;
+                    const swCode = `
+                        self.addEventListener('push', e => {
+                            const data = e.data.json();
+                            self.registration.showNotification(data.title, {
+                                body: data.body,
+                                icon: 'https://cdn-icons-png.flaticon.com/512/3587/3587091.png',
+                                vibrate: [200, 100, 200]
+                            });
+                        });
+                    `;
                     const blob = new Blob([swCode], {type: 'application/javascript'});
                     navigator.serviceWorker.register(URL.createObjectURL(blob));
                 }
             },
 
-            // Вспомогательные функции времени
-            toM(str) { const [h, m] = str.split(':').map(Number); return h * 60 + m; },
-            fromM(m) { return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`; },
+            toM(str) { 
+                const [h, m] = str.split(':').map(Number); 
+                return h * 60 + m; 
+            },
+            
+            fromM(m) { 
+                return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`; 
+            },
 
             buildTimeline() {
                 const day = new Date().getDay();
                 const subjects = CONFIG.schedule[day] || [];
+                let currentPos = this.toM(CONFIG.start_time);
                 this.timeline = [];
 
                 subjects.forEach((name, i) => {
-                    const slot = CONFIG.grid[i];
-                    if (!slot) return;
+                    const s = currentPos;
+                    const e = s + CONFIG.lesson_len;
+                    this.timeline.push({ type: 'lesson', name: name.toUpperCase(), s, e, num: i + 1 });
                     
-                    // Добавляем урок
-                    this.timeline.push({
-                        type: 'lesson',
-                        name: name.toUpperCase(),
-                        s: this.toM(slot.s),
-                        e: this.toM(slot.e),
-                        num: i + 1
-                    });
-
-                    // Добавляем перемену (если есть следующий урок)
-                    if (subjects[i+1] && CONFIG.grid[i+1]) {
-                        this.timeline.push({
-                            type: 'break',
-                            name: 'ПЕРЕМЕНА',
-                            s: this.toM(slot.e),
-                            e: this.toM(CONFIG.grid[i+1].s)
-                        });
+                    const bs = e;
+                    const be = bs + CONFIG.break_len;
+                    if (i < subjects.length - 1) {
+                        this.timeline.push({ type: 'break', name: 'ПЕРЕМЕНА', s: bs, e: be });
                     }
+                    currentPos = be;
                 });
             },
 
@@ -364,49 +237,47 @@
                 const list = document.getElementById('schedule-list');
                 const now = new Date();
                 const days = ["ВОСКРЕСЕНЬЕ", "ПОНЕДЕЛЬНИК", "ВТОРНИК", "СРЕДА", "ЧЕТВЕРГ", "ПЯТНИЦА", "СУББОТА"];
-                const months = ["ЯНВ", "ФЕВ", "МАР", "АПР", "МАЙ", "ИЮН", "ИЮЛ", "АВГ", "СЕН", "ОКТ", "НОЯ", "ДЕК"];
+                document.getElementById('wall-date').innerText = days[now.getDay()];
                 
-                document.getElementById('wall-date').innerText = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]}`;
-
                 if (this.timeline.length === 0) {
-                    list.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-dim);">СЕГОДНЯ ВЫХОДНОЙ, MATB. ОТДЫХАЙ.</div>`;
+                    list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-dim)">СЕГОДНЯ ВЫХОДНОЙ!</div>';
                     return;
                 }
 
                 list.innerHTML = this.timeline.filter(x => x.type === 'lesson').map(item => `
                     <div class="item" id="item-${item.num}">
-                        <div class="item-info">
-                            <div class="item-meta">УРОК ${item.num}</div>
+                        <div>
+                            <div class="item-num">УРОК ${item.num}</div>
                             <div class="item-name">${item.name}</div>
                         </div>
-                        <div class="item-time">${this.fromM(item.s)} — ${this.fromM(item.e)}</div>
+                        <div class="item-time">
+                            <div style="color:#fff">${this.fromM(item.s)}</div>
+                            <div style="font-size:0.7rem">${this.fromM(item.e)}</div>
+                        </div>
                     </div>
                 `).join('');
             },
 
             tick() {
                 const now = new Date();
-                const h = now.getHours();
-                const m = now.getMinutes();
+                const totalM = now.getHours() * 60 + now.getMinutes();
                 const s = now.getSeconds();
-                const totalM = h * 60 + m;
 
-                // Обновляем большие часы
-                document.getElementById('wall-clock').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+                // Обновляем часы
+                document.getElementById('wall-clock').innerText = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 
-                // Находим текущее или следующее событие
                 let current = this.timeline.find(x => totalM >= x.s && totalM < x.e);
                 
                 if (current) {
                     this.updateBanner(current, totalM, s);
-                    this.checkTriggers(current, totalM, s);
+                    // Проверка событий (начало/конец) раз в минуту
+                    if (this.lastM !== totalM) {
+                        this.checkEvents(current, totalM);
+                        this.lastM = totalM;
+                    }
                 } else {
                     let next = this.timeline.find(x => x.s > totalM);
-                    if (next) {
-                        this.updateBanner({ name: 'ОЖИДАНИЕ', s: totalM, e: next.s, type: 'idle' }, totalM, s);
-                    } else {
-                        this.updateBanner(null);
-                    }
+                    this.updateBanner(next ? { name: 'СКОРО НАЧАЛО', s: totalM, e: next.s, type: 'idle' } : null);
                 }
 
                 // Подсветка списка
@@ -420,147 +291,73 @@
             },
 
             updateBanner(item, curM, curS) {
-                const label = document.getElementById('act-label');
-                const name = document.getElementById('act-name');
-                const timer = document.getElementById('act-timer');
-                const banner = document.getElementById('active-widget');
-
-                if (!item) {
-                    label.innerText = "MATB OS";
-                    name.innerText = "УРОКИ ОКОНЧЕНЫ";
-                    timer.innerText = "00:00";
+                const name = document.getElementById('act-name'), 
+                      timer = document.getElementById('act-timer'), 
+                      banner = document.getElementById('active-widget'), 
+                      label = document.getElementById('act-label');
+                
+                if (!item) { 
+                    name.innerText = "УРОКИ ОКОНЧЕНЫ"; 
+                    timer.innerText = "--:--"; 
                     banner.style.background = "var(--card)";
-                    return;
+                    label.innerText = "MATB OS";
+                    return; 
                 }
-
-                if (item.type === 'lesson') {
-                    label.innerText = `УРОК ${item.num}`;
-                    name.innerText = item.name;
-                    banner.style.background = "linear-gradient(135deg, #2563eb, #1d4ed8)";
-                } else if (item.type === 'break') {
-                    label.innerText = `ПЕРЕМЕНА`;
-                    name.innerText = `ОТДЫХАЙ`;
-                    banner.style.background = "linear-gradient(135deg, #059669, #047857)";
-                } else {
-                    label.innerText = `СЛЕДУЮЩИЙ`;
-                    name.innerText = `СКОРО НАЧАЛО`;
-                }
+                
+                label.innerText = item.type === 'lesson' ? `УРОК ${item.num}` : (item.type === 'break' ? 'ПЕРЕМЕНА' : 'СИСТЕМА');
+                name.innerText = item.name;
+                
+                // Смена цвета: Синий для уроков, Зеленый для перемен
+                banner.style.background = item.type === 'lesson' 
+                    ? "linear-gradient(135deg, #2563eb, #1d4ed8)" 
+                    : "linear-gradient(135deg, #059669, #047857)";
 
                 const remains = (item.e - curM) * 60 - curS;
-                const mm = Math.floor(remains / 60);
-                const ss = remains % 60;
-                timer.innerText = `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+                const m = Math.floor(remains / 60);
+                const sec = remains % 60;
+                timer.innerText = `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
             },
 
-            checkTriggers(item, curM, curS) {
-                const triggerKey = `${item.name}-${item.s}-${curM}`;
-                if (this.lastTriggeredKey === triggerKey) return;
-
-                // 1. Начало урока/перемены
-                if (curM === item.s && curS === 0) {
-                    this.doNotify(
-                        item.type === 'lesson' ? 'НАЧАЛО УРОКА' : 'ПЕРЕМЕНА!',
-                        item.type === 'lesson' ? `Сейчас: ${item.name}` : `Урок окончен, отдыхай.`
-                    );
-                    this.lastTriggeredKey = triggerKey;
-                }
-
-                // 2. За 1 минуту до конца
-                if (item.e - curM === 1 && curS === 0) {
-                    this.doNotify(
-                        'СКОРО ЗВОНОК',
-                        `Осталось ровно 60 секунд!`
-                    );
-                    this.lastTriggeredKey = triggerKey;
+            checkEvents(item, curM) {
+                // Только что начался урок/перемена
+                if (curM === item.s) {
+                    this.pushNotify("НАЧАЛО", item.name);
+                } 
+                // Осталась 1 минута
+                else if (item.e - curM === 1) {
+                    this.pushNotify("ФИНИШ", "Осталась 1 минута!");
                 }
             },
 
-            doNotify(title, body) {
-                // Визуальный пуш в приложении
+            pushNotify(title, body) {
                 const notif = document.getElementById('site-notif');
                 document.getElementById('nt-title').innerText = title;
                 document.getElementById('nt-body').innerText = body;
                 notif.classList.add('show');
-                setTimeout(() => notif.classList.remove('show'), 6000);
+                
+                if ("vibrate" in navigator) navigator.vibrate([400, 100, 400]);
 
-                // Звук
-                this.playAlert();
-
-                // Вибрация (400мс удар, 200мс пауза, 400мс удар)
-                if ("vibrate" in navigator) {
-                    navigator.vibrate([400, 200, 400, 200, 400]);
-                }
-
-                // Системный пуш
+                // Браузерный пуш (если разрешен)
                 if (Notification.permission === "granted") {
-                    navigator.serviceWorker.ready.then(registration => {
-                        registration.showNotification(title, {
-                            body: body,
-                            icon: 'https://cdn-icons-png.flaticon.com/512/3513/3513903.png',
-                            badge: 'https://cdn-icons-png.flaticon.com/512/3513/3513903.png',
-                            vibrate: [200, 100, 200],
-                            tag: 'study-hub-alert'
-                        });
+                    navigator.serviceWorker.ready.then(reg => {
+                        reg.showNotification(title, { body });
                     });
                 }
-            },
 
-            playAlert() {
-                try {
-                    if (!this.audioCtx) {
-                        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    }
-                    const osc = this.audioCtx.createOscillator();
-                    const gain = this.audioCtx.createGain();
-                    
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(880, this.audioCtx.currentTime); // Нота Ля
-                    osc.frequency.exponentialRampToValueAtTime(440, this.audioCtx.currentTime + 0.5);
-                    
-                    gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.5);
-                    
-                    osc.connect(gain);
-                    gain.connect(this.audioCtx.destination);
-                    
-                    osc.start();
-                    osc.stop(this.audioCtx.currentTime + 0.5);
-                } catch(e) {
-                    console.log("Звук заблокирован");
-                }
+                setTimeout(() => notif.classList.remove('show'), 6000);
             },
 
             enableNotifications() {
-                if (!('Notification' in window)) {
-                    alert("Браузер не поддерживает пуши");
-                    return;
-                }
-                
                 Notification.requestPermission().then(permission => {
                     if (permission === "granted") {
-                        this.doNotify("СИСТЕМА MATB", "Уведомления успешно включены!");
+                        this.pushNotify("ГОТОВО", "Уведомления включены!");
                     }
                 });
-
-                // Разблокировка звука
-                if (this.audioCtx) this.audioCtx.resume();
-            },
-
-            testPush() {
-                setTimeout(() => {
-                    this.doNotify("ТЕСТОВАЯ ПРОВЕРКА", "Пуш-система работает штатно. MATB OS готова.");
-                }, 5000);
             },
 
             switchTab(id, el) {
-                if (id === 'tasks') {
-                    this.doNotify("В РАЗРАБОТКЕ", "Секция задач будет в v10.0");
-                    return;
-                }
-                document.getElementById('tab-main').classList.add('hidden');
-                document.getElementById('tab-settings').classList.add('hidden');
-                document.getElementById(`tab-${id}`).classList.remove('hidden');
-                
+                document.getElementById('tab-main').className = id === 'main' ? '' : 'hidden';
+                document.getElementById('tab-settings').className = id === 'settings' ? '' : 'hidden';
                 document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
                 el.classList.add('active');
             }
