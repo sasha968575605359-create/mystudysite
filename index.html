@@ -3,59 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub Master Edition</title>
+    <title>StudyHub OS</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        :root { --bg: #064e3b; --accent: #4ade80; --text: #f8fafc; --card: rgba(15, 23, 42, 0.85); }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+        :root { --bg: #064e3b; --accent: #4ade80; --text: #f8fafc; --card: rgba(15, 23, 42, 0.9); --modal-bg: rgba(10, 15, 25, 0.98); }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        
+        /* Эффекты сакуры */
         #fx-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .flower { position: absolute; top: -10%; animation: fall linear infinite; font-size: 20px; opacity: 0.6; }
+        .flower { position: absolute; top: -10%; animation: fall linear infinite; font-size: 20px; opacity: 0.5; }
         @keyframes fall { 0% { transform: translateY(0vh) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
+
         .container { max-width: 500px; margin: 0 auto; padding: 20px 20px 100px; position: relative; z-index: 10; }
-        .glass { background: var(--card); backdrop-filter: blur(15px); border-radius: 28px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        h2, h3 { color: var(--accent); margin-top: 0; }
-        .btn-action { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 800; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
-        .btn-ai { background: linear-gradient(90deg, #8b5cf6, #d946ef); color: white; }
-        .item { background: rgba(255,255,255,0.05); padding: 14px; border-radius: 18px; margin-top: 10px; border-left: 4px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
-        .task-card { background: rgba(255,255,255,0.1); border: 1px solid var(--accent); padding: 15px; border-radius: 20px; margin-top: 12px; }
-        .task-card a { color: var(--accent); text-decoration: none; font-weight: bold; font-size: 0.9rem; }
-        .due-date { font-size: 0.75rem; color: #ef4444; margin-top: 5px; }
-        .nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(30, 41, 59, 0.95); display: flex; border-top: 1px solid rgba(255,255,255,0.1); z-index: 100; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; color: #94a3b8; cursor: pointer; }
+        .glass { background: var(--card); backdrop-filter: blur(20px); border-radius: 30px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        
+        h2, h3 { color: var(--accent); margin-top: 0; letter-spacing: 0.5px; }
+        .btn-action { background: var(--accent); color: #000; border: none; padding: 18px; border-radius: 20px; width: 100%; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+        .btn-ai { background: linear-gradient(90deg, #8b5cf6, #d946ef); color: white; margin-bottom: 15px; }
+        
+        /* Расписание */
+        .item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; margin-top: 10px; border-left: 5px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Карточки ДЗ */
+        .task-card { background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); border: 1px solid rgba(74, 222, 128, 0.3); padding: 18px; border-radius: 24px; margin-top: 15px; cursor: pointer; transition: 0.3s; }
+        .task-card:active { transform: scale(0.97); }
+        .task-info { font-size: 0.8rem; opacity: 0.6; margin-bottom: 5px; color: var(--accent); }
+
+        /* Модальное окно */
+        #modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; box-sizing: border-box; text-align: center; backdrop-filter: blur(15px); }
+        #modal.active { display: flex; animation: zoomIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .close-modal { position: absolute; top: 30px; right: 30px; font-size: 2rem; color: #ef4444; cursor: pointer; }
+        .timer-box { background: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; color: #ef4444; padding: 20px; border-radius: 25px; margin: 20px 0; font-size: 1.2rem; font-weight: bold; }
+
+        .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(15, 23, 42, 0.95); display: flex; border-top: 1px solid rgba(255,255,255,0.1); z-index: 100; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.8rem; color: #64748b; cursor: pointer; }
         .nav-item.active { color: var(--accent); font-weight: bold; }
-        .nav-item span { font-size: 1.5rem; margin-bottom: 4px; }
-        .page { display: none; } .page.active { display: block; animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-item span { font-size: 1.8rem; margin-bottom: 5px; }
+
+        .page { display: none; } .page.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div id="fx-layer"></div>
+
+<div id="modal">
+    <div class="close-modal" onclick="App.closeTask()">×</div>
+    <div id="modal-content" style="width: 100%;">
+        <h1 id="m-title" style="color: var(--accent);">Название задания</h1>
+        <p id="m-course" style="opacity: 0.7; font-size: 1.1rem;"></p>
+        <div class="timer-box" id="m-timer">Осталось: --:--:--</div>
+        <p id="m-deadline" style="margin-bottom: 30px;"></p>
+        <button id="m-link" class="btn-action">ОТКРЫТЬ В CLASSROOM</button>
+    </div>
+</div>
+
 <div class="container">
     <div id="p-home" class="page active">
-        <div class="glass" style="text-align: center; padding: 30px 20px;">
-            <h1 id="clock">00:00</h1>
-            <p id="date"></p>
+        <div class="glass" style="text-align: center; padding: 40px 20px;">
+            <h1 id="clock" style="font-size: 4rem; margin: 0; letter-spacing: -2px;">00:00</h1>
+            <p id="date" style="opacity: 0.8; font-size: 1.2rem;"></p>
         </div>
         <div class="glass">
-            <h3>📝 Доп. задания (от ИИ)</h3>
-            <button class="btn-action btn-ai" onclick="App.generateAITask()">МНЕ СКУЧНО</button>
-            <div id="ai-task-display" style="display:none; padding:10px; background:rgba(139, 92, 246, 0.2); border-radius:10px; margin-top:10px;"></div>
+            <h3>🤖 ИИ Тренер</h3>
+            <button class="btn-action btn-ai" onclick="App.aiTask()">МНЕ СКУЧНО</button>
+            <div id="ai-res" style="display:none; padding:15px; border-radius:15px; background:rgba(139, 92, 246, 0.15); border: 1px solid #8b5cf6;"></div>
         </div>
         <div class="glass">
-            <h3>📅 Расписание</h3>
-            <div id="schedule-box"></div>
+            <h3>📅 Расписание сегодня</h3>
+            <div id="sched-box"></div>
         </div>
     </div>
 
     <div id="p-class" class="page">
         <div class="glass">
-            <h2 style="text-align: center;">📚 Задания Классрума</h2>
+            <h2 style="text-align: center;">📝 Долги по ДЗ</h2>
             <div id="auth-ui" style="text-align: center;">
-                <button class="btn-action" onclick="App.login()">ПОДТЯНУТЬ ДЗ</button>
+                <button class="btn-action" onclick="App.login()">ПРОВЕРИТЬ СДАННЫЕ ЗАДАНИЯ</button>
             </div>
-            <div id="tasks-container"></div>
-            <button id="logout-btn" class="btn-action" style="display:none; background:#ef4444; color:white; margin-top:20px;" onclick="App.logout()">ВЫЙТИ</button>
+            <div id="tasks-list"></div>
+            <button id="logout-btn" class="btn-action" style="display:none; background:#ef4444; color:white; margin-top:20px;" onclick="App.logout()">СМЕНИТЬ АККАУНТ</button>
         </div>
     </div>
 </div>
@@ -67,8 +96,9 @@
 
 <script>
     const CLIENT_ID = '747337328453-pp0c1ncoagvotsjrephg9vlbf300ko90.apps.googleusercontent.com';
-    const TIMES = ["09:00", "09:35", "10:10", "10:45", "11:20", "11:55", "12:30", "13:05", "13:40"];
-    const WEEK = {
+    const LESSON_TIMES = ["09:00", "09:35", "10:10", "10:45", "11:20", "11:55", "12:30", "13:05", "13:40"];
+    
+    const FULL_WEEK = {
         1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
         2: ["Английский", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис.", "Физра", "Гром. освіта"],
         3: ["Химия", "Основы здоровья", "Укр. литература", "Алгебра", "История Украины", "Английский", "География", "Биология"],
@@ -78,30 +108,30 @@
 
     const App = {
         init() {
-            this.tick();
-            setInterval(() => this.tick(), 1000);
-            this.renderToday();
-            this.flowers();
-            const savedToken = localStorage.getItem('google_token');
-            if (savedToken) this.loadAssignments(savedToken);
+            this.updateClock();
+            setInterval(() => this.updateClock(), 1000);
+            this.renderSched();
+            this.sakura();
+            const token = localStorage.getItem('google_token');
+            if (token) this.loadAllData(token);
         },
-        tick() {
+        updateClock() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             document.getElementById('date').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
         },
-        renderToday() {
+        renderSched() {
             const day = new Date().getDay();
-            const box = document.getElementById('schedule-box');
-            if (day === 0 || day === 6) return box.innerHTML = "Выходной! 🍕";
-            const lessons = WEEK[day] || [];
-            box.innerHTML = lessons.map((n, i) => `<div class="item"><span>${n}</span><b>${TIMES[i]}</b></div>`).join('');
+            const box = document.getElementById('sched-box');
+            if (day === 0 || day === 6) return box.innerHTML = "Свобода! Выходной. 🍕";
+            const lessons = FULL_WEEK[day] || [];
+            box.innerHTML = lessons.map((n, i) => `<div class="item"><span>${n}</span><b>${LESSON_TIMES[i]}</b></div>`).join('');
         },
-        generateAITask() {
-            const tasks = ["Напиши 3 факта о теме урока.", "Нарисуй кота-ученого.", "Придумай мем про этот урок."];
-            const display = document.getElementById('ai-task-display');
-            display.style.display = 'block';
-            display.innerText = tasks[Math.floor(Math.random()*tasks.length)];
+        aiTask() {
+            const list = ["Нарисуй портрет учителя за 30 секунд.", "Придумай, как объяснить эту тему коту.", "Найди в классе самый старый предмет.", "Сколько секунд осталось до звонка?"];
+            const res = document.getElementById('ai-res');
+            res.style.display = 'block';
+            res.innerText = list[Math.floor(Math.random()*list.length)];
         },
         tab(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -109,8 +139,8 @@
             document.getElementById(id).classList.add('active');
             el.classList.add('active');
         },
-        flowers() {
-            for(let i=0; i<15; i++) {
+        sakura() {
+            for(let i=0; i<20; i++) {
                 let f = document.createElement('div'); f.className='flower'; f.innerText='🌸';
                 f.style.left=Math.random()*100+'vw'; f.style.animationDuration=(Math.random()*5+5)+'s';
                 document.getElementById('fx-layer').appendChild(f);
@@ -120,45 +150,78 @@
             const client = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
                 scope: 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly',
-                callback: (r) => { 
-                    if(r.access_token) {
-                        localStorage.setItem('google_token', r.access_token);
-                        this.loadAssignments(r.access_token);
-                    }
-                }
+                callback: (r) => { if(r.access_token) { localStorage.setItem('google_token', r.access_token); this.loadAllData(r.access_token); } }
             });
             client.requestAccessToken();
         },
-        async loadAssignments(token) {
-            const container = document.getElementById('tasks-container');
-            container.innerHTML = "<p style='text-align:center'>Ищу твою домашку...</p>";
+        async loadAllData(token) {
+            const list = document.getElementById('tasks-list');
+            list.innerHTML = "<p style='text-align:center'>ИИ проверяет сданные работы...</p>";
             try {
                 const res = await fetch('https://classroom.googleapis.com/v1/courses', { headers: { 'Authorization': `Bearer ${token}` } });
                 const data = await res.json();
                 const active = data.courses ? data.courses.filter(c => c.courseState === 'ACTIVE') : [];
-                
                 document.getElementById('auth-ui').style.display = 'none';
                 document.getElementById('logout-btn').style.display = 'block';
-                container.innerHTML = "";
+                list.innerHTML = "";
 
-                for (let course of active) {
-                    const taskRes = await fetch(`https://classroom.googleapis.com/v1/courses/${course.id}/courseWork`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    const taskData = await taskRes.json();
-                    
-                    if (taskData.courseWork && taskData.courseWork.length > 0) {
-                        taskData.courseWork.slice(0, 2).forEach(work => {
-                            container.innerHTML += `
-                                <div class="task-card">
-                                    <div style="font-size:0.7rem; opacity:0.6; margin-bottom:5px;">${course.name}</div>
-                                    <div style="margin-bottom:10px;">${work.title}</div>
-                                    <a href="${work.alternateLink}" target="_blank">ОТКРЫТЬ В КЛАССЕ →</a>
-                                </div>
-                            `;
-                        });
+                for (let c of active) {
+                    const cwRes = await fetch(`https://classroom.googleapis.com/v1/courses/${c.id}/courseWork`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const cwData = await cwRes.json();
+                    if (!cwData.courseWork) continue;
+
+                    for (let w of cwData.courseWork) {
+                        // ПРОВЕРКА СТАТУСА: Сдано или нет
+                        const subRes = await fetch(`https://classroom.googleapis.com/v1/courses/${c.id}/courseWork/${w.id}/studentSubmissions`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        const subData = await subRes.json();
+                        const status = subData.studentSubmissions ? subData.studentSubmissions[0].state : 'NEW';
+
+                        if (status !== 'TURNED_IN' && status !== 'RETURNED') {
+                            this.addTaskCard(c.name, w);
+                        }
                     }
                 }
-                if (container.innerHTML === "") container.innerHTML = "<p style='text-align:center'>Ура! Активных заданий нет.</p>";
-            } catch(e) { container.innerHTML = "Ошибка загрузки. Попробуй войти снова."; }
+                if (list.innerHTML === "") list.innerHTML = "Всё сдано! Ты умница, MATB. 🌸";
+            } catch(e) { list.innerHTML = "Сессия истекла. Войди снова."; }
+        },
+        addTaskCard(courseName, work) {
+            const div = document.createElement('div');
+            div.className = 'task-card';
+            div.innerHTML = `<div class="task-info">${courseName}</div><div>${work.title}</div>`;
+            div.onclick = () => this.openTask(courseName, work);
+            document.getElementById('tasks-list').appendChild(div);
+        },
+        openTask(course, work) {
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('m-title').innerText = work.title;
+            document.getElementById('m-course').innerText = course;
+            
+            const dl = work.dueDate ? new Date(work.dueDate.year, work.dueDate.month-1, work.dueDate.day) : null;
+            if(dl) {
+                document.getElementById('m-deadline').innerText = "Дедлайн: " + dl.toLocaleDateString();
+                this.startTimer(dl);
+            } else {
+                document.getElementById('m-deadline').innerText = "Без срока сдачи";
+                document.getElementById('m-timer').innerText = "Времени полно!";
+            }
+            document.getElementById('m-link').onclick = () => window.open(work.alternateLink, '_blank');
+        },
+        startTimer(date) {
+            const timer = document.getElementById('m-timer');
+            const update = () => {
+                const diff = date - new Date();
+                if (diff < 0) return timer.innerText = "СРОК ИСТЕК!";
+                const d = Math.floor(diff/(1000*60*60*24));
+                const h = Math.floor((diff/(1000*60*60))%24);
+                const m = Math.floor((diff/1000/60)%60);
+                timer.innerText = `Осталось: ${d}д ${h}ч ${m}м`;
+            };
+            update();
+            this.tInterval = setInterval(update, 60000);
+        },
+        closeTask() { 
+            document.getElementById('modal').classList.remove('active');
+            clearInterval(this.tInterval);
         },
         logout() { localStorage.removeItem('google_token'); location.reload(); }
     };
