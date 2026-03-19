@@ -3,457 +3,570 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>STUDY HUB: MATB OS v8.0 FULL</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- PWA Settings -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0b0f1a">
+    
+    <title>STUDY HUB: MATB OS v9.0</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg: #020617;
-            --card: #0f172a;
+            --bg: #0b0f1a;
+            --card: #161c2d;
             --accent: #3b82f6;
-            --success: #22c55e;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --text: #ffffff;
+            --text-dim: #94a3b8;
             --danger: #ef4444;
-            --text: #f8fafc;
-            --text-dim: #64748b;
+            --success: #10b981;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            outline: none;
+        }
         
         body {
-            margin: 0; padding: 0;
-            background: var(--bg);
+            margin: 0; 
+            background: var(--bg); 
             color: var(--text);
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
+            font-family: 'Inter', sans-serif; 
+            overflow: hidden; 
             height: 100vh;
+            user-select: none;
         }
 
-        /* Контейнер с прокруткой */
         .container {
-            height: 100vh;
+            height: 100vh; 
             overflow-y: auto;
             padding: calc(20px + env(safe-area-inset-top)) 20px 120px;
             scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Крупный виджет времени */
+        .time-widget {
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 45px;
+            padding: 50px 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.08);
+            position: relative;
+        }
+        
+        .main-clock { 
+            font-size: 5.5rem; 
+            font-weight: 900; 
+            letter-spacing: -3px; 
+            line-height: 1;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .main-date { 
+            color: var(--accent); 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            font-size: 0.9rem; 
+            letter-spacing: 3px; 
+            margin-top: 15px; 
+            display: block;
+            opacity: 0.8;
         }
 
         /* Баннер статуса */
-        .banner {
+        .status-banner {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             border-radius: 35px;
             padding: 30px;
-            margin-bottom: 25px;
-            position: relative;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.3);
+            position: relative; 
             overflow: hidden;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .banner.lesson { background: linear-gradient(135deg, #1e40af, #3b82f6); box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3); }
-        .banner.break { background: linear-gradient(135deg, #9d174d, #ec4899); box-shadow: 0 20px 40px rgba(236, 72, 153, 0.3); }
-        .banner.idle { background: var(--card); border: 1px solid rgba(255,255,255,0.1); }
+        .status-banner::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
 
-        .banner-label { font-weight: 900; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; opacity: 0.7; }
-        .banner-title { font-size: 1.8rem; font-weight: 900; margin: 8px 0; line-height: 1.2; }
-        .banner-timer { font-family: 'JetBrains Mono', monospace; font-size: 4.5rem; letter-spacing: -3px; line-height: 1; margin-top: 5px; }
+        .status-label { font-size: 0.75rem; font-weight: 900; opacity: 0.7; text-transform: uppercase; letter-spacing: 2px; }
+        .status-name { font-size: 2.2rem; font-weight: 900; margin: 8px 0; line-height: 1.1; }
+        .status-timer { font-family: 'JetBrains Mono'; font-size: 3.8rem; font-weight: 700; letter-spacing: -2px; }
 
-        .progress-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; background: rgba(0,0,0,0.2); }
-        .progress-fill { height: 100%; background: #fff; width: 0%; transition: width 1s linear; }
+        /* Списки и элементы */
+        .section-header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 20px; padding-left: 10px;
+        }
+        .section-line { width: 4px; height: 22px; background: var(--accent); border-radius: 4px; box-shadow: 0 0 10px var(--accent-glow); }
+        .section-title { font-weight: 900; text-transform: uppercase; font-size: 0.9rem; color: var(--text-dim); letter-spacing: 1.5px; }
 
-        /* Карточки */
-        .card { background: var(--card); border-radius: 30px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        .section-title { font-weight: 900; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-
-        /* Список уроков */
         .item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 20px; border-radius: 22px; margin-bottom: 12px;
-            background: rgba(255,255,255,0.03); border: 1px solid transparent;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--card);
+            border-radius: 28px;
+            padding: 24px;
+            margin-bottom: 14px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.03);
+            transition: 0.3s all ease;
         }
+        
         .item.active { 
-            background: rgba(59, 130, 246, 0.15); 
             border-color: var(--accent); 
-            transform: scale(1.03);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            background: rgba(59, 130, 246, 0.12); 
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        .item.past { opacity: 0.3; filter: grayscale(0.8); }
+        
+        .item.past { opacity: 0.35; filter: grayscale(0.5); }
 
-        .item-info { display: flex; flex-direction: column; }
-        .item-name { font-weight: 800; font-size: 1.1rem; color: var(--text); }
-        .item-time { font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
-        .item-num { font-weight: 900; font-size: 1.2rem; color: var(--accent); opacity: 0.5; margin-right: 15px; }
+        .item-info { flex: 1; }
+        .item-meta { font-size: 0.7rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
+        .item-name { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; }
+        .item-time { font-family: 'JetBrains Mono'; font-size: 1rem; color: var(--text-dim); font-weight: 700; opacity: 0.8; }
 
-        /* Навигация */
+        /* Нижняя навигация */
         .nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(25px);
+            background: rgba(11, 15, 26, 0.85); 
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
             display: flex; justify-content: space-around;
-            padding: 15px 10px calc(15px + env(safe-area-inset-bottom));
-            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 18px 0 calc(20px + env(safe-area-inset-bottom));
+            border-top: 1px solid rgba(255,255,255,0.06);
             z-index: 1000;
         }
-        .nav-item { text-align: center; color: var(--text-dim); flex: 1; cursor: pointer; transition: 0.3s; position: relative; }
-        .nav-item.active { color: var(--accent); }
-        .nav-item i { font-size: 1.6rem; display: block; margin-bottom: 5px; font-style: normal; }
-        .nav-item span { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        /* Уведомления (Тосты) */
-        #notification-box {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-200%);
-            width: 90%; max-width: 450px; background: #fff; color: #000;
-            padding: 22px; border-radius: 28px; z-index: 9999;
-            box-shadow: 0 40px 80px rgba(0,0,0,0.6); transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        
+        .nav-item { 
+            text-align: center; 
+            flex: 1; 
+            color: var(--text-dim); 
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
         }
-        #notification-box.show { transform: translateX(-50%) translateY(0); }
-        #notification-box h4 { margin: 0 0 5px; font-weight: 900; text-transform: uppercase; font-size: 0.9rem; color: var(--accent); }
-        #notification-box p { margin: 0; font-weight: 700; font-size: 1.1rem; line-height: 1.3; }
+        
+        .nav-item.active { color: var(--accent); transform: translateY(-5px); }
+        .nav-item i { font-size: 1.6rem; display: block; margin-bottom: 6px; font-style: normal; }
+        .nav-item span { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Уведомление встроенное */
+        #site-notif {
+            position: fixed; top: -120px; left: 5%; width: 90%;
+            background: #ffffff; color: #000000; 
+            padding: 22px; border-radius: 30px;
+            z-index: 9999; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            display: flex; align-items: center; gap: 15px;
+        }
+        #site-notif.show { top: 25px; }
+        .notif-icon { width: 50px; height: 50px; background: var(--accent); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
 
         /* Настройки */
-        .btn {
-            width: 100%; padding: 22px; border-radius: 24px; border: none;
-            font-weight: 900; font-size: 1rem; cursor: pointer; margin-bottom: 12px;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: 0.2s;
+        .settings-card {
+            background: var(--card);
+            border-radius: 35px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .btn-primary { background: var(--accent); color: #fff; }
-        .btn-secondary { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); }
-        .btn:active { transform: scale(0.97); }
+        
+        .btn {
+            width: 100%; 
+            padding: 22px; 
+            border-radius: 22px; 
+            border: none;
+            font-weight: 900; 
+            font-size: 1rem; 
+            cursor: pointer; 
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.2s active;
+        }
+        
+        .btn:active { transform: scale(0.96); opacity: 0.8; }
+        .btn-primary { background: var(--accent); color: white; box-shadow: 0 10px 20px var(--accent-glow); }
+        .btn-outline { background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); }
 
         .hidden { display: none; }
         
         /* Скроллбар */
         ::-webkit-scrollbar { width: 0; background: transparent; }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        .pulse { animation: pulse 2s infinite; }
     </style>
 </head>
 <body>
 
-    <div id="notification-box">
-        <h4 id="nt-title">MATB OS NOTIFICATION</h4>
-        <p id="nt-body">Система успешно запущена</p>
+    <!-- Внутренний пуш -->
+    <div id="site-notif">
+        <div class="notif-icon">🔔</div>
+        <div>
+            <b id="nt-title" style="display:block; font-size: 1.1rem;">УВЕДОМЛЕНИЕ</b>
+            <span id="nt-body" style="font-size: 0.95rem; opacity: 0.7;">Текст сообщения</span>
+        </div>
     </div>
 
-    <div class="container" id="scroll-area">
-        <!-- ГЛАВНЫЙ ВИДЖЕТ -->
-        <div id="status-card" class="banner idle">
-            <div class="banner-label" id="top-label">СИСТЕМА ГОТОВА</div>
-            <div class="banner-title" id="top-title">MATB OS v8.0 FULL</div>
-            <div class="banner-timer" id="top-timer">00:00</div>
-            <div class="progress-bar"><div class="progress-fill" id="top-progress"></div></div>
+    <div class="container">
+        <!-- Часы -->
+        <div class="time-widget">
+            <div class="main-clock" id="wall-clock">00:00</div>
+            <div class="main-date" id="wall-date">ЗАГРУЗКА...</div>
         </div>
 
-        <!-- ВКЛАДКА: ГЛАВНАЯ -->
+        <!-- Виджет статуса -->
+        <div id="active-widget" class="status-banner">
+            <div class="status-label" id="act-label">MATB OS</div>
+            <div class="status-name" id="act-name">ЗАГРУЗКА...</div>
+            <div class="status-timer" id="act-timer">00:00</div>
+        </div>
+
+        <!-- Главная вкладка -->
         <div id="tab-main">
-            <div class="card">
-                <div class="section-title">
-                    <span id="day-display">ЗАГРУЗКА...</span>
-                    <span style="color:var(--accent)">LIVE</span>
-                </div>
-                <div id="list-container">
-                    <!-- Сюда упадут уроки -->
-                </div>
+            <div class="section-header">
+                <div class="section-line"></div>
+                <div class="section-title">РАСПИСАНИЕ НА СЕГОДНЯ</div>
+            </div>
+            <div id="schedule-list">
+                <!-- Сюда упадут уроки -->
             </div>
         </div>
 
-        <!-- ВКЛАДКА: НАСТРОЙКИ -->
+        <!-- Настройки (OS) -->
         <div id="tab-settings" class="hidden">
-            <div class="card">
-                <h2 style="margin: 0 0 10px; font-weight: 900;">СИСТЕМНЫЕ ОПЦИИ</h2>
-                <p style="color:var(--text-dim); margin-bottom: 25px; font-weight: 500; line-height: 1.5;">
-                    Если уведомления не приходят — браузер их блокирует. Нажми «АКТИВИРОВАТЬ», чтобы разрешить системе слать пуши и орать перед звонком.
+            <div class="section-header">
+                <div class="section-line"></div>
+                <div class="section-title">КОНФИГУРАЦИЯ СИСТЕМЫ</div>
+            </div>
+            
+            <div class="settings-card">
+                <h3 style="margin:0 0 10px 0;">УВЕДОМЛЕНИЯ</h3>
+                <p style="color:var(--text-dim); font-size:0.9rem; margin-bottom:20px;">
+                    Чтобы Android не блокировал пуши, обязательно добавь сайт на Главный Экран (PWA) и нажми кнопку активации.
                 </p>
-                
-                <button class="btn btn-primary" onclick="Core.enableFeatures()">
-                    <span>🔔</span> АКТИВИРОВАТЬ ВСЁ
-                </button>
-                
-                <button class="btn btn-secondary" onclick="Core.testNotif()">
-                    <span>🧪</span> ТЕСТОВЫЙ ПУШ (3 СЕК)
-                </button>
+                <button class="btn btn-primary" onclick="App.enableNotifications()">🔔 АКТИВИРОВАТЬ ПУШИ</button>
+                <button class="btn btn-outline" onclick="App.testPush()">🧪 ТЕСТ (ЧЕРЕЗ 5 СЕК)</button>
+            </div>
 
-                <button class="btn btn-secondary" onclick="location.reload()">
-                    <span>🔄</span> РЕБУТ СИСТЕМЫ
-                </button>
-
-                <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 15px; font-size: 0.8rem; color: var(--text-dim);">
-                    <strong>LOG:</strong> <span id="log-status">Ожидание действий пользователя...</span>
+            <div class="settings-card">
+                <h3 style="margin:0 0 10px 0;">О СИСТЕМЕ</h3>
+                <div style="font-size: 0.9rem; line-height: 1.6;">
+                    <div style="display:flex; justify-content:space-between"><span>Версия:</span> <b>9.0 UNLIMITED</b></div>
+                    <div style="display:flex; justify-content:space-between"><span>Владелец:</span> <b>MATB</b></div>
+                    <div style="display:flex; justify-content:space-between"><span>Статус:</span> <b style="color:var(--success)">ONLINE</b></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- НАВИГАЦИЯ -->
+    <!-- Навигация -->
     <nav class="nav">
-        <div class="nav-item active" onclick="Core.tab('main', this)">
+        <div class="nav-item active" onclick="App.switchTab('main', this)">
             <i>🏠</i><span>БАЗА</span>
         </div>
-        <div class="nav-item" onclick="Core.tab('settings', this)">
-            <i>⚙️</i><span>ОПЦИИ</span>
+        <div class="nav-item" onclick="App.switchTab('tasks', this)">
+            <i>📝</i><span>ЗАДАЧИ</span>
+        </div>
+        <div class="nav-item" onclick="App.switchTab('settings', this)">
+            <i>⚙️</i><span>OS</span>
         </div>
     </nav>
 
     <script>
-        const DATA = {
-            // Полная сетка звонков (8 уроков)
+        const CONFIG = {
+            // Исправленная сетка по твоим скринам (Геометрия в 9:00)
             grid: [
-                { s: "08:30", e: "09:15" }, // 1
-                { s: "09:25", e: "10:10" }, // 2
-                { s: "10:25", e: "11:10" }, // 3
-                { s: "11:25", e: "12:10" }, // 4
-                { s: "12:20", e: "13:05" }, // 5
-                { s: "13:15", e: "14:00" }, // 6
-                { s: "14:10", e: "14:55" }, // 7
-                { s: "15:05", e: "15:50" }  // 8
+                { s: "09:00", e: "09:45" }, // 1
+                { s: "10:00", e: "10:45" }, // 2
+                { s: "11:00", e: "11:45" }, // 3
+                { s: "12:00", e: "12:45" }, // 4
+                { s: "13:00", e: "13:45" }, // 5
+                { s: "14:00", e: "14:45" }, // 6
+                { s: "15:00", e: "15:45" }  // 7
             ],
-            // Полное расписание (все 5 дней)
             schedule: {
-                1: ["Алгебра", "География", "Физика", "История", "Укр. Мова", "Биология", "Физ-ра", "Классный час"],
-                2: ["Геометрия", "Химия", "Английский", "Зарубежка", "Информатика", "Физика", "Труды", "Труды"],
-                3: ["История", "Укр. Лит", "Алгебра", "Биология", "География", "Химия", "Английский", "Самоподготовка"],
-                4: ["Физ-ра", "Геометрия", "Укр. Мова", "История", "Физика", "Английский", "ОБЖ", "ОБЖ"],
-                5: ["Информатика", "Зарубежка", "Алгебра", "Химия", "География", "Укр. Лит", "Искусство", "Искусство"]
+                1: ["Алгебра", "География", "Физика", "История", "Укр. Мова", "Биология", "Физ-ра"],
+                2: ["Геометрия", "Химия", "Английский", "Зарубежка", "Информатика", "Физика", "Труды"],
+                3: ["История", "Укр. Лит", "Алгебра", "Биология", "География", "Химия", "Английский"],
+                4: ["Физ-ра", "Геометрия", "Укр. Мова", "История", "Физика", "Английский", "ОБЖ"],
+                5: ["Информатика", "Зарубежка", "Алгебра", "Химия", "География", "Укр. Лит", "Искусство"]
             }
         };
 
-        const Core = {
+        const App = {
             timeline: [],
-            lastAlertKey: "",
             audioCtx: null,
+            lastTriggeredKey: "",
 
             init() {
                 this.buildTimeline();
-                this.renderList();
-                this.startEngine();
-                console.log("MATB OS: Engine started");
+                this.renderSchedule();
+                
+                // Запуск циклов
+                setInterval(() => this.tick(), 1000);
+                this.tick();
+
+                // Fake Service Worker для PWA (Android Chrome требует для пушей)
+                if ('serviceWorker' in navigator) {
+                    const swCode = `self.addEventListener('push', e => {});`;
+                    const blob = new Blob([swCode], {type: 'application/javascript'});
+                    navigator.serviceWorker.register(URL.createObjectURL(blob));
+                }
             },
 
-            // Перевод HH:MM в минуты
-            toM(t) {
-                const [h, m] = t.split(':').map(Number);
-                return h * 60 + m;
-            },
-
-            // Формат минут в HH:MM
-            fromM(m) {
-                const hh = Math.floor(m / 60);
-                const mm = m % 60;
-                return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
-            },
+            // Вспомогательные функции времени
+            toM(str) { const [h, m] = str.split(':').map(Number); return h * 60 + m; },
+            fromM(m) { return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`; },
 
             buildTimeline() {
                 const day = new Date().getDay();
-                const subjects = DATA.schedule[day] || [];
-                
+                const subjects = CONFIG.schedule[day] || [];
                 this.timeline = [];
 
-                if (day === 0 || day === 6 || subjects.length === 0) {
-                    this.timeline.push({ type: 'idle', name: 'ВЫХОДНОЙ ДЕНЬ', s: 0, e: 1440 });
-                    return;
-                }
-
                 subjects.forEach((name, i) => {
-                    const slot = DATA.grid[i];
+                    const slot = CONFIG.grid[i];
                     if (!slot) return;
-
-                    const start = this.toM(slot.s);
-                    const end = this.toM(slot.e);
-
-                    // Урок
-                    this.timeline.push({ 
-                        type: 'lesson', 
-                        name: name.toUpperCase(), 
-                        s: start, 
-                        e: end, 
-                        num: i + 1 
+                    
+                    // Добавляем урок
+                    this.timeline.push({
+                        type: 'lesson',
+                        name: name.toUpperCase(),
+                        s: this.toM(slot.s),
+                        e: this.toM(slot.e),
+                        num: i + 1
                     });
 
-                    // Перемена (если есть следующий урок)
-                    if (subjects[i + 1] && DATA.grid[i + 1]) {
-                        const nextStart = this.toM(DATA.grid[i + 1].s);
-                        this.timeline.push({ 
-                            type: 'break', 
-                            name: 'ПЕРЕМЕНА', 
-                            s: end, 
-                            e: nextStart 
+                    // Добавляем перемену (если есть следующий урок)
+                    if (subjects[i+1] && CONFIG.grid[i+1]) {
+                        this.timeline.push({
+                            type: 'break',
+                            name: 'ПЕРЕМЕНА',
+                            s: this.toM(slot.e),
+                            e: this.toM(CONFIG.grid[i+1].s)
                         });
                     }
                 });
             },
 
-            renderList() {
-                const container = document.getElementById('list-container');
+            renderSchedule() {
+                const list = document.getElementById('schedule-list');
+                const now = new Date();
                 const days = ["ВОСКРЕСЕНЬЕ", "ПОНЕДЕЛЬНИК", "ВТОРНИК", "СРЕДА", "ЧЕТВЕРГ", "ПЯТНИЦА", "СУББОТА"];
-                document.getElementById('day-display').innerText = days[new Date().getDay()];
+                const months = ["ЯНВ", "ФЕВ", "МАР", "АПР", "МАЙ", "ИЮН", "ИЮЛ", "АВГ", "СЕН", "ОКТ", "НОЯ", "ДЕК"];
+                
+                document.getElementById('wall-date').innerText = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]}`;
 
-                let html = "";
-                this.timeline.forEach((item, idx) => {
-                    if (item.type === 'break') return; // Перемены в списке не нужны
-                    html += `
-                        <div class="item" id="item-${idx}">
-                            <div style="display:flex; align-items:center;">
-                                <div class="item-num">${item.num}</div>
-                                <div class="item-info">
-                                    <span class="item-name">${item.name}</span>
-                                    <span class="item-time">${this.fromM(item.s)} — ${this.fromM(item.e)}</span>
-                                </div>
-                            </div>
-                            <div class="item-status">📖</div>
+                if (this.timeline.length === 0) {
+                    list.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-dim);">СЕГОДНЯ ВЫХОДНОЙ, MATB. ОТДЫХАЙ.</div>`;
+                    return;
+                }
+
+                list.innerHTML = this.timeline.filter(x => x.type === 'lesson').map(item => `
+                    <div class="item" id="item-${item.num}">
+                        <div class="item-info">
+                            <div class="item-meta">УРОК ${item.num}</div>
+                            <div class="item-name">${item.name}</div>
                         </div>
-                    `;
-                });
-                container.innerHTML = html;
-            },
-
-            startEngine() {
-                setInterval(() => this.tick(), 1000);
-                this.tick();
+                        <div class="item-time">${this.fromM(item.s)} — ${this.fromM(item.e)}</div>
+                    </div>
+                `).join('');
             },
 
             tick() {
                 const now = new Date();
-                const curM = now.getHours() * 60 + now.getMinutes();
-                const curS = now.getSeconds();
+                const h = now.getHours();
+                const m = now.getMinutes();
+                const s = now.getSeconds();
+                const totalM = h * 60 + m;
+
+                // Обновляем большие часы
+                document.getElementById('wall-clock').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+
+                // Находим текущее или следующее событие
+                let current = this.timeline.find(x => totalM >= x.s && totalM < x.e);
                 
-                let found = false;
-
-                this.timeline.forEach((item, idx) => {
-                    const el = document.getElementById(`item-${idx}`);
-                    
-                    if (curM >= item.s && curM < item.e) {
-                        found = true;
-                        this.updateBanner(item, curM, curS);
-                        if (el) el.className = "item active";
-                        this.checkEvents(item, curM, curS);
-                    } else {
-                        if (el) el.className = (curM >= item.e) ? "item past" : "item";
-                    }
-                });
-
-                if (!found) {
-                    const next = this.timeline.find(x => x.s > curM);
+                if (current) {
+                    this.updateBanner(current, totalM, s);
+                    this.checkTriggers(current, totalM, s);
+                } else {
+                    let next = this.timeline.find(x => x.s > totalM);
                     if (next) {
-                        this.updateBanner({ type: 'idle', name: 'ОЖИДАНИЕ: ' + next.name, s: curM, e: next.s }, curM, curS);
+                        this.updateBanner({ name: 'ОЖИДАНИЕ', s: totalM, e: next.s, type: 'idle' }, totalM, s);
                     } else {
-                        this.updateBanner({ type: 'idle', name: 'УРОКИ ОКОНЧЕНЫ', s: 0, e: 1 }, 0, 0);
+                        this.updateBanner(null);
                     }
                 }
+
+                // Подсветка списка
+                this.timeline.filter(x => x.type === 'lesson').forEach(item => {
+                    const el = document.getElementById(`item-${item.num}`);
+                    if (!el) return;
+                    if (totalM >= item.s && totalM < item.e) el.className = "item active";
+                    else if (totalM >= item.e) el.className = "item past";
+                    else el.className = "item";
+                });
             },
 
             updateBanner(item, curM, curS) {
-                const banner = document.getElementById('status-card');
-                const label = document.getElementById('top-label');
-                const title = document.getElementById('top-title');
-                const timer = document.getElementById('top-timer');
-                const progress = document.getElementById('top-progress');
+                const label = document.getElementById('act-label');
+                const name = document.getElementById('act-name');
+                const timer = document.getElementById('act-timer');
+                const banner = document.getElementById('active-widget');
 
-                banner.className = `banner ${item.type}`;
-                label.innerText = item.type === 'lesson' ? `УРОК №${item.num}` : (item.type === 'break' ? 'ПЕРЕМЫЧ' : 'MATB OS');
-                title.innerText = item.name;
+                if (!item) {
+                    label.innerText = "MATB OS";
+                    name.innerText = "УРОКИ ОКОНЧЕНЫ";
+                    timer.innerText = "00:00";
+                    banner.style.background = "var(--card)";
+                    return;
+                }
 
-                const diffSec = (item.e - curM) * 60 - curS;
-                const m = Math.max(0, Math.floor(diffSec / 60));
-                const s = Math.max(0, diffSec % 60);
-                
-                timer.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                if (item.type === 'lesson') {
+                    label.innerText = `УРОК ${item.num}`;
+                    name.innerText = item.name;
+                    banner.style.background = "linear-gradient(135deg, #2563eb, #1d4ed8)";
+                } else if (item.type === 'break') {
+                    label.innerText = `ПЕРЕМЕНА`;
+                    name.innerText = `ОТДЫХАЙ`;
+                    banner.style.background = "linear-gradient(135deg, #059669, #047857)";
+                } else {
+                    label.innerText = `СЛЕДУЮЩИЙ`;
+                    name.innerText = `СКОРО НАЧАЛО`;
+                }
 
-                const totalSec = (item.e - item.s) * 60 || 1;
-                const elapsed = totalSec - diffSec;
-                progress.style.width = `${(elapsed / totalSec) * 100}%`;
+                const remains = (item.e - curM) * 60 - curS;
+                const mm = Math.floor(remains / 60);
+                const ss = remains % 60;
+                timer.innerText = `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
             },
 
-            checkEvents(item, curM, curS) {
-                const alertKey = `${item.name}-${curM}`;
-                if (this.lastAlertKey === alertKey) return;
+            checkTriggers(item, curM, curS) {
+                const triggerKey = `${item.name}-${item.s}-${curM}`;
+                if (this.lastTriggeredKey === triggerKey) return;
 
-                // Уведомление за 1 минуту до конца
-                if (item.e - curM === 1 && curS === 0) {
-                    this.pushNotify("ФИНИШ БЛИЗКО", `Через минуту ${item.type === 'lesson' ? 'звонок на перемену' : 'начнется следующий урок'}`);
-                    this.lastAlertKey = alertKey;
-                }
-                
-                // Уведомление в момент начала
+                // 1. Начало урока/перемены
                 if (curM === item.s && curS === 0) {
-                    this.pushNotify("НАЧАЛО", `${item.name} стартовал!`);
-                    this.lastAlertKey = alertKey;
+                    this.doNotify(
+                        item.type === 'lesson' ? 'НАЧАЛО УРОКА' : 'ПЕРЕМЕНА!',
+                        item.type === 'lesson' ? `Сейчас: ${item.name}` : `Урок окончен, отдыхай.`
+                    );
+                    this.lastTriggeredKey = triggerKey;
+                }
+
+                // 2. За 1 минуту до конца
+                if (item.e - curM === 1 && curS === 0) {
+                    this.doNotify(
+                        'СКОРО ЗВОНОК',
+                        `Осталось ровно 60 секунд!`
+                    );
+                    this.lastTriggeredKey = triggerKey;
                 }
             },
 
-            pushNotify(title, body) {
-                // 1. Показ тоста
-                const box = document.getElementById('notification-box');
+            doNotify(title, body) {
+                // Визуальный пуш в приложении
+                const notif = document.getElementById('site-notif');
                 document.getElementById('nt-title').innerText = title;
                 document.getElementById('nt-body').innerText = body;
-                box.classList.add('show');
-                setTimeout(() => box.classList.remove('show'), 6000);
+                notif.classList.add('show');
+                setTimeout(() => notif.classList.remove('show'), 6000);
 
-                // 2. Вибрация
-                if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
+                // Звук
+                this.playAlert();
 
-                // 3. Звук (бип)
-                this.beep();
+                // Вибрация (400мс удар, 200мс пауза, 400мс удар)
+                if ("vibrate" in navigator) {
+                    navigator.vibrate([400, 200, 400, 200, 400]);
+                }
 
-                // 4. Системный Пуш
+                // Системный пуш
                 if (Notification.permission === "granted") {
-                    new Notification(title, { body, icon: 'https://cdn-icons-png.flaticon.com/512/3513/3513903.png' });
+                    navigator.serviceWorker.ready.then(registration => {
+                        registration.showNotification(title, {
+                            body: body,
+                            icon: 'https://cdn-icons-png.flaticon.com/512/3513/3513903.png',
+                            badge: 'https://cdn-icons-png.flaticon.com/512/3513/3513903.png',
+                            vibrate: [200, 100, 200],
+                            tag: 'study-hub-alert'
+                        });
+                    });
                 }
             },
 
-            beep() {
+            playAlert() {
                 try {
-                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (!this.audioCtx) {
+                        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    }
                     const osc = this.audioCtx.createOscillator();
                     const gain = this.audioCtx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, this.audioCtx.currentTime); // Нота Ля
+                    osc.frequency.exponentialRampToValueAtTime(440, this.audioCtx.currentTime + 0.5);
+                    
+                    gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.5);
+                    
                     osc.connect(gain);
                     gain.connect(this.audioCtx.destination);
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(880, this.audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
+                    
                     osc.start();
                     osc.stop(this.audioCtx.currentTime + 0.5);
-                } catch(e) { console.error("Audio error", e); }
+                } catch(e) {
+                    console.log("Звук заблокирован");
+                }
             },
 
-            enableFeatures() {
-                // Запрос пушей
-                Notification.requestPermission().then(p => {
-                    const status = document.getElementById('log-status');
-                    if (p === 'granted') {
-                        status.innerText = "Уведомления разрешены! Красава!";
-                        this.pushNotify("MATB OS", "Теперь ты ничего не проебешь.");
-                    } else {
-                        status.innerText = "Пуши забанены. Буду только вибрировать.";
+            enableNotifications() {
+                if (!('Notification' in window)) {
+                    alert("Браузер не поддерживает пуши");
+                    return;
+                }
+                
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        this.doNotify("СИСТЕМА MATB", "Уведомления успешно включены!");
                     }
                 });
 
-                // Разблокировка аудиоконтекста
-                if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                this.audioCtx.resume();
+                // Разблокировка звука
+                if (this.audioCtx) this.audioCtx.resume();
             },
 
-            testNotif() {
-                document.getElementById('log-status').innerText = "Тест запущен, жди 3 сек...";
+            testPush() {
                 setTimeout(() => {
-                    this.pushNotify("ТЕСТОВЫЙ ПРОБРОС", "Если ты это видишь, MATB OS работает как швейцарские часы!");
-                }, 3000);
+                    this.doNotify("ТЕСТОВАЯ ПРОВЕРКА", "Пуш-система работает штатно. MATB OS готова.");
+                }, 5000);
             },
 
-            tab(name, el) {
-                document.getElementById('tab-main').className = name === 'main' ? '' : 'hidden';
-                document.getElementById('tab-settings').className = name === 'settings' ? '' : 'hidden';
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                el.classList.add('active');
+            switchTab(id, el) {
+                if (id === 'tasks') {
+                    this.doNotify("В РАЗРАБОТКЕ", "Секция задач будет в v10.0");
+                    return;
+                }
+                document.getElementById('tab-main').classList.add('hidden');
+                document.getElementById('tab-settings').classList.add('hidden');
+                document.getElementById(`tab-${id}`).classList.remove('hidden');
                 
-                // Скролл вверх при смене вкладки
-                document.getElementById('scroll-area').scrollTop = 0;
+                document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+                el.classList.add('active');
             }
         };
 
-        // Запуск при загрузке
-        window.onload = () => Core.init();
+        window.onload = () => App.init();
     </script>
 </body>
 </html>
