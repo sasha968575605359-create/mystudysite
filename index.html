@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STUDY HUB: MATB OS v4.9 ULTRA FULL</title>
+    <title>STUDY HUB: MATB OS v5.5 FIXED GRID</title>
     <!-- Google GIS SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
@@ -13,299 +13,171 @@
             --accent-green: #22c55e;
             --accent-blue: #3b82f6;
             --accent-pink: #ec4899;
+            --accent-gold: #f59e0b;
             --text-main: #f8fafc;
             --text-dim: #64748b;
-            --danger: #ef4444;
+            --border-light: rgba(255, 255, 255, 0.08);
             --glow-green: 0 0 30px rgba(34, 197, 94, 0.4);
             --glow-blue: 0 0 30px rgba(59, 130, 246, 0.4);
-            --glow-pink: 0 0 30px rgba(236, 72, 153, 0.4);
-            --border-light: rgba(255, 255, 255, 0.1);
+            --danger: #ef4444;
         }
 
-        /* RESET & BASE */
         * { 
             box-sizing: border-box; 
             -webkit-tap-highlight-color: transparent; 
             margin: 0; padding: 0; 
-            font-family: 'Inter', -apple-system, system-ui, sans-serif;
-            scrollbar-width: none;
+            font-family: 'Inter', -apple-system, sans-serif;
         }
-        ::-webkit-scrollbar { display: none; }
 
         body {
             background-color: var(--bg-deep);
             color: var(--text-main);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
             overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 50% 0%, #1e293b 0%, transparent 75%),
-                linear-gradient(180deg, #020617 0%, #0f172a 100%);
-            background-attachment: fixed;
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, transparent 70%);
         }
 
-        /* ЭФФЕКТЫ САКУРЫ ДЛЯ MATB */
         #fx-canvas {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 1;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1;
         }
+
         .petal {
             position: absolute;
             background: linear-gradient(135deg, #ffb7c5, #f472b6);
             border-radius: 150% 0 150% 0;
             opacity: 0.3;
             animation: fall linear infinite;
-            filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.5));
-        }
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg) translateX(0); }
-            100% { transform: translateY(110vh) rotate(720deg) translateX(100px); }
         }
 
-        /* ОСНОВНОЙ КОНТЕЙНЕР */
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); }
+            100% { transform: translateY(110vh) rotate(360deg); }
+        }
+
         .app-container {
             max-width: 550px;
             margin: 0 auto;
-            padding: 25px 20px 140px;
-            width: 100%;
+            padding: 20px 15px 120px;
             position: relative;
             z-index: 10;
         }
 
-        /* ВИДЖЕТ ЧАСОВ */
+        /* CLOCK AREA */
         .clock-card {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.4);
             backdrop-filter: blur(20px);
-            border-radius: 45px;
-            padding: 50px 20px;
+            border-radius: 40px;
+            padding: 40px 20px;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             border: 1px solid var(--border-light);
-            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
-            transition: transform 0.3s ease;
         }
-        .clock-card:active { transform: scale(0.98); }
-        
+
         .clock-time {
             font-size: 6rem;
             font-weight: 900;
-            letter-spacing: -5px;
-            line-height: 0.9;
+            letter-spacing: -4px;
             background: linear-gradient(to bottom, #fff, #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-variant-numeric: tabular-nums;
         }
+
         .clock-date {
             color: var(--accent-blue);
             text-transform: uppercase;
-            font-weight: 900;
+            font-weight: 800;
             letter-spacing: 3px;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            font-size: 0.8rem;
         }
 
-        /* БЛОК УВЕДОМЛЕНИЙ */
-        .notif-bar {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border-light);
-            border-radius: 30px;
-            padding: 22px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            backdrop-filter: blur(15px);
-        }
-        .notif-info h4 { font-size: 0.85rem; font-weight: 950; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
-        .notif-info p { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
-
-        .btn-toggle {
-            padding: 14px 24px;
-            border-radius: 18px;
-            border: none;
-            font-weight: 900;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            background: #1e293b;
-            color: #94a3b8;
-            min-width: 120px;
-            text-transform: uppercase;
-        }
-        .btn-toggle.on { background: var(--accent-green); color: #06170c; box-shadow: var(--glow-green); }
-        .btn-toggle.denied { background: var(--danger); color: #fff; }
-        .btn-toggle:active { transform: scale(0.9); }
-
-        /* БАННЕР ТЕКУЩЕГО СОСТОЯНИЯ */
+        /* BANNER */
         .banner {
-            border-radius: 40px;
-            padding: 35px 25px;
-            margin-bottom: 30px;
+            border-radius: 35px;
+            padding: 30px;
+            margin-bottom: 25px;
             text-align: center;
-            position: relative;
-            overflow: hidden;
-            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-            background: #111827;
-            border: 1px solid var(--border-light);
+            transition: 0.5s;
         }
-        .banner::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
-            animation: rotate 10s linear infinite;
-            pointer-events: none;
-        }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .banner.type-lesson { background: linear-gradient(135deg, #1e3a8a, #3b82f6); box-shadow: var(--glow-blue); }
+        .banner.type-break { background: linear-gradient(135deg, #831843, #ec4899); }
+        .banner.type-wait { background: #1e293b; border: 1px solid var(--border-light); }
+        .banner.type-extra { background: linear-gradient(135deg, #b45309, #f59e0b); box-shadow: 0 0 30px rgba(245, 158, 11, 0.3); }
+        
+        .banner-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; opacity: 0.8; margin-bottom: 8px; }
+        .banner-timer { font-size: 4rem; font-weight: 900; }
 
-        .banner.type-lesson { 
-            background: linear-gradient(135deg, #1d4ed8, #3b82f6); 
-            box-shadow: var(--glow-blue); border: none; 
-        }
-        .banner.type-break { 
-            background: linear-gradient(135deg, #be185d, #ec4899); 
-            box-shadow: var(--glow-pink); border: none; 
-        }
-
-        .banner-label { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; opacity: 0.9; margin-bottom: 8px; letter-spacing: 1px; }
-        .banner-timer { font-size: 4rem; font-weight: 950; font-variant-numeric: tabular-nums; line-height: 1; }
-        .banner-sub { font-size: 0.75rem; font-weight: 800; opacity: 0.7; margin-top: 10px; }
-
-        /* СПИСОК РАСПИСАНИЯ */
+        /* LISTS */
         .section-card {
-            background: rgba(15, 23, 42, 0.4);
-            border-radius: 40px;
-            padding: 30px 20px;
-            margin-bottom: 30px;
+            background: rgba(30, 41, 59, 0.2);
+            border-radius: 35px;
+            padding: 25px;
             border: 1px solid var(--border-light);
+            margin-bottom: 20px;
         }
-        .section-title { 
-            font-weight: 950; font-size: 1.1rem; margin-bottom: 25px; 
-            color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase;
-            padding-left: 10px; border-left: 4px solid var(--accent-blue);
+
+        .section-title {
+            font-weight: 900; font-size: 0.9rem; color: var(--text-dim);
+            margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;
+            display: flex; align-items: center; gap: 10px;
         }
+        .section-title::before { content: ''; width: 4px; height: 16px; background: var(--accent-blue); border-radius: 2px; }
 
         .item {
-            background: rgba(255,255,255,0.02);
-            border-radius: 24px;
-            padding: 18px 24px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 15px 20px;
             margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid transparent;
-            transition: 0.4s;
+            border-left: 4px solid transparent;
+            transition: 0.3s;
         }
-        .item.type-lesson { border-left: 5px solid var(--accent-blue); }
-        .item.type-break { border-left: 5px solid var(--accent-pink); opacity: 0.6; }
-
+        .item.type-lesson { border-left-color: var(--accent-blue); }
+        .item.type-break { border-left-color: var(--accent-pink); opacity: 0.6; }
+        .item.type-extra { border-left-color: var(--accent-gold); }
+        
         .item.active { 
             background: rgba(255,255,255,0.08); 
-            transform: translateX(5px) scale(1.02);
-            border-color: rgba(255,255,255,0.1);
+            transform: scale(1.02);
+            border-left-width: 8px;
         }
         .item.active.type-lesson { border-left-color: var(--accent-green); box-shadow: var(--glow-green); }
-        .item.active.type-break { opacity: 1; border-left-color: var(--accent-pink); box-shadow: var(--glow-pink); }
+        .item.active.type-extra { border-left-color: var(--accent-gold); box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
 
-        .item-info { display: flex; flex-direction: column; }
-        .item-tag { font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-dim); margin-bottom: 2px; }
-        .item-name { font-weight: 850; font-size: 1.1rem; color: #fff; }
-        .item-time { font-weight: 900; font-size: 1rem; color: var(--text-dim); font-variant-numeric: tabular-nums; }
-        .active .item-time { color: var(--text-main); }
+        .item-name { font-weight: 800; font-size: 1.05rem; }
+        .item-tag { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; }
+        .item-time { font-weight: 800; color: var(--text-dim); }
+        .active .item-time { color: #fff; }
 
-        /* ЗАДАНИЯ CLASSROOM (НЕОБРУТАЛИЗМ) */
+        /* CLASSROOM TASKS */
         .task-card {
-            background: #fff;
-            color: #000;
-            border-radius: 24px;
-            padding: 24px;
-            margin-bottom: 20px;
-            border: 4px solid #000;
-            box-shadow: 8px 8px 0px #000;
-            cursor: pointer;
-            transition: 0.2s;
-            position: relative;
+            background: #fff; color: #000; border-radius: 22px; padding: 20px;
+            margin-bottom: 15px; border: 3px solid #000; box-shadow: 6px 6px 0px #000;
         }
-        .task-card:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0px #000; }
-        .task-tag { 
-            display: inline-block; padding: 4px 10px; background: #000; color: #fff;
-            border-radius: 8px; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px;
-        }
-        .task-title { font-size: 1.2rem; font-weight: 950; line-height: 1.1; margin-bottom: 8px; }
-        .task-desc { font-size: 0.85rem; color: #444; font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .task-tag { font-size: 0.6rem; font-weight: 900; background: #000; color: #fff; padding: 4px 10px; border-radius: 6px; margin-bottom: 8px; display: inline-block; }
+        .task-title { font-weight: 900; font-size: 1.1rem; margin-bottom: 5px; }
 
-        /* НАВИГАЦИЯ ПАНЕЛЬ */
+        /* NAV */
         .nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(25px);
-            display: flex; padding: 15px 10px 40px;
-            border-top: 1px solid var(--border-light);
+            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px);
+            display: flex; padding: 15px 10px 35px; border-top: 1px solid var(--border-light);
             z-index: 1000;
-            justify-content: space-around;
         }
-        .nav-btn { 
-            flex: 1; text-align: center; color: var(--text-dim); cursor: pointer; 
-            font-weight: 900; font-size: 0.75rem; transition: 0.3s;
-            display: flex; flex-direction: column; align-items: center;
-        }
+        .nav-btn { flex: 1; text-align: center; color: var(--text-dim); cursor: pointer; transition: 0.3s; }
         .nav-btn.active { color: var(--accent-green); }
-        .nav-btn i { font-size: 1.6rem; margin-bottom: 5px; font-style: normal; transition: 0.3s; }
-        .nav-btn.active i { transform: translateY(-5px) scale(1.2); }
+        .nav-btn i { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+        .nav-btn span { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; }
 
-        /* МОДАЛЬНЫЕ ОКНА */
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center;
-            z-index: 2000; padding: 25px; backdrop-filter: blur(15px);
-            animation: fadeIn 0.3s ease;
+        /* SETTINGS / OS VIEW */
+        .settings-item {
+            padding: 20px; border-bottom: 1px solid var(--border-light);
+            display: flex; justify-content: space-between; align-items: center;
         }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .modal-box { 
-            background: var(--card-dark); padding: 35px; border-radius: 40px; 
-            width: 100%; max-width: 400px; border: 2px solid var(--accent-blue);
-            box-shadow: 0 0 50px rgba(59, 130, 246, 0.3);
-            transform: translateY(0); animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes slideUp { from { transform: translateY(50px); } to { transform: translateY(0); } }
-
-        .modal-box h3 { font-size: 1.5rem; font-weight: 950; color: #fff; margin-bottom: 15px; }
-        .modal-box p { color: var(--text-dim); line-height: 1.6; font-size: 0.95rem; margin-bottom: 25px; }
-        
-        .btn-action { 
-            width: 100%; background: var(--accent-blue); color: #fff; border: none; 
-            padding: 18px; border-radius: 20px; font-weight: 950; font-size: 1rem;
-            cursor: pointer; transition: 0.3s; box-shadow: var(--glow-blue);
-        }
-        .btn-action:active { transform: scale(0.95); }
-
-        /* ВСПОМОГАТЕЛЬНОЕ */
-        .loader-wrap { text-align: center; padding: 50px 0; }
-        .loader { 
-            width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.05); 
-            border-top-color: var(--accent-blue); border-radius: 50%; 
-            animation: spin 0.8s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite; margin: 0 auto; 
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        .os-btn {
-            position: absolute; bottom: 100px; right: 20px;
-            width: 50px; height: 50px; border-radius: 15px;
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border-light);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem; font-weight: 900; color: var(--text-dim);
-            cursor: pointer; z-index: 50;
-        }
-        .os-btn:active { background: var(--accent-green); color: #000; }
 
         .hidden { display: none !important; }
-        .empty-state { text-align: center; color: var(--text-dim); padding: 40px 20px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -313,434 +185,275 @@
     <div id="fx-canvas"></div>
 
     <div class="app-container">
-        
-        <!-- ЧАСЫ -->
-        <header class="clock-card" id="main-clock-widget">
+        <header class="clock-card">
             <div class="clock-time" id="clock">00:00</div>
-            <div class="clock-date" id="date">ИНИЦИАЛИЗАЦИЯ...</div>
+            <div class="clock-date" id="date">ЗАГРУЗКА...</div>
         </header>
 
-        <!-- ПАНЕЛЬ УВЕДОМЛЕНИЙ -->
-        <section class="notif-bar">
-            <div class="notif-info">
-                <h4>PUSH-CONTROL</h4>
-                <p id="notif-status">Нажми для активации пушей</p>
-            </div>
-            <button class="btn-toggle" id="btn-notif" onclick="App.toggleNotifs()">ВКЛЮЧИТЬ</button>
-        </section>
-
-        <!-- ГЛАВНЫЙ ЭКРАН (БАЗА) -->
+        <!-- VIEW: HOME -->
         <div id="view-home">
-            <div id="banner" class="banner">
-                <div class="banner-label" id="b-label">Загрузка системы...</div>
+            <div id="banner" class="banner type-wait">
+                <div class="banner-label" id="b-label">Система готова</div>
                 <div class="banner-timer" id="b-timer">00:00</div>
-                <div class="banner-sub" id="b-sub">MATB OS v4.9 ENGINE</div>
             </div>
 
             <div class="section-card">
-                <div class="section-title">РАСПИСАНИЕ СЕГОДНЯ</div>
+                <div class="section-title">РАСПИСАНИЕ MATB</div>
                 <div id="schedule-list"></div>
-                <div id="schedule-empty" class="hidden empty-state">На сегодня уроков нет. Чиль! 😎</div>
             </div>
         </div>
 
-        <!-- ЭКРАН ЗАДАНИЙ -->
+        <!-- VIEW: TASKS -->
         <div id="view-tasks" class="hidden">
-            <div class="section-card" style="min-height: 500px;">
-                <div class="section-title">GOOGLE CLASSROOM</div>
-                
-                <div id="auth-ui" class="hidden" style="text-align: center; padding-top: 60px;">
-                    <p style="color: var(--text-dim); margin-bottom: 25px; font-weight: 700;">Нужен доступ к твоим курсам</p>
-                    <button class="btn-action" onclick="App.auth()">АВТОРИЗОВАТЬСЯ</button>
+            <div class="section-card">
+                <div class="section-title">CLASSROOM ЗАДАНИЯ</div>
+                <div id="auth-ui" class="hidden" style="text-align: center; padding: 40px 0;">
+                    <button class="task-card" style="width:100%; cursor:pointer" onclick="App.auth()">ВХОД В GOOGLE</button>
                 </div>
-
-                <div id="task-loader" class="hidden">
-                    <div class="loader-wrap">
-                        <div class="loader"></div>
-                        <p style="margin-top: 20px; font-weight: 800; color: var(--accent-blue);">ШЕРСТИМ КЛАССРУМ...</p>
-                    </div>
-                </div>
-
                 <div id="task-list"></div>
-                <div id="task-empty" class="hidden empty-state">Долгов нет. Ты чертов гений! 🏆</div>
             </div>
         </div>
 
-        <!-- СЕКРЕТНАЯ КНОПКА OS -->
-        <div class="os-btn" onclick="App.osPower()">OS</div>
-
-    </div>
-
-    <!-- МОДАЛКА ДЕТАЛЕЙ ЗАДАНИЯ -->
-    <div id="modal" class="modal" onclick="this.style.display='none'">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <h3 id="m-title">Название задачи</h3>
-            <p id="m-desc">Описание будет здесь...</p>
-            <button class="btn-action" id="m-go">ПЕРЕЙТИ К ЗАДАНИЮ</button>
+        <!-- VIEW: OS -->
+        <div id="view-os" class="hidden">
+            <div class="section-card">
+                <div class="section-title">MATB OS v5.5</div>
+                <div class="settings-item">
+                    <span>Уведомления</span>
+                    <button class="item-time" style="background:none; border:none; color:var(--accent-green)" onclick="App.toggleNotifs()">ВКЛЮЧИТЬ</button>
+                </div>
+                <div class="settings-item">
+                    <span>Геометрия в 9:00</span>
+                    <span class="item-time" style="color:#fff">АКТИВНО</span>
+                </div>
+                <div class="settings-item">
+                    <span>Доп. Английский</span>
+                    <span class="item-time" style="color:#fff">16:00 - 17:00</span>
+                </div>
+                <div class="settings-item" style="border:none">
+                    <button style="color:var(--danger); background:none; border:none; font-weight:900" onclick="localStorage.clear(); location.reload();">СБРОС MATB OS</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
     <nav class="nav">
         <div class="nav-btn active" onclick="App.switchView('home', this)">
-            <i>🏠</i>
-            <span>БАЗА</span>
+            <i>🏠</i><span>База</span>
         </div>
         <div class="nav-btn" onclick="App.switchView('tasks', this)">
-            <i>📚</i>
-            <span>ЗАДАЧИ</span>
+            <i>📚</i><span>Задачи</span>
+        </div>
+        <div class="nav-btn" onclick="App.switchView('os', this)">
+            <i>⚙️</i><span>OS</span>
         </div>
     </nav>
 
     <script>
-        // КОНФИГ
         const CLIENT_ID = '747337328453-pp0c1ncoagvotsjrephg9vlbf300ko90.apps.googleusercontent.com';
 
-        // РАСПИСАНИЕ (БЕЗ ФИЗРЫ В ЧЕТВЕРГ)
+        // Стандартная сетка
+        const STANDARD_GRID = [
+            { s: "09:00", e: "09:45" }, { s: "09:55", e: "10:40" },
+            { s: "10:50", e: "11:35" }, { s: "11:55", e: "12:40" },
+            { s: "12:50", e: "13:35" }, { s: "13:45", e: "14:30" }
+        ];
+
+        // Четверг: Геометрия первая + сокращенная перемена на истории
+        const THURSDAY_GRID = [
+            { s: "09:00", e: "09:45" }, 
+            { s: "09:55", e: "10:40" }, 
+            { s: "10:50", e: "11:35" }, 
+            { s: "11:45", e: "12:30" }, 
+            { s: "12:40", e: "13:25" }, 
+            { s: "13:35", e: "14:20" }  
+        ];
+
         const SUBJECTS = {
-            1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
-            2: ["Геометрия", "Физика", "Укр. язык", "Биология", "Музыка", "Физкультура", "Гром. освіта"],
-            3: ["Химия", "Основы здоровья", "Укр. литература", "Алгебра", "История", "Английский", "География"],
-            4: ["Математика Доп", "Физика", "История", "История", "Технологии", "Английский"], 
-            5: ["Физкультура", "Укр. язык", "Укр. литература", "Алгебра", "Зарубежка", "Информатика", "Немецкий"]
+            1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия"],
+            2: ["Геометрия", "Физика", "Укр. язык", "Биология", "Музыка", "Физкультура"],
+            3: ["Химия", "Основы здоровья", "Укр. лит", "Алгебра", "История", "Английский"],
+            4: ["Геометрия", "Физика", "История", "История", "Технологии", "Английский"],
+            5: ["Физкультура", "Укр. язык", "Укр. лит", "Алгебра", "Зарубежка", "Информатика"]
         };
 
         const App = {
             timeline: [],
-            lastNotification: "",
-            isProcessingAuth: false,
-
+            
             init() {
-                console.log("MATB OS Initializing...");
                 this.buildTimeline();
                 this.renderSchedule();
                 this.createSakura();
-                this.updateNotifStatus();
-                
-                // Таймеры
                 setInterval(() => this.tick(), 1000);
                 this.tick();
-
-                // Авто-вход в классум
-                const savedToken = localStorage.getItem('matb_token_v49');
-                if (savedToken) {
-                    this.loadTasks(savedToken);
-                } else {
-                    document.getElementById('auth-ui').classList.remove('hidden');
-                }
+                
+                const token = localStorage.getItem('matb_token_v5');
+                if (token) this.loadTasks(token);
+                else document.getElementById('auth-ui').classList.remove('hidden');
             },
 
-            // ГЕНЕРАЦИЯ ТАЙМЛАЙНА (УРОКИ + ПЕРЕМЕНЫ)
             buildTimeline() {
                 const day = new Date().getDay();
-                const currentDaySubjects = SUBJECTS[day] || [];
-                
-                if (currentDaySubjects.length === 0) {
-                    document.getElementById('schedule-empty').classList.remove('hidden');
-                    return;
-                }
+                if (day === 0 || day === 6) return;
 
-                let startTime = 9 * 60; // Старт в 09:00
+                const grid = (day === 4) ? THURSDAY_GRID : STANDARD_GRID;
+                const subs = SUBJECTS[day];
 
-                currentDaySubjects.forEach((sub, index) => {
-                    const lessonNum = index + 1;
+                const parse = (t) => {
+                    const [h, m] = t.split(':').map(Number);
+                    return h * 60 + m;
+                };
+
+                // Основные уроки
+                subs.forEach((name, i) => {
+                    const g = grid[i];
+                    if (!g) return;
                     
-                    // Урок (45 минут)
                     this.timeline.push({
                         type: 'lesson',
-                        n: lessonNum,
-                        name: sub,
-                        start: startTime,
-                        end: startTime + 45
+                        name: name,
+                        start: parse(g.s),
+                        end: parse(g.e),
+                        label: `Урок ${i + 1}`
                     });
-                    
-                    startTime += 45;
 
-                    // Перемена (10 минут)
-                    if (index < currentDaySubjects.length - 1) {
+                    if (subs[i + 1]) {
                         this.timeline.push({
                             type: 'break',
-                            n: lessonNum,
-                            name: `Перемена ${lessonNum}`,
-                            start: startTime,
-                            end: startTime + 10
+                            name: 'Перемена',
+                            start: parse(g.e),
+                            end: parse(grid[i+1].s),
+                            label: 'Отдых'
                         });
-                        startTime += 10;
                     }
                 });
+
+                // Доп. Английский (Вторник и Четверг)
+                if (day === 2 || day === 4) {
+                    this.timeline.push({
+                        type: 'extra',
+                        name: 'Доп. Английский',
+                        start: 16 * 60, // 16:00
+                        end: 17 * 60,   // 17:00
+                        label: 'SPECIAL'
+                    });
+                }
             },
 
-            // ОТРИСОВКА СПИСКА
-            renderSchedule() {
-                const list = document.getElementById('schedule-list');
-                list.innerHTML = this.timeline.map((item, i) => {
-                    const h = Math.floor(item.start / 60);
-                    const m = item.start % 60;
-                    const timeStr = `${h}:${m.toString().padStart(2, '0')}`;
-                    
-                    return `
-                        <div class="item type-${item.type}" id="sched-item-${i}">
-                            <div class="item-info">
-                                <span class="item-tag">${item.type === 'lesson' ? 'Урок ' + item.n : 'Отдых'}</span>
-                                <span class="item-name">${item.name}</span>
-                            </div>
-                            <div class="item-time">${timeStr}</div>
-                        </div>
-                    `;
-                }).join('');
-            },
-
-            // ЕЖЕСЕКУНДНЫЙ ТИК
             tick() {
                 const now = new Date();
-                const currentMinutes = now.getHours() * 60 + now.getMinutes();
-                const currentSeconds = now.getSeconds();
+                const cur = now.getHours() * 60 + now.getMinutes();
+                const sec = now.getSeconds();
 
-                // Обновление часов
                 document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
                 document.getElementById('date').innerText = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'short'});
 
-                let activeItem = null;
-
-                this.timeline.forEach((item, index) => {
-                    const el = document.getElementById(`sched-item-${index}`);
-                    if (!el) return;
-
-                    if (currentMinutes >= item.start && currentMinutes < item.end) {
-                        activeItem = item;
+                let active = null;
+                this.timeline.forEach((it, i) => {
+                    const el = document.getElementById(`item-${i}`);
+                    if (cur >= it.start && cur < it.end) {
+                        active = it;
                         el.classList.add('active');
-                        
-                        const remainM = item.end - currentMinutes - 1;
-                        const remainS = 60 - currentSeconds;
-                        this.updateBanner(item, remainM, remainS);
-                        
-                        // Пуш-уведомление при входе в новый слот
-                        this.sendPush(item.name);
+                        this.updateBanner(it, it.end - cur - 1, 60 - sec);
                     } else {
                         el.classList.remove('active');
                     }
                 });
 
-                // Если уроков сейчас нет
-                if (!activeItem) {
-                    const nextItem = this.timeline.find(it => it.start > currentMinutes);
-                    if (nextItem) {
-                        const waitM = nextItem.start - currentMinutes - 1;
-                        const waitS = 60 - currentSeconds;
-                        this.updateBanner({type: 'wait', name: 'Ожидание'}, waitM, waitS, `Далее: ${nextItem.name}`);
+                if (!active) {
+                    const next = this.timeline.find(it => it.start > cur);
+                    if (next) {
+                        this.updateBanner({type: 'wait', name: `След: ${next.name}`}, next.start - cur - 1, 60 - sec);
                     } else {
-                        this.updateBanner({type: 'done', name: 'Уроки окончены'}, 0, 0, "Свободное время!");
+                        this.updateBanner({type: 'wait', name: 'Смена окончена'}, 0, 0);
                     }
                 }
             },
 
-            updateBanner(item, mm, ss, customSub = "") {
-                const banner = document.getElementById('banner');
-                const label = document.getElementById('b-label');
-                const timer = document.getElementById('b-timer');
-                const sub = document.getElementById('b-sub');
-
-                banner.className = `banner type-${item.type}`;
-                label.innerText = item.name;
-                
-                if (item.type === 'done') {
-                    timer.innerText = "END";
-                } else {
-                    timer.innerText = `${mm.toString().padStart(2, '0')}:${ss.toString().padStart(2, '0')}`;
-                }
-                
-                sub.innerText = customSub || "До завершения этапа";
+            updateBanner(it, mm, ss) {
+                const b = document.getElementById('banner');
+                b.className = `banner type-${it.type}`;
+                document.getElementById('b-label').innerText = it.name;
+                document.getElementById('b-timer').innerText = (mm === 0 && ss === 0 && it.type === 'wait') ? "CHILL" : 
+                    `${mm.toString().padStart(2, '0')}:${ss.toString().padStart(2, '0')}`;
             },
 
-            // УВЕДОМЛЕНИЯ
-            async toggleNotifs() {
-                if (!("Notification" in window)) {
-                    alert("Твой браузер не поддерживает пуши. Юзай Chrome или Safari.");
-                    return;
-                }
-
-                const permission = await Notification.requestPermission();
-                this.updateNotifStatus();
-
-                if (permission === 'granted') {
-                    new Notification("MATB OS", { 
-                        body: "Система уведомлений активирована! 🚀",
-                        icon: "https://cdn-icons-png.flaticon.com/512/1828/1828640.png"
-                    });
-                }
+            renderSchedule() {
+                const list = document.getElementById('schedule-list');
+                list.innerHTML = this.timeline.map((it, i) => `
+                    <div class="item type-${it.type}" id="item-${i}">
+                        <div>
+                            <div class="item-tag">${it.label}</div>
+                            <div class="item-name">${it.name}</div>
+                        </div>
+                        <div class="item-time">${Math.floor(it.start/60)}:${(it.start%60).toString().padStart(2,'0')}</div>
+                    </div>
+                `).join('');
             },
 
-            updateNotifStatus() {
-                const btn = document.getElementById('btn-notif');
-                const statusTxt = document.getElementById('notif-status');
-
-                if (!("Notification" in window)) {
-                    btn.innerText = "ERROR";
-                    statusTxt.innerText = "Не поддерживается браузером";
-                    return;
-                }
-
-                if (Notification.permission === 'granted') {
-                    btn.innerText = "АКТИВНО";
-                    btn.classList.add('on');
-                    statusTxt.innerText = "Уведомления работают четко";
-                } else if (Notification.permission === 'denied') {
-                    btn.innerText = "ЗАБЛОЧЕНО";
-                    btn.classList.add('denied');
-                    statusTxt.innerText = "Разблокируй в настройках";
-                }
-            },
-
-            sendPush(title) {
-                if (this.lastNotification !== title && Notification.permission === 'granted') {
-                    this.lastNotification = title;
-                    new Notification("Новое событие!", { 
-                        body: `Началось: ${title}`,
-                        tag: "study-hub-event"
-                    });
-                }
-            },
-
-            // GOOGLE CLASSROOM ЛОГИКА
-            auth() {
-                if (this.isProcessingAuth) return;
-                this.isProcessingAuth = true;
-
-                try {
-                    const client = google.accounts.oauth2.initTokenClient({
-                        client_id: CLIENT_ID,
-                        scope: 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly',
-                        callback: (response) => {
-                            this.isProcessingAuth = false;
-                            if (response.access_token) {
-                                localStorage.setItem('matb_token_v49', response.access_token);
-                                this.loadTasks(response.access_token);
-                            }
-                        },
-                        error_callback: (err) => {
-                            this.isProcessingAuth = false;
-                            console.error("Auth Error:", err);
-                        }
-                    });
-                    client.requestAccessToken();
-                } catch (e) {
-                    this.isProcessingAuth = false;
-                    alert("Ошибка Google API. Проверь VPN или сеть.");
-                }
-            },
-
-            async loadTasks(token) {
-                document.getElementById('auth-ui').classList.add('hidden');
-                document.getElementById('task-loader').classList.remove('hidden');
-                document.getElementById('task-empty').classList.add('hidden');
-                
-                const listEl = document.getElementById('task-list');
-                listEl.innerHTML = "";
-
-                try {
-                    // 1. Получаем список курсов
-                    const coursesRes = await fetch('https://classroom.googleapis.com/v1/courses', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    const coursesData = await coursesRes.json();
-
-                    if (!coursesData.courses || coursesData.courses.length === 0) {
-                        document.getElementById('task-empty').classList.remove('hidden');
-                        return;
-                    }
-
-                    let hasAnyTasks = false;
-
-                    // 2. Для каждого курса ищем задания
-                    for (const course of coursesData.courses) {
-                        const workRes = await fetch(`https://classroom.googleapis.com/v1/courses/${course.id}/courseWork`, {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                        const workData = await workRes.json();
-
-                        if (workData.courseWork && workData.courseWork.length > 0) {
-                            hasAnyTasks = true;
-                            workData.courseWork.forEach(work => {
-                                const card = document.createElement('div');
-                                card.className = 'task-card';
-                                card.innerHTML = `
-                                    <div class="task-tag">${course.name}</div>
-                                    <div class="task-title">${work.title}</div>
-                                    <div class="task-desc">${work.description || 'Нет описания.'}</div>
-                                `;
-                                card.onclick = () => this.showTaskModal(work);
-                                listEl.appendChild(card);
-                            });
-                        }
-                    }
-
-                    if (!hasAnyTasks) {
-                        document.getElementById('task-empty').classList.remove('hidden');
-                    }
-
-                } catch (error) {
-                    console.error("Classroom Error:", error);
-                    localStorage.removeItem('matb_token_v49');
-                    document.getElementById('auth-ui').classList.remove('hidden');
-                } finally {
-                    document.getElementById('task-loader').classList.add('hidden');
-                }
-            },
-
-            showTaskModal(work) {
-                const modal = document.getElementById('modal');
-                document.getElementById('m-title').innerText = work.title;
-                document.getElementById('m-desc').innerText = work.description || "У этого задания нет подробного описания. Просто сделай его!";
-                
-                const goBtn = document.getElementById('m-go');
-                goBtn.onclick = () => {
-                    window.open(work.alternateLink, '_blank');
-                };
-
-                modal.style.display = 'flex';
-            },
-
-            // UI УПРАВЛЕНИЕ
             switchView(view, btn) {
-                document.getElementById('view-home').classList.toggle('hidden', view !== 'home');
-                document.getElementById('view-tasks').classList.toggle('hidden', view !== 'tasks');
-                
+                ['home', 'tasks', 'os'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
+                document.getElementById(`view-${view}`).classList.remove('hidden');
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             },
 
-            osPower() {
-                const widget = document.getElementById('main-clock-widget');
-                widget.style.transform = "rotate(5deg) scale(1.1)";
-                widget.style.boxShadow = "0 0 100px var(--accent-green)";
-                setTimeout(() => {
-                    widget.style.transform = "";
-                    widget.style.boxShadow = "";
-                }, 500);
+            auth() {
+                const client = google.accounts.oauth2.initTokenClient({
+                    client_id: CLIENT_ID,
+                    scope: 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly',
+                    callback: (r) => {
+                        if (r.access_token) {
+                            localStorage.setItem('matb_token_v5', r.access_token);
+                            this.loadTasks(r.access_token);
+                        }
+                    }
+                });
+                client.requestAccessToken();
+            },
+
+            async loadTasks(token) {
+                document.getElementById('auth-ui').classList.add('hidden');
+                const list = document.getElementById('task-list');
+                try {
+                    const res = await fetch('https://classroom.googleapis.com/v1/courses', { headers: { 'Authorization': `Bearer ${token}` } });
+                    const data = await res.json();
+                    if (!data.courses) return;
+                    for (const c of data.courses) {
+                        const wRes = await fetch(`https://classroom.googleapis.com/v1/courses/${c.id}/courseWork`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        const wData = await wRes.json();
+                        if (wData.courseWork) {
+                            wData.courseWork.forEach(w => {
+                                const div = document.createElement('div');
+                                div.className = 'task-card';
+                                div.innerHTML = `<div class="task-tag">${c.name}</div><div class="task-title">${w.title}</div>`;
+                                div.onclick = () => window.open(w.alternateLink, '_blank');
+                                list.appendChild(div);
+                            });
+                        }
+                    }
+                } catch(e) { localStorage.removeItem('matb_token_v5'); }
+            },
+
+            async toggleNotifs() {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') new Notification("MATB OS", { body: "Система уведомлений активна" });
             },
 
             createSakura() {
-                const container = document.getElementById('fx-canvas');
-                const petalCount = 35;
-
-                for (let i = 0; i < petalCount; i++) {
-                    const petal = document.createElement('div');
-                    petal.className = 'petal';
-                    
-                    const size = Math.random() * 8 + 6;
-                    petal.style.width = `${size}px`;
-                    petal.style.height = `${size}px`;
-                    
-                    petal.style.left = `${Math.random() * 100}vw`;
-                    petal.style.animationDuration = `${Math.random() * 5 + 7}s`;
-                    petal.style.animationDelay = `${Math.random() * 10}s`;
-                    
-                    container.appendChild(petal);
+                const c = document.getElementById('fx-canvas');
+                for (let i = 0; i < 30; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'petal';
+                    p.style.width = p.style.height = `${Math.random() * 10 + 5}px`;
+                    p.style.left = `${Math.random() * 100}vw`;
+                    p.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                    p.style.animationDelay = `${Math.random() * 5}s`;
+                    c.appendChild(p);
                 }
             }
         };
 
-        // ЗАПУСК
         window.onload = () => App.init();
     </script>
 </body>
