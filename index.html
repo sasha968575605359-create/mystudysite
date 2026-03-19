@@ -3,46 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub OS</title>
+    <title>STUDY HUB: MATB EDITION</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        :root { --bg: #064e3b; --accent: #4ade80; --text: #f8fafc; --card: rgba(15, 23, 42, 0.9); --modal-bg: rgba(10, 15, 25, 0.98); }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        
-        /* Эффекты сакуры */
+        :root {
+            --bg: #022c22;
+            --accent: #4ade80;
+            --accent-dark: #166534;
+            --text: #f1f5f9;
+            --card: rgba(15, 23, 42, 0.95);
+            --danger: #ef4444;
+            --purple: #a855f7;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* АНИМАЦИЯ САКУРЫ */
         #fx-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .flower { position: absolute; top: -10%; animation: fall linear infinite; font-size: 20px; opacity: 0.5; }
-        @keyframes fall { 0% { transform: translateY(0vh) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
+        .flower { position: absolute; top: -10%; animation: fall linear infinite; font-size: 22px; filter: drop-shadow(0 0 5px rgba(255,182,193,0.5)); }
+        @keyframes fall { 
+            0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(110vh) translateX(50px) rotate(360deg); opacity: 0; } 
+        }
 
-        .container { max-width: 500px; margin: 0 auto; padding: 20px 20px 100px; position: relative; z-index: 10; }
-        .glass { background: var(--card); backdrop-filter: blur(20px); border-radius: 30px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px 20px 100px; position: relative; z-index: 10; width: 100%; box-sizing: border-box; }
+
+        .glass {
+            background: var(--card);
+            backdrop-filter: blur(25px);
+            border-radius: 35px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+
+        /* ЧАСЫ */
+        .clock-header { text-align: center; padding: 30px 0; }
+        #clock { font-size: 4.5rem; font-weight: 900; margin: 0; letter-spacing: -3px; color: var(--accent); line-height: 1; }
+        #date { font-size: 1.1rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; }
+
+        /* КНОПКИ */
+        .btn {
+            border: none;
+            padding: 20px;
+            border-radius: 22px;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .btn-main { background: var(--accent); color: #022c22; box-shadow: 0 10px 20px rgba(74, 222, 128, 0.2); }
+        .btn-ai { background: linear-gradient(135deg, #8b5cf6, #d946ef); color: white; }
+        .btn:active { transform: scale(0.95); }
+
+        /* РАСПИСАНИЕ */
+        .sched-item {
+            background: rgba(255,255,255,0.03);
+            margin-top: 12px;
+            padding: 18px;
+            border-radius: 22px;
+            border-left: 6px solid var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .sched-time { font-weight: 900; color: var(--accent); font-family: monospace; font-size: 1.1rem; }
+
+        /* КАРТОЧКИ ЗАДАНИЙ */
+        .task-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 25px;
+            padding: 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .task-card::after { content: '➔'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); opacity: 0.3; font-size: 1.5rem; }
+        .task-course { font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+        .task-title { font-size: 1.1rem; font-weight: 600; padding-right: 30px; }
+
+        /* МОДАЛКА */
+        #modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--modal-bg);
+            z-index: 2000;
+            display: none;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(20px);
+            flex-direction: column;
+            justify-content: center;
+        }
+        #modal.active { display: flex; animation: modalFade 0.3s ease; }
+        @keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
         
-        h2, h3 { color: var(--accent); margin-top: 0; letter-spacing: 0.5px; }
-        .btn-action { background: var(--accent); color: #000; border: none; padding: 18px; border-radius: 20px; width: 100%; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 1rem; }
-        .btn-ai { background: linear-gradient(90deg, #8b5cf6, #d946ef); color: white; margin-bottom: 15px; }
+        .modal-content { background: #0f172a; border-radius: 40px; padding: 40px 30px; border: 1px solid var(--accent); position: relative; }
+        .close-btn { position: absolute; top: -60px; right: 0; font-size: 3rem; color: white; cursor: pointer; }
         
-        /* Расписание */
-        .item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; margin-top: 10px; border-left: 5px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Карточки ДЗ */
-        .task-card { background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); border: 1px solid rgba(74, 222, 128, 0.3); padding: 18px; border-radius: 24px; margin-top: 15px; cursor: pointer; transition: 0.3s; }
-        .task-card:active { transform: scale(0.97); }
-        .task-info { font-size: 0.8rem; opacity: 0.6; margin-bottom: 5px; color: var(--accent); }
+        .timer-display {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid var(--danger);
+            border-radius: 25px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .timer-val { font-size: 2rem; font-weight: 900; color: var(--danger); display: block; }
+        .timer-label { font-size: 0.9rem; opacity: 0.7; }
 
-        /* Модальное окно */
-        #modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; box-sizing: border-box; text-align: center; backdrop-filter: blur(15px); }
-        #modal.active { display: flex; animation: zoomIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
-        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        .close-modal { position: absolute; top: 30px; right: 30px; font-size: 2rem; color: #ef4444; cursor: pointer; }
-        .timer-box { background: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; color: #ef4444; padding: 20px; border-radius: 25px; margin: 20px 0; font-size: 1.2rem; font-weight: bold; }
+        /* НАВИГАЦИЯ */
+        .nav {
+            position: fixed;
+            bottom: 0; width: 100%;
+            height: 90px;
+            background: rgba(2, 44, 34, 0.98);
+            display: flex;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 1000;
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .nav-item.active { color: var(--accent); }
+        .nav-item b { font-size: 1.8rem; margin-bottom: 5px; }
+        .nav-item span { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
 
-        .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(15, 23, 42, 0.95); display: flex; border-top: 1px solid rgba(255,255,255,0.1); z-index: 100; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.8rem; color: #64748b; cursor: pointer; }
-        .nav-item.active { color: var(--accent); font-weight: bold; }
-        .nav-item span { font-size: 1.8rem; margin-bottom: 5px; }
+        .page { display: none; }
+        .page.active { display: block; }
 
-        .page { display: none; } .page.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        #ai-box { display: none; margin-top: 15px; padding: 20px; border-radius: 20px; background: rgba(168, 85, 247, 0.15); border: 1px solid var(--purple); line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -50,181 +169,322 @@
 <div id="fx-layer"></div>
 
 <div id="modal">
-    <div class="close-modal" onclick="App.closeTask()">×</div>
-    <div id="modal-content" style="width: 100%;">
-        <h1 id="m-title" style="color: var(--accent);">Название задания</h1>
-        <p id="m-course" style="opacity: 0.7; font-size: 1.1rem;"></p>
-        <div class="timer-box" id="m-timer">Осталось: --:--:--</div>
-        <p id="m-deadline" style="margin-bottom: 30px;"></p>
-        <button id="m-link" class="btn-action">ОТКРЫТЬ В CLASSROOM</button>
+    <div class="modal-content">
+        <div class="close-btn" onclick="App.closeTask()">×</div>
+        <div id="m-course" style="color: var(--accent); font-weight: 800; font-size: 0.9rem; margin-bottom: 10px;">КУРС</div>
+        <h2 id="m-title" style="margin-bottom: 20px; font-size: 1.8rem;">Название задания</h2>
+        <div class="timer-display" id="m-timer-container">
+            <span class="timer-label">ВРЕМЕНИ ОСТАЛОСЬ:</span>
+            <span class="timer-val" id="m-timer">--д --ч --м</span>
+        </div>
+        <p id="m-desc" style="opacity: 0.7; margin-bottom: 30px; line-height: 1.6;"></p>
+        <button id="m-link" class="btn btn-main">ОТКРЫТЬ В CLASSROOM ➔</button>
     </div>
 </div>
 
 <div class="container">
+    
     <div id="p-home" class="page active">
-        <div class="glass" style="text-align: center; padding: 40px 20px;">
-            <h1 id="clock" style="font-size: 4rem; margin: 0; letter-spacing: -2px;">00:00</h1>
-            <p id="date" style="opacity: 0.8; font-size: 1.2rem;"></p>
+        <div class="clock-header">
+            <h1 id="clock">00:00</h1>
+            <div id="date">ЧЕТВЕРГ, 19 МАРТА</div>
         </div>
+
         <div class="glass">
-            <h3>🤖 ИИ Тренер</h3>
-            <button class="btn-action btn-ai" onclick="App.aiTask()">МНЕ СКУЧНО</button>
-            <div id="ai-res" style="display:none; padding:15px; border-radius:15px; background:rgba(139, 92, 246, 0.15); border: 1px solid #8b5cf6;"></div>
+            <h3>✨ ИИ РАЗВЛЕЧЕНИЯ</h3>
+            <button class="btn btn-ai" onclick="App.getAiTask()">МНЕ СКУЧНО НА УРОКЕ</button>
+            <div id="ai-box"></div>
         </div>
+
         <div class="glass">
-            <h3>📅 Расписание сегодня</h3>
-            <div id="sched-box"></div>
+            <h3>📅 РАСПИСАНИЕ НА СЕГОДНЯ</h3>
+            <div id="sched-list"></div>
         </div>
     </div>
 
-    <div id="p-class" class="page">
+    <div id="p-tasks" class="page">
         <div class="glass">
-            <h2 style="text-align: center;">📝 Долги по ДЗ</h2>
-            <div id="auth-ui" style="text-align: center;">
-                <button class="btn-action" onclick="App.login()">ПРОВЕРИТЬ СДАННЫЕ ЗАДАНИЯ</button>
+            <h2 style="text-align: center; margin-bottom: 25px;">📝 ТВОИ ДОЛГИ</h2>
+            
+            <div id="auth-section" style="text-align: center;">
+                <p style="opacity: 0.6; margin-bottom: 20px;">Нужно подключиться к Classroom, чтобы ИИ проверил твои сданные работы.</p>
+                <button class="btn btn-main" onclick="App.login()">СИНХРОНИЗИРОВАТЬ ДЗ</button>
             </div>
-            <div id="tasks-list"></div>
-            <button id="logout-btn" class="btn-action" style="display:none; background:#ef4444; color:white; margin-top:20px;" onclick="App.logout()">СМЕНИТЬ АККАУНТ</button>
+
+            <div id="tasks-container"></div>
+
+            <button id="logout-btn" class="btn" style="display:none; background:rgba(239,68,68,0.2); color:#ef4444; margin-top:30px;" onclick="App.logout()">ВЫЙТИ ИЗ АККАУНТА</button>
         </div>
     </div>
+
 </div>
 
 <nav class="nav">
-    <div class="nav-item active" onclick="App.tab('p-home', this)"><span>🏠</span>ГЛАВНАЯ</div>
-    <div class="nav-item" onclick="App.tab('p-class', this)"><span>📚</span>ЗАДАНИЯ</div>
+    <div class="nav-item active" onclick="App.switchPage('p-home', this)">
+        <b>🏠</b><span>Главная</span>
+    </div>
+    <div class="nav-item" onclick="App.switchPage('p-tasks', this)">
+        <b>📚</b><span>Задания</span>
+    </div>
 </nav>
 
 <script>
     const CLIENT_ID = '747337328453-pp0c1ncoagvotsjrephg9vlbf300ko90.apps.googleusercontent.com';
-    const LESSON_TIMES = ["09:00", "09:35", "10:10", "10:45", "11:20", "11:55", "12:30", "13:05", "13:40"];
     
-    const FULL_WEEK = {
+    // СЕТКА ВРЕМЕНИ (25 мин урок + 10 мин перемена)
+    const TIME_SLOTS = ["09:00", "09:35", "10:10", "10:45", "11:20", "11:55", "12:30", "13:05"];
+
+    const SCHEDULE = {
         1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
-        2: ["Английский", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис.", "Физра", "Гром. освіта"],
+        2: ["Английский (ДОП)", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис.", "Физра", "Гром. освіта"],
         3: ["Химия", "Основы здоровья", "Укр. литература", "Алгебра", "История Украины", "Английский", "География", "Биология"],
-        4: ["Геометрия", "Физика", "Физра", "Всемирная история", "Технологии", "Английский", "Фин. грамотность"],
+        4: ["Математика доп.", "Физика", "Физра", "Всемирная история", "Технологии", "Английский"],
         5: ["Физра", "Укр. язык", "Укр. литература", "Алгебра", "Зарубежка", "Информатика", "Немецкий"]
     };
 
     const App = {
+        timerId: null,
+
         init() {
-            this.updateClock();
-            setInterval(() => this.updateClock(), 1000);
-            this.renderSched();
-            this.sakura();
-            const token = localStorage.getItem('google_token');
-            if (token) this.loadAllData(token);
-        },
-        updateClock() {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('date').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
-        },
-        renderSched() {
-            const day = new Date().getDay();
-            const box = document.getElementById('sched-box');
-            if (day === 0 || day === 6) return box.innerHTML = "Свобода! Выходной. 🍕";
-            const lessons = FULL_WEEK[day] || [];
-            box.innerHTML = lessons.map((n, i) => `<div class="item"><span>${n}</span><b>${LESSON_TIMES[i]}</b></div>`).join('');
-        },
-        aiTask() {
-            const list = ["Нарисуй портрет учителя за 30 секунд.", "Придумай, как объяснить эту тему коту.", "Найди в классе самый старый предмет.", "Сколько секунд осталось до звонка?"];
-            const res = document.getElementById('ai-res');
-            res.style.display = 'block';
-            res.innerText = list[Math.floor(Math.random()*list.length)];
-        },
-        tab(id, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            el.classList.add('active');
-        },
-        sakura() {
-            for(let i=0; i<20; i++) {
-                let f = document.createElement('div'); f.className='flower'; f.innerText='🌸';
-                f.style.left=Math.random()*100+'vw'; f.style.animationDuration=(Math.random()*5+5)+'s';
-                document.getElementById('fx-layer').appendChild(f);
+            this.updateTime();
+            setInterval(() => this.updateTime(), 1000);
+            this.renderSchedule();
+            this.startSakura();
+            
+            const savedToken = localStorage.getItem('google_token');
+            if (savedToken) {
+                this.loadClassroomData(savedToken);
             }
         },
+
+        updateTime() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            document.getElementById('date').innerText = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
+        },
+
+        renderSchedule() {
+            const day = new Date().getDay();
+            const container = document.getElementById('sched-list');
+            
+            if (day === 0 || day === 6) {
+                container.innerHTML = "<div style='text-align:center; padding:20px; opacity:0.5;'>Сегодня кайфуем, уроков нет! 🍕</div>";
+                return;
+            }
+
+            const lessons = SCHEDULE[day] || [];
+            let html = "";
+            
+            lessons.forEach((name, i) => {
+                let time = TIME_SLOTS[i] || "--:--";
+                // Спец. время для английского во вторник
+                if (day === 2 && i === 0) time = "16:00";
+
+                html += `
+                    <div class="sched-item">
+                        <span style="font-weight:700;">${name}</span>
+                        <span class="sched-time">${time}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        },
+
+        getAiTask() {
+            const tasks = [
+                "Напиши в секретном чате другу: 'А ты знал, что пингвины не умеют летать, но зато круто плавают?'.",
+                "Попробуй за 2 минуты придумать 10 слов на букву 'Щ'.",
+                "Нарисуй в углу тетради маленького динозавра в шляпе.",
+                "Представь, что учитель — это босс в видеоигре. Какие у него способности?",
+                "Найди в кабинете 3 предмета зеленого цвета, которые не относятся к растениям.",
+                "Придумай хокку про этот урок. (5-7-5 слогов)."
+            ];
+            const box = document.getElementById('ai-box');
+            box.style.display = 'block';
+            box.innerHTML = `<strong>ЗАДАНИЕ ОТ ИИ:</strong><br>${tasks[Math.floor(Math.random() * tasks.length)]}`;
+        },
+
+        switchPage(pageId, navEl) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            navEl.classList.add('active');
+        },
+
+        startSakura() {
+            const fx = document.getElementById('fx-layer');
+            for(let i=0; i<20; i++) {
+                let f = document.createElement('div');
+                f.className = 'flower';
+                f.innerText = '🌸';
+                f.style.left = Math.random() * 100 + 'vw';
+                f.style.animationDuration = (Math.random() * 5 + 7) + 's';
+                f.style.animationDelay = Math.random() * 5 + 's';
+                fx.appendChild(f);
+            }
+        },
+
         login() {
             const client = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
                 scope: 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly',
-                callback: (r) => { if(r.access_token) { localStorage.setItem('google_token', r.access_token); this.loadAllData(r.access_token); } }
+                callback: (tokenResponse) => {
+                    if (tokenResponse.access_token) {
+                        localStorage.setItem('google_token', tokenResponse.access_token);
+                        this.loadClassroomData(tokenResponse.access_token);
+                    }
+                }
             });
             client.requestAccessToken();
         },
-        async loadAllData(token) {
-            const list = document.getElementById('tasks-list');
-            list.innerHTML = "<p style='text-align:center'>ИИ проверяет сданные работы...</p>";
+
+        async loadClassroomData(token) {
+            const container = document.getElementById('tasks-container');
+            const authSection = document.getElementById('auth-section');
+            const logoutBtn = document.getElementById('logout-btn');
+            
+            container.innerHTML = "<div style='text-align:center; padding:30px;'><span style='font-size:2rem;'>🔍</span><br>ИИ сканирует твои предметы...</div>";
+            authSection.style.display = 'none';
+            logoutBtn.style.display = 'block';
+
             try {
-                const res = await fetch('https://classroom.googleapis.com/v1/courses', { headers: { 'Authorization': `Bearer ${token}` } });
-                const data = await res.json();
-                const active = data.courses ? data.courses.filter(c => c.courseState === 'ACTIVE') : [];
-                document.getElementById('auth-ui').style.display = 'none';
-                document.getElementById('logout-btn').style.display = 'block';
-                list.innerHTML = "";
+                // 1. Получаем курсы
+                const coursesRes = await fetch('https://classroom.googleapis.com/v1/courses', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const coursesData = await coursesRes.json();
+                
+                if (coursesData.error) throw new Error('Token expired');
 
-                for (let c of active) {
-                    const cwRes = await fetch(`https://classroom.googleapis.com/v1/courses/${c.id}/courseWork`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const activeCourses = coursesData.courses ? coursesData.courses.filter(c => c.courseState === 'ACTIVE') : [];
+                let allTasksHtml = "";
+                let foundAny = false;
+
+                // 2. Идем по каждому курсу
+                for (let course of activeCourses) {
+                    // ФИЛЬТР ФИЗРЫ
+                    const cName = course.name.toLowerCase();
+                    if (cName.includes('физ') || cName.includes('фіз') || cName.includes('sport')) continue;
+
+                    const cwRes = await fetch(`https://classroom.googleapis.com/v1/courses/${course.id}/courseWork`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
                     const cwData = await cwRes.json();
-                    if (!cwData.courseWork) continue;
+                    
+                    if (cwData.courseWork) {
+                        for (let work of cwData.courseWork) {
+                            // 3. Проверяем, сдано ли оно
+                            const subRes = await fetch(`https://classroom.googleapis.com/v1/courses/${course.id}/courseWork/${work.id}/studentSubmissions`, {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            const subData = await subRes.json();
+                            const submission = subData.studentSubmissions ? subData.studentSubmissions[0] : null;
 
-                    for (let w of cwData.courseWork) {
-                        // ПРОВЕРКА СТАТУСА: Сдано или нет
-                        const subRes = await fetch(`https://classroom.googleapis.com/v1/courses/${c.id}/courseWork/${w.id}/studentSubmissions`, { headers: { 'Authorization': `Bearer ${token}` } });
-                        const subData = await subRes.json();
-                        const status = subData.studentSubmissions ? subData.studentSubmissions[0].state : 'NEW';
+                            // Игнорим сданные и возвращенные с оценкой
+                            if (submission && (submission.state === 'TURNED_IN' || submission.state === 'RETURNED')) continue;
 
-                        if (status !== 'TURNED_IN' && status !== 'RETURNED') {
-                            this.addTaskCard(c.name, w);
+                            // 4. Проверяем дедлайн (просрочку)
+                            let deadlineDate = null;
+                            if (work.dueDate) {
+                                deadlineDate = new Date(work.dueDate.year, work.dueDate.month - 1, work.dueDate.day);
+                                if (work.dueTime) {
+                                    deadlineDate.setHours(work.dueTime.hours || 23, work.dueTime.minutes || 59);
+                                } else {
+                                    deadlineDate.setHours(23, 59);
+                                }
+
+                                // ЕСЛИ ПРОСРОЧЕНО — СКРЫВАЕМ
+                                if (deadlineDate < new Date()) continue;
+                            }
+
+                            // Добавляем в список
+                            foundAny = true;
+                            this.renderTaskCard(course.name, work, deadlineDate);
                         }
                     }
                 }
-                if (list.innerHTML === "") list.innerHTML = "Всё сдано! Ты умница, MATB. 🌸";
-            } catch(e) { list.innerHTML = "Сессия истекла. Войди снова."; }
-        },
-        addTaskCard(courseName, work) {
-            const div = document.createElement('div');
-            div.className = 'task-card';
-            div.innerHTML = `<div class="task-info">${courseName}</div><div>${work.title}</div>`;
-            div.onclick = () => this.openTask(courseName, work);
-            document.getElementById('tasks-list').appendChild(div);
-        },
-        openTask(course, work) {
-            document.getElementById('modal').classList.add('active');
-            document.getElementById('m-title').innerText = work.title;
-            document.getElementById('m-course').innerText = course;
-            
-            const dl = work.dueDate ? new Date(work.dueDate.year, work.dueDate.month-1, work.dueDate.day) : null;
-            if(dl) {
-                document.getElementById('m-deadline').innerText = "Дедлайн: " + dl.toLocaleDateString();
-                this.startTimer(dl);
-            } else {
-                document.getElementById('m-deadline').innerText = "Без срока сдачи";
-                document.getElementById('m-timer').innerText = "Времени полно!";
+
+                container.innerHTML = foundAny ? "" : "<div style='text-align:center; padding:40px;'>Ура! Все долги закрыты. Ты свободен(на)! 🥳</div>";
+                if (!foundAny) logoutBtn.style.display = 'block';
+
+            } catch (e) {
+                console.error(e);
+                localStorage.removeItem('google_token');
+                authSection.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                container.innerHTML = "<p style='color:red; text-align:center;'>Ошибка доступа. Войди в аккаунт заново.</p>";
             }
+        },
+
+        renderTaskCard(courseName, work, deadline) {
+            const container = document.getElementById('tasks-container');
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.innerHTML = `
+                <div class="task-course">${courseName}</div>
+                <div class="task-title">${work.title}</div>
+            `;
+            card.onclick = () => this.openTaskModal(courseName, work, deadline);
+            container.appendChild(card);
+        },
+
+        openTaskModal(course, work, deadline) {
+            const modal = document.getElementById('modal');
+            document.getElementById('m-course').innerText = course;
+            document.getElementById('m-title').innerText = work.title;
+            document.getElementById('m-desc').innerText = work.description || "Описания нет, просто делай. Ты справишься!";
             document.getElementById('m-link').onclick = () => window.open(work.alternateLink, '_blank');
+
+            if (deadline) {
+                this.updateModalTimer(deadline);
+                if (this.timerId) clearInterval(this.timerId);
+                this.timerId = setInterval(() => this.updateModalTimer(deadline), 60000);
+            } else {
+                document.getElementById('m-timer').innerText = "БЕЗ ДЕДЛАЙНА";
+                document.getElementById('m-timer-container').style.borderColor = "var(--accent)";
+                document.getElementById('m-timer').style.color = "var(--accent)";
+            }
+
+            modal.classList.add('active');
         },
-        startTimer(date) {
-            const timer = document.getElementById('m-timer');
-            const update = () => {
-                const diff = date - new Date();
-                if (diff < 0) return timer.innerText = "СРОК ИСТЕК!";
-                const d = Math.floor(diff/(1000*60*60*24));
-                const h = Math.floor((diff/(1000*60*60))%24);
-                const m = Math.floor((diff/1000/60)%60);
-                timer.innerText = `Осталось: ${d}д ${h}ч ${m}м`;
-            };
-            update();
-            this.tInterval = setInterval(update, 60000);
+
+        updateModalTimer(deadline) {
+            const now = new Date();
+            const diff = deadline - now;
+            const timerEl = document.getElementById('m-timer');
+
+            if (diff <= 0) {
+                timerEl.innerText = "СРОК ВЫШЕЛ!";
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            timerEl.innerText = `${days}д ${hours}ч ${mins}м`;
+            
+            // Если осталось меньше суток — краснеет
+            if (days < 1) {
+                document.getElementById('m-timer-container').style.borderColor = "var(--danger)";
+                timerEl.style.color = "var(--danger)";
+            } else {
+                document.getElementById('m-timer-container').style.borderColor = "var(--accent)";
+                timerEl.style.color = "var(--accent)";
+            }
         },
-        closeTask() { 
+
+        closeTask() {
             document.getElementById('modal').classList.remove('active');
-            clearInterval(this.tInterval);
+            if (this.timerId) clearInterval(this.timerId);
         },
-        logout() { localStorage.removeItem('google_token'); location.reload(); }
+
+        logout() {
+            localStorage.removeItem('google_token');
+            location.reload();
+        }
     };
+
     App.init();
 </script>
 </body>
