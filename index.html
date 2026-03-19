@@ -2,667 +2,453 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>STUDY HUB: MATB OS v7.5 FULL ENGINE</title>
-    
-    <!-- Подключаем шрифты и иконки -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>STUDY HUB: MATB OS v8.0 FULL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #020617;
-            --card-dark: #0f172a;
-            --accent-green: #22c55e;
-            --accent-blue: #3b82f6;
-            --accent-pink: #ec4899;
-            --accent-gold: #f59e0b;
-            --accent-purple: #a855f7;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --border-light: rgba(255, 255, 255, 0.08);
+            --bg: #020617;
+            --card: #0f172a;
+            --accent: #3b82f6;
+            --success: #22c55e;
             --danger: #ef4444;
-            --glass: rgba(15, 23, 42, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --safe-bottom: env(safe-area-inset-bottom);
+            --text: #f8fafc;
+            --text-dim: #64748b;
         }
 
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-            margin: 0; 
-            padding: 0; 
-            outline: none;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
-        body { 
-            background-color: var(--bg-deep); 
-            color: var(--text-main); 
+        body {
+            margin: 0; padding: 0;
+            background: var(--bg);
+            color: var(--text);
             font-family: 'Inter', sans-serif;
-            min-height: 100vh; 
-            overflow: hidden; 
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, #020617 0%, #020617 100%);
-            background-attachment: fixed;
+            overflow: hidden;
+            height: 100vh;
         }
 
-        /* --- СКРОЛЛБАР --- */
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
-
-        .app-container { 
-            max-width: 600px; 
-            margin: 0 auto; 
-            padding: calc(20px + env(safe-area-inset-top)) 18px 140px; 
-            height: 100vh; 
-            overflow-y: auto; 
+        /* Контейнер с прокруткой */
+        .container {
+            height: 100vh;
+            overflow-y: auto;
+            padding: calc(20px + env(safe-area-inset-top)) 20px 120px;
             scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* --- ОСНОВНЫЕ ВИДЖЕТЫ --- */
-        .clock-card {
-            background: var(--glass); 
-            backdrop-filter: blur(30px) saturate(180%);
-            -webkit-backdrop-filter: blur(30px) saturate(180%);
-            border-radius: 45px; 
-            padding: 40px 20px; 
-            text-align: center; 
-            margin-bottom: 30px; 
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+        /* Баннер статуса */
+        .banner {
+            border-radius: 35px;
+            padding: 30px;
+            margin-bottom: 25px;
             position: relative;
             overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .clock-card::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(from 0deg, transparent, var(--accent-blue), transparent 30%);
-            animation: rotate 10s linear infinite;
-            opacity: 0.1;
-            z-index: 0;
-        }
+        .banner.lesson { background: linear-gradient(135deg, #1e40af, #3b82f6); box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3); }
+        .banner.break { background: linear-gradient(135deg, #9d174d, #ec4899); box-shadow: 0 20px 40px rgba(236, 72, 153, 0.3); }
+        .banner.idle { background: var(--card); border: 1px solid rgba(255,255,255,0.1); }
 
-        @keyframes rotate { 100% { transform: rotate(360deg); } }
+        .banner-label { font-weight: 900; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; opacity: 0.7; }
+        .banner-title { font-size: 1.8rem; font-weight: 900; margin: 8px 0; line-height: 1.2; }
+        .banner-timer { font-family: 'JetBrains Mono', monospace; font-size: 4.5rem; letter-spacing: -3px; line-height: 1; margin-top: 5px; }
 
-        .clock-time { 
-            font-size: 6.5rem; 
-            font-weight: 900; 
-            letter-spacing: -5px; 
-            color: #fff; 
-            line-height: 0.85; 
-            position: relative;
-            z-index: 1;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        
-        .clock-date { 
-            color: var(--accent-blue); 
-            text-transform: uppercase; 
-            font-weight: 800; 
-            letter-spacing: 5px; 
-            font-size: 0.85rem; 
-            margin-top: 15px; 
-            position: relative;
-            z-index: 1;
-        }
+        .progress-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; background: rgba(0,0,0,0.2); }
+        .progress-fill { height: 100%; background: #fff; width: 0%; transition: width 1s linear; }
 
-        /* --- БАННЕР СОСТОЯНИЯ --- */
-        .banner { 
-            border-radius: 40px; 
-            padding: 35px; 
-            margin-bottom: 30px; 
-            text-align: center; 
-            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-            overflow: hidden;
-        }
+        /* Карточки */
+        .card { background: var(--card); border-radius: 30px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .section-title { font-weight: 900; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
 
-        .banner.type-lesson { 
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6); 
-            box-shadow: 0 25px 50px -10px rgba(59, 130, 246, 0.5); 
-        }
-        .banner.type-break { 
-            background: linear-gradient(135deg, #831843, #ec4899); 
-            box-shadow: 0 25px 50px -10px rgba(236, 72, 153, 0.5); 
-        }
-        .banner.type-wait { 
-            background: rgba(30, 41, 59, 0.5); 
-            border: 1px solid var(--glass-border); 
-            backdrop-filter: blur(10px);
-        }
-
-        .banner-label { 
-            font-size: 0.9rem; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            opacity: 0.8; 
-            margin-bottom: 8px; 
-            letter-spacing: 2px; 
-        }
-        
-        .banner-timer { 
-            font-size: 5.5rem; 
-            font-weight: 900; 
-            letter-spacing: -3px; 
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .banner-progress-bg {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; background: rgba(0,0,0,0.2);
-        }
-        .banner-progress-fill {
-            height: 100%; background: rgba(255,255,255,0.6); width: 0%; transition: width 1s linear;
-        }
-
-        /* --- РАСПИСАНИЕ --- */
-        .section-card { 
-            background: rgba(15, 23, 42, 0.4); 
-            border-radius: 45px; 
-            padding: 25px; 
-            border: 1px solid var(--glass-border); 
-            margin-bottom: 25px; 
-            backdrop-filter: blur(10px);
-        }
-        
-        .section-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 10px;
-        }
-        
-        .section-title { 
-            font-weight: 900; 
-            font-size: 1rem; 
-            color: var(--text-dim); 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-        }
-
-        .schedule-grid { display: flex; flex-direction: column; gap: 14px; }
-
+        /* Список уроков */
         .item {
-            background: rgba(255,255,255,0.03); 
-            border-radius: 30px; 
-            padding: 20px 25px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            transition: all 0.5s ease;
-            border: 1px solid transparent;
-            position: relative;
-        }
-
-        .item.active { 
-            background: rgba(255,255,255,0.08); 
-            border-left: 10px solid var(--accent-green); 
-            border-color: rgba(34, 197, 94, 0.3);
-            transform: scale(1.03);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-            z-index: 10;
-        }
-        
-        .item.past { opacity: 0.4; filter: grayscale(0.5); }
-
-        .item-info { display: flex; flex-direction: column; gap: 2px; }
-        .item-label { font-size: 0.7rem; color: var(--text-dim); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-        .item-name { font-weight: 800; font-size: 1.2rem; color: #fff; }
-        .item-time-range { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
-
-        .item-status {
-            font-weight: 900;
-            font-size: 0.9rem;
-            text-align: right;
-            color: var(--text-dim);
-        }
-        .active .item-status { color: var(--accent-green); animation: blink 1s infinite; }
-
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-        /* --- КАРТОЧКИ ПРЕДМЕТОВ (ДЛЯ OS) --- */
-        .subject-tag {
-            display: inline-block; padding: 6px 14px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; background: var(--card-dark); border: 1px solid var(--border-light); color: var(--text-dim); margin: 4px;
-        }
-
-        /* --- НАВИГАЦИЯ --- */
-        .nav { 
-            position: fixed; 
-            bottom: 0; left: 0; width: 100%; 
-            background: rgba(15, 23, 42, 0.95); 
-            backdrop-filter: blur(40px); 
-            display: flex; 
-            padding: 15px 15px calc(20px + var(--safe-bottom)); 
-            border-top: 1px solid var(--glass-border); 
-            z-index: 1000; 
-            justify-content: space-around;
-        }
-        
-        .nav-btn { 
-            position: relative;
-            text-align: center; 
-            color: var(--text-dim); 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            cursor: pointer;
-            padding: 10px 20px;
-            border-radius: 20px;
-        }
-        
-        .nav-btn.active { color: var(--accent-blue); background: rgba(59, 130, 246, 0.1); transform: translateY(-5px); }
-        .nav-btn i { font-size: 1.8rem; display: block; margin-bottom: 5px; font-style: normal; }
-        .nav-btn span { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* --- OS VIEW ЭЛЕМЕНТЫ --- */
-        .os-header { text-align: center; margin-bottom: 30px; }
-        .os-logo { font-size: 4rem; margin-bottom: 10px; display: inline-block; }
-        .os-version { background: var(--accent-blue); color: #fff; padding: 4px 12px; border-radius: 8px; font-weight: 900; font-size: 0.7rem; }
-
-        .control-group { margin-bottom: 30px; }
-        .control-btn {
-            width: 100%; 
-            padding: 25px; 
-            border-radius: 30px; 
-            border: none; 
-            font-weight: 900; 
-            font-size: 1.1rem; 
-            cursor: pointer; 
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px; border-radius: 22px; margin-bottom: 12px;
+            background: rgba(255,255,255,0.03); border: 1px solid transparent;
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
+        }
+        .item.active { 
+            background: rgba(59, 130, 246, 0.15); 
+            border-color: var(--accent); 
+            transform: scale(1.03);
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
-        .control-btn:active { transform: scale(0.95); }
+        .item.past { opacity: 0.3; filter: grayscale(0.8); }
+
+        .item-info { display: flex; flex-direction: column; }
+        .item-name { font-weight: 800; font-size: 1.1rem; color: var(--text); }
+        .item-time { font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
+        .item-num { font-weight: 900; font-size: 1.2rem; color: var(--accent); opacity: 0.5; margin-right: 15px; }
+
+        /* Навигация */
+        .nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(25px);
+            display: flex; justify-content: space-around;
+            padding: 15px 10px calc(15px + env(safe-area-inset-bottom));
+            border-top: 1px solid rgba(255,255,255,0.08);
+            z-index: 1000;
+        }
+        .nav-item { text-align: center; color: var(--text-dim); flex: 1; cursor: pointer; transition: 0.3s; position: relative; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item i { font-size: 1.6rem; display: block; margin-bottom: 5px; font-style: normal; }
+        .nav-item span { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Уведомления (Тосты) */
+        #notification-box {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-200%);
+            width: 90%; max-width: 450px; background: #fff; color: #000;
+            padding: 22px; border-radius: 28px; z-index: 9999;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6); transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #notification-box.show { transform: translateX(-50%) translateY(0); }
+        #notification-box h4 { margin: 0 0 5px; font-weight: 900; text-transform: uppercase; font-size: 0.9rem; color: var(--accent); }
+        #notification-box p { margin: 0; font-weight: 700; font-size: 1.1rem; line-height: 1.3; }
+
+        /* Настройки */
+        .btn {
+            width: 100%; padding: 22px; border-radius: 24px; border: none;
+            font-weight: 900; font-size: 1rem; cursor: pointer; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: 0.2s;
+        }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-secondary { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); }
+        .btn:active { transform: scale(0.97); }
+
+        .hidden { display: none; }
         
-        .btn-primary { background: linear-gradient(135deg, var(--accent-blue), #2563eb); color: #fff; }
-        .btn-secondary { background: var(--card-dark); border: 1px solid var(--glass-border); color: #fff; }
-        .btn-danger { background: linear-gradient(135deg, var(--danger), #b91c1c); color: #fff; }
+        /* Скроллбар */
+        ::-webkit-scrollbar { width: 0; background: transparent; }
 
-        .status-pill {
-            padding: 12px 20px; border-radius: 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
-
-        .hidden { display: none !important; }
-
-        /* --- ПУШ-УВЕДОМЛЕНИЕ (ОБЕРТКА) --- */
-        #custom-toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150%);
-            width: 90%; max-width: 400px; background: var(--glass); backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border); border-radius: 25px; padding: 20px;
-            z-index: 9999; display: flex; gap: 15px; transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-        #custom-toast.show { transform: translateX(-50%) translateY(0); }
-        .toast-icon { font-size: 2.5rem; }
-        .toast-content { flex: 1; }
-        .toast-title { font-weight: 900; font-size: 1rem; margin-bottom: 4px; color: var(--accent-blue); }
-        .toast-body { font-size: 0.85rem; color: var(--text-dim); line-height: 1.4; }
-
+        .pulse { animation: pulse 2s infinite; }
     </style>
 </head>
 <body>
 
-    <!-- CUSTOM TOAST -->
-    <div id="custom-toast">
-        <div class="toast-icon" id="t-icon">🔔</div>
-        <div class="toast-content">
-            <div class="toast-title" id="t-title">MATB OS</div>
-            <div class="toast-body" id="t-body">Система инициализирована.</div>
-        </div>
+    <div id="notification-box">
+        <h4 id="nt-title">MATB OS NOTIFICATION</h4>
+        <p id="nt-body">Система успешно запущена</p>
     </div>
 
-    <div class="app-container">
-        <!-- HEADER CLOCK -->
-        <header class="clock-card" id="main-clock-card">
-            <div class="clock-time" id="clock">00:00</div>
-            <div class="clock-date" id="date">ЗАГРУЗКА ЯДРА...</div>
-        </header>
+    <div class="container" id="scroll-area">
+        <!-- ГЛАВНЫЙ ВИДЖЕТ -->
+        <div id="status-card" class="banner idle">
+            <div class="banner-label" id="top-label">СИСТЕМА ГОТОВА</div>
+            <div class="banner-title" id="top-title">MATB OS v8.0 FULL</div>
+            <div class="banner-timer" id="top-timer">00:00</div>
+            <div class="progress-bar"><div class="progress-fill" id="top-progress"></div></div>
+        </div>
 
-        <!-- VIEW: БАЗА (HOME) -->
-        <div id="view-home">
-            <div id="banner" class="banner type-wait">
-                <div class="banner-label" id="b-label">ОПРЕДЕЛЕНИЕ ЦИКЛА...</div>
-                <div class="banner-timer" id="b-timer">--:--</div>
-                <div class="banner-progress-bg"><div class="banner-progress-fill" id="b-progress"></div></div>
-            </div>
-
-            <div class="section-card">
-                <div class="section-header">
-                    <div class="section-title">СЕГОДНЯШНИЙ ГРАФИК</div>
-                    <div id="day-badge" class="subject-tag" style="background: var(--accent-blue); color: #fff; margin:0;">...</div>
+        <!-- ВКЛАДКА: ГЛАВНАЯ -->
+        <div id="tab-main">
+            <div class="card">
+                <div class="section-title">
+                    <span id="day-display">ЗАГРУЗКА...</span>
+                    <span style="color:var(--accent)">LIVE</span>
                 </div>
-                <div id="schedule-list" class="schedule-grid">
-                    <!-- JS Инъекция -->
+                <div id="list-container">
+                    <!-- Сюда упадут уроки -->
                 </div>
-            </div>
-            
-            <div class="section-card" id="next-day-preview">
-                <div class="section-title" style="margin-bottom: 15px;">ЗАВТРА В ПЛАНЕ</div>
-                <div id="next-subjects-list" style="display: flex; flex-wrap: wrap;"></div>
             </div>
         </div>
 
-        <!-- VIEW: OS SETTINGS -->
-        <div id="view-os" class="hidden">
-            <div class="os-header">
-                <div class="os-logo">🤖</div>
-                <h1 style="font-weight: 900; font-size: 2rem; letter-spacing: -1px;">MATB OS</h1>
-                <span class="os-version">v7.5 ULTIMATE ENGINE</span>
-            </div>
-
-            <div class="section-card">
-                <div class="section-title">СИСТЕМНЫЙ СТАТУС</div>
-                <div class="status-pill">
-                    <span>Уведомления</span>
-                    <div id="status-notif" class="status-dot"></div>
-                </div>
-                <div class="status-pill">
-                    <span>Вибро-отклик</span>
-                    <div id="status-vibro" class="status-dot"></div>
-                </div>
+        <!-- ВКЛАДКА: НАСТРОЙКИ -->
+        <div id="tab-settings" class="hidden">
+            <div class="card">
+                <h2 style="margin: 0 0 10px; font-weight: 900;">СИСТЕМНЫЕ ОПЦИИ</h2>
+                <p style="color:var(--text-dim); margin-bottom: 25px; font-weight: 500; line-height: 1.5;">
+                    Если уведомления не приходят — браузер их блокирует. Нажми «АКТИВИРОВАТЬ», чтобы разрешить системе слать пуши и орать перед звонком.
+                </p>
                 
-                <div class="control-group">
-                    <button class="control-btn btn-primary" onclick="Core.requestNotifications()">
-                        <i>🔔</i> РАЗРЕШИТЬ ПУШИ
-                    </button>
-                    <button class="control-btn btn-secondary" onclick="Core.testNotification()">
-                        <i>🧪</i> ТЕСТ СИСТЕМЫ (5 сек)
-                    </button>
-                </div>
-            </div>
-
-            <div class="section-card">
-                <div class="section-title">БАЗА ЗНАНИЙ (ПРЕДМЕТЫ)</div>
-                <div style="margin-top: 15px;" id="all-subjects-cloud"></div>
-            </div>
-
-            <div class="section-card" style="border-color: var(--danger);">
-                <div class="section-title" style="color: var(--danger);">СБРОС ДАННЫХ</div>
-                <p style="font-size: 0.8rem; color: var(--text-dim); margin: 10px 0 20px;">Очистка кэша и перезагрузка ядра системы.</p>
-                <button class="control-btn btn-danger" onclick="location.reload()">
-                    <i>🔄</i> REBOOT SYSTEM
+                <button class="btn btn-primary" onclick="Core.enableFeatures()">
+                    <span>🔔</span> АКТИВИРОВАТЬ ВСЁ
                 </button>
+                
+                <button class="btn btn-secondary" onclick="Core.testNotif()">
+                    <span>🧪</span> ТЕСТОВЫЙ ПУШ (3 СЕК)
+                </button>
+
+                <button class="btn btn-secondary" onclick="location.reload()">
+                    <span>🔄</span> РЕБУТ СИСТЕМЫ
+                </button>
+
+                <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 15px; font-size: 0.8rem; color: var(--text-dim);">
+                    <strong>LOG:</strong> <span id="log-status">Ожидание действий пользователя...</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- NAVIGATION -->
+    <!-- НАВИГАЦИЯ -->
     <nav class="nav">
-        <div class="nav-btn active" id="nav-home" onclick="Core.switchView('home')">
-            <i>🏠</i>
-            <span>БАЗА</span>
+        <div class="nav-item active" onclick="Core.tab('main', this)">
+            <i>🏠</i><span>БАЗА</span>
         </div>
-        <div class="nav-btn" id="nav-os" onclick="Core.switchView('os')">
-            <i>⚙️</i>
-            <span>OS</span>
+        <div class="nav-item" onclick="Core.tab('settings', this)">
+            <i>⚙️</i><span>ОПЦИИ</span>
         </div>
     </nav>
 
     <script>
-        /**
-         * MATB OS CORE ENGINE v7.5
-         * ПОЛНАЯ ВЕРСИЯ БЕЗ СОКРАЩЕНИЙ
-         */
-
-        const CONFIG = {
+        const DATA = {
+            // Полная сетка звонков (8 уроков)
             grid: [
-                { s: "08:30", e: "09:15" }, { s: "09:25", e: "10:10" },
-                { s: "10:25", e: "11:10" }, { s: "11:25", e: "12:10" },
-                { s: "12:20", e: "13:05" }, { s: "13:15", e: "14:00" },
-                { s: "14:10", e: "14:55" }, { s: "15:05", e: "15:50" }
+                { s: "08:30", e: "09:15" }, // 1
+                { s: "09:25", e: "10:10" }, // 2
+                { s: "10:25", e: "11:10" }, // 3
+                { s: "11:25", e: "12:10" }, // 4
+                { s: "12:20", e: "13:05" }, // 5
+                { s: "13:15", e: "14:00" }, // 6
+                { s: "14:10", e: "14:55" }, // 7
+                { s: "15:05", e: "15:50" }  // 8
             ],
-            subjects: {
-                1: ["Алгебра", "География", "Физика", "История", "Укр. Мова", "Биология", "Физ-ра"],
-                2: ["Геометрия", "Химия", "Английский", "Зарубежка", "Информатика", "Физика", "Труды"],
-                3: ["История", "Укр. Лит", "Алгебра", "Биология", "География", "Химия", "Английский"],
-                4: ["Физ-ра", "Геометрия", "Укр. Мова", "История", "Физика", "Английский", "ОБЖ"],
-                5: ["Информатика", "Зарубежка", "Алгебра", "Химия", "География", "Укр. Лит", "Искусство"]
-            },
-            notifSettings: {
-                lessonWarning: 60, // 1 минута до начала
-                breakWarning: 30   // 30 секунд до конца
+            // Полное расписание (все 5 дней)
+            schedule: {
+                1: ["Алгебра", "География", "Физика", "История", "Укр. Мова", "Биология", "Физ-ра", "Классный час"],
+                2: ["Геометрия", "Химия", "Английский", "Зарубежка", "Информатика", "Физика", "Труды", "Труды"],
+                3: ["История", "Укр. Лит", "Алгебра", "Биология", "География", "Химия", "Английский", "Самоподготовка"],
+                4: ["Физ-ра", "Геометрия", "Укр. Мова", "История", "Физика", "Английский", "ОБЖ", "ОБЖ"],
+                5: ["Информатика", "Зарубежка", "Алгебра", "Химия", "География", "Укр. Лит", "Искусство", "Искусство"]
             }
         };
 
         const Core = {
             timeline: [],
-            lastNotifId: null,
-            isVibrationSupported: "vibrate" in navigator,
+            lastAlertKey: "",
+            audioCtx: null,
 
             init() {
-                console.log("MATB OS Engine Starting...");
                 this.buildTimeline();
-                this.renderSchedule();
-                this.renderOSInfo();
-                this.updatePermStatus();
-                
-                // Главный цикл (1 сек)
-                setInterval(() => this.loop(), 1000);
-                this.loop();
+                this.renderList();
+                this.startEngine();
+                console.log("MATB OS: Engine started");
+            },
 
-                // Эффекты при скролле
-                const container = document.querySelector('.app-container');
-                container.onscroll = () => {
-                    const clock = document.getElementById('main-clock-card');
-                    let opacity = 1 - (container.scrollTop / 300);
-                    clock.style.opacity = Math.max(opacity, 0);
-                    clock.style.transform = `scale(${Math.max(1 - container.scrollTop/1000, 0.9)}) translateY(-${container.scrollTop/5}px)`;
-                };
+            // Перевод HH:MM в минуты
+            toM(t) {
+                const [h, m] = t.split(':').map(Number);
+                return h * 60 + m;
+            },
+
+            // Формат минут в HH:MM
+            fromM(m) {
+                const hh = Math.floor(m / 60);
+                const mm = m % 60;
+                return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
             },
 
             buildTimeline() {
-                const now = new Date();
-                const day = now.getDay();
+                const day = new Date().getDay();
+                const subjects = DATA.schedule[day] || [];
                 
-                // 0 - Вск, 6 - Субб
-                if (day === 0 || day === 6) {
-                    this.timeline = [{ type: 'wait', name: 'ВЫХОДНОЙ', start: 0, end: 1440, label: 'КАЙФУЙ, MATB' }];
+                this.timeline = [];
+
+                if (day === 0 || day === 6 || subjects.length === 0) {
+                    this.timeline.push({ type: 'idle', name: 'ВЫХОДНОЙ ДЕНЬ', s: 0, e: 1440 });
                     return;
                 }
 
-                const todaySubs = CONFIG.subjects[day];
-                const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+                subjects.forEach((name, i) => {
+                    const slot = DATA.grid[i];
+                    if (!slot) return;
 
-                this.timeline = [];
-                todaySubs.forEach((sub, i) => {
-                    const time = CONFIG.grid[i];
-                    if (!time) return;
+                    const start = this.toM(slot.s);
+                    const end = this.toM(slot.e);
 
-                    const start = toMin(time.s);
-                    const end = toMin(time.e);
-
-                    // Добавляем урок
-                    this.timeline.push({
-                        id: `L-${i}`,
-                        type: 'lesson',
-                        name: sub,
-                        start,
-                        end,
-                        label: `Урок ${i + 1}`
+                    // Урок
+                    this.timeline.push({ 
+                        type: 'lesson', 
+                        name: name.toUpperCase(), 
+                        s: start, 
+                        e: end, 
+                        num: i + 1 
                     });
 
-                    // Добавляем перемену
-                    const nextTime = CONFIG.grid[i+1];
-                    if (nextTime && i < todaySubs.length - 1) {
-                        this.timeline.push({
-                            id: `B-${i}`,
-                            type: 'break',
-                            name: `ПЕРЕМЕНА ${i + 1}`,
-                            start: end,
-                            end: toMin(nextTime.s),
-                            label: 'ОТДЫХ'
+                    // Перемена (если есть следующий урок)
+                    if (subjects[i + 1] && DATA.grid[i + 1]) {
+                        const nextStart = this.toM(DATA.grid[i + 1].s);
+                        this.timeline.push({ 
+                            type: 'break', 
+                            name: 'ПЕРЕМЕНА', 
+                            s: end, 
+                            e: nextStart 
                         });
                     }
                 });
             },
 
-            loop() {
+            renderList() {
+                const container = document.getElementById('list-container');
+                const days = ["ВОСКРЕСЕНЬЕ", "ПОНЕДЕЛЬНИК", "ВТОРНИК", "СРЕДА", "ЧЕТВЕРГ", "ПЯТНИЦА", "СУББОТА"];
+                document.getElementById('day-display').innerText = days[new Date().getDay()];
+
+                let html = "";
+                this.timeline.forEach((item, idx) => {
+                    if (item.type === 'break') return; // Перемены в списке не нужны
+                    html += `
+                        <div class="item" id="item-${idx}">
+                            <div style="display:flex; align-items:center;">
+                                <div class="item-num">${item.num}</div>
+                                <div class="item-info">
+                                    <span class="item-name">${item.name}</span>
+                                    <span class="item-time">${this.fromM(item.s)} — ${this.fromM(item.e)}</span>
+                                </div>
+                            </div>
+                            <div class="item-status">📖</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            },
+
+            startEngine() {
+                setInterval(() => this.tick(), 1000);
+                this.tick();
+            },
+
+            tick() {
                 const now = new Date();
-                const curMin = now.getHours() * 60 + now.getMinutes();
-                const curSec = now.getSeconds();
-                const totalSec = curMin * 60 + curSec;
-
-                // Часы
-                document.getElementById('clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                document.getElementById('date').innerText = now.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
-                document.getElementById('day-badge').innerText = now.toLocaleDateString('ru-RU', { weekday: 'short' }).toUpperCase();
-
-                let foundActive = false;
+                const curM = now.getHours() * 60 + now.getMinutes();
+                const curS = now.getSeconds();
                 
-                this.timeline.forEach((item, index) => {
-                    const el = document.getElementById(`item-${index}`);
-                    
-                    if (curMin >= item.start && curMin < item.end) {
-                        // АКТИВНЫЙ ЭЛЕМЕНТ
-                        foundActive = true;
-                        if (el) el.className = 'item active';
-                        
-                        const mLeft = item.end - curMin - 1;
-                        const sLeft = 60 - curSec;
-                        const totalSLeft = mLeft * 60 + sLeft;
-                        const totalDuration = (item.end - item.start) * 60;
-                        const percent = 100 - (totalSLeft / totalDuration * 100);
+                let found = false;
 
-                        this.updateBanner(item, mLeft, sLeft, percent);
-                        this.checkNotifications(item, mLeft, sLeft, false);
-                    } else if (curMin >= item.end) {
-                        if (el) el.className = 'item past';
+                this.timeline.forEach((item, idx) => {
+                    const el = document.getElementById(`item-${idx}`);
+                    
+                    if (curM >= item.s && curM < item.e) {
+                        found = true;
+                        this.updateBanner(item, curM, curS);
+                        if (el) el.className = "item active";
+                        this.checkEvents(item, curM, curS);
                     } else {
-                        if (el) el.className = 'item';
+                        if (el) el.className = (curM >= item.e) ? "item past" : "item";
                     }
                 });
 
-                if (!foundActive) {
-                    const nextItem = this.timeline.find(it => it.start > curMin);
-                    if (nextItem) {
-                        const mLeft = nextItem.start - curMin - 1;
-                        const sLeft = 60 - curSec;
-                        this.updateBanner({ type: 'wait', name: `СКОРО: ${nextItem.name}` }, mLeft, sLeft, 0);
-                        this.checkNotifications(nextItem, mLeft, sLeft, true);
+                if (!found) {
+                    const next = this.timeline.find(x => x.s > curM);
+                    if (next) {
+                        this.updateBanner({ type: 'idle', name: 'ОЖИДАНИЕ: ' + next.name, s: curM, e: next.s }, curM, curS);
                     } else {
-                        this.updateBanner({ type: 'wait', name: 'УРОКИ ОКОНЧЕНЫ' }, 0, 0, 100);
+                        this.updateBanner({ type: 'idle', name: 'УРОКИ ОКОНЧЕНЫ', s: 0, e: 1 }, 0, 0);
                     }
                 }
             },
 
-            updateBanner(it, m, s, p) {
-                const banner = document.getElementById('banner');
-                banner.className = `banner type-${it.type}`;
-                document.getElementById('b-label').innerText = it.name;
-                document.getElementById('b-timer').innerText = (m < 0 && s < 0) ? "00:00" : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-                document.getElementById('b-progress').style.width = `${p}%`;
-            },
+            updateBanner(item, curM, curS) {
+                const banner = document.getElementById('status-card');
+                const label = document.getElementById('top-label');
+                const title = document.getElementById('top-title');
+                const timer = document.getElementById('top-timer');
+                const progress = document.getElementById('top-progress');
 
-            checkNotifications(it, m, s, isFuture) {
-                const checkId = `${it.name}-${m}-${s}-${isFuture}`;
-                if (this.lastNotifId === checkId) return;
+                banner.className = `banner ${item.type}`;
+                label.innerText = item.type === 'lesson' ? `УРОК №${item.num}` : (item.type === 'break' ? 'ПЕРЕМЫЧ' : 'MATB OS');
+                title.innerText = item.name;
 
-                // Уведомление о конце урока (за 30 сек)
-                if (!isFuture && it.type === 'lesson' && m === 0 && s === CONFIG.notifSettings.breakWarning) {
-                    this.showToast("🔔 КОНЕЦ УРОКА!", `Через 30 секунд звонок. Сваливай!`, "🥳");
-                    this.triggerVibrate([500, 200, 500]);
-                }
-
-                // Уведомление о начале урока (за 1 мин)
-                if (isFuture && it.type === 'lesson' && m === 1 && s === 0) {
-                    this.showToast("📚 СКОРО УРОК", `Через минуту: ${it.name}. Собирай манатки.`, "⚠️");
-                    this.triggerVibrate([200, 100, 200, 100, 500]);
-                }
-
-                this.lastNotifId = checkId;
-            },
-
-            renderSchedule() {
-                const list = document.getElementById('schedule-list');
-                list.innerHTML = this.timeline.map((it, i) => `
-                    <div class="item" id="item-${i}">
-                        <div class="item-info">
-                            <span class="item-label">${it.label}</span>
-                            <span class="item-name">${it.name}</span>
-                            <span class="item-time-range">${this.formatTime(it.start)} — ${this.formatTime(it.end)}</span>
-                        </div>
-                        <div class="item-status">${it.type === 'lesson' ? '📖' : '☕'}</div>
-                    </div>
-                `).join('');
-
-                // Предпросмотр завтрашнего дня
-                const tomorrow = (new Date().getDay() % 5) + 1;
-                const nextSubs = CONFIG.subjects[tomorrow];
-                document.getElementById('next-subjects-list').innerHTML = nextSubs.map(s => `
-                    <span class="subject-tag">${s}</span>
-                `).join('');
-            },
-
-            renderOSInfo() {
-                const cloud = document.getElementById('all-subjects-cloud');
-                const all = new Set();
-                Object.values(CONFIG.subjects).flat().forEach(s => all.add(s));
-                cloud.innerHTML = Array.from(all).sort().map(s => `
-                    <span class="subject-tag">${s}</span>
-                `).join('');
-            },
-
-            formatTime(min) {
-                const h = Math.floor(min / 60);
-                const m = min % 60;
-                return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-            },
-
-            switchView(v) {
-                document.getElementById('view-home').className = v === 'home' ? '' : 'hidden';
-                document.getElementById('view-os').className = v === 'os' ? '' : 'hidden';
-                document.getElementById('nav-home').className = `nav-btn ${v === 'home' ? 'active' : ''}`;
-                document.getElementById('nav-os').className = `nav-btn ${v === 'os' ? 'active' : ''}`;
-                this.triggerVibrate(20);
-            },
-
-            triggerVibrate(pattern) {
-                if (this.isVibrationSupported) navigator.vibrate(pattern);
-            },
-
-            showToast(title, body, icon = "🔔") {
-                const t = document.getElementById('custom-toast');
-                document.getElementById('t-title').innerText = title;
-                document.getElementById('t-body').innerText = body;
-                document.getElementById('t-icon').innerText = icon;
+                const diffSec = (item.e - curM) * 60 - curS;
+                const m = Math.max(0, Math.floor(diffSec / 60));
+                const s = Math.max(0, diffSec % 60);
                 
-                t.classList.add('show');
-                setTimeout(() => t.classList.remove('show'), 6000);
+                timer.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 
-                // Если есть разрешение, шлем и системный пуш
-                if (Notification.permission === 'granted') {
-                    new Notification(title, { body, icon: 'https://cdn-icons-png.flaticon.com/512/3587/3587091.png' });
+                const totalSec = (item.e - item.s) * 60 || 1;
+                const elapsed = totalSec - diffSec;
+                progress.style.width = `${(elapsed / totalSec) * 100}%`;
+            },
+
+            checkEvents(item, curM, curS) {
+                const alertKey = `${item.name}-${curM}`;
+                if (this.lastAlertKey === alertKey) return;
+
+                // Уведомление за 1 минуту до конца
+                if (item.e - curM === 1 && curS === 0) {
+                    this.pushNotify("ФИНИШ БЛИЗКО", `Через минуту ${item.type === 'lesson' ? 'звонок на перемену' : 'начнется следующий урок'}`);
+                    this.lastAlertKey = alertKey;
+                }
+                
+                // Уведомление в момент начала
+                if (curM === item.s && curS === 0) {
+                    this.pushNotify("НАЧАЛО", `${item.name} стартовал!`);
+                    this.lastAlertKey = alertKey;
                 }
             },
 
-            updatePermStatus() {
-                const dot = document.getElementById('status-notif');
-                const vibro = document.getElementById('status-vibro');
-                
-                dot.style.background = Notification.permission === 'granted' ? 'var(--accent-green)' : 'var(--danger)';
-                dot.style.boxShadow = `0 0 10px ${dot.style.background}`;
-                
-                vibro.style.background = this.isVibrationSupported ? 'var(--accent-green)' : 'var(--danger)';
-                vibro.style.boxShadow = `0 0 10px ${vibro.style.background}`;
-            },
+            pushNotify(title, body) {
+                // 1. Показ тоста
+                const box = document.getElementById('notification-box');
+                document.getElementById('nt-title').innerText = title;
+                document.getElementById('nt-body').innerText = body;
+                box.classList.add('show');
+                setTimeout(() => box.classList.remove('show'), 6000);
 
-            async requestNotifications() {
-                const res = await Notification.requestPermission();
-                this.updatePermStatus();
-                if (res === 'granted') {
-                    this.showToast("ДОСТУП ЕСТЬ", "Теперь MATB OS будет слать тебе пуши!", "✅");
+                // 2. Вибрация
+                if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
+
+                // 3. Звук (бип)
+                this.beep();
+
+                // 4. Системный Пуш
+                if (Notification.permission === "granted") {
+                    new Notification(title, { body, icon: 'https://cdn-icons-png.flaticon.com/512/3513/3513903.png' });
                 }
             },
 
-            testNotification() {
-                this.showToast("ТЕСТ ЗАПУЩЕН", "Закрой браузер или сверни его. Пуш придет через 5 сек.", "🧪");
+            beep() {
+                try {
+                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, this.audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(this.audioCtx.currentTime + 0.5);
+                } catch(e) { console.error("Audio error", e); }
+            },
+
+            enableFeatures() {
+                // Запрос пушей
+                Notification.requestPermission().then(p => {
+                    const status = document.getElementById('log-status');
+                    if (p === 'granted') {
+                        status.innerText = "Уведомления разрешены! Красава!";
+                        this.pushNotify("MATB OS", "Теперь ты ничего не проебешь.");
+                    } else {
+                        status.innerText = "Пуши забанены. Буду только вибрировать.";
+                    }
+                });
+
+                // Разблокировка аудиоконтекста
+                if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                this.audioCtx.resume();
+            },
+
+            testNotif() {
+                document.getElementById('log-status').innerText = "Тест запущен, жди 3 сек...";
                 setTimeout(() => {
-                    this.showToast("ЭТО ТЕСТОВЫЙ ПУШ", "Если ты это видишь — всё збс!", "🔥");
-                    this.triggerVibrate([100, 50, 100, 50, 500]);
-                }, 5000);
+                    this.pushNotify("ТЕСТОВЫЙ ПРОБРОС", "Если ты это видишь, MATB OS работает как швейцарские часы!");
+                }, 3000);
+            },
+
+            tab(name, el) {
+                document.getElementById('tab-main').className = name === 'main' ? '' : 'hidden';
+                document.getElementById('tab-settings').className = name === 'settings' ? '' : 'hidden';
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                el.classList.add('active');
+                
+                // Скролл вверх при смене вкладки
+                document.getElementById('scroll-area').scrollTop = 0;
             }
         };
 
