@@ -3,84 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyHub Master</title>
+    <title>StudyHub Master Edition</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root { --bg: #064e3b; --accent: #4ade80; --text: #f8fafc; --card: rgba(15, 23, 42, 0.85); }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
-        
         #fx-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         .flower { position: absolute; top: -10%; animation: fall linear infinite; font-size: 20px; opacity: 0.6; }
         @keyframes fall { 0% { transform: translateY(0vh) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
-
         .container { max-width: 500px; margin: 0 auto; padding: 20px 20px 100px; position: relative; z-index: 10; }
         .glass { background: var(--card); backdrop-filter: blur(15px); border-radius: 28px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        
         h2, h3 { color: var(--accent); margin-top: 0; }
         .btn-action { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 800; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
         .btn-ai { background: linear-gradient(90deg, #8b5cf6, #d946ef); color: white; }
-        
         .item { background: rgba(255,255,255,0.05); padding: 14px; border-radius: 18px; margin-top: 10px; border-left: 4px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
-        .item.break { border-left-color: #3b82f6; opacity: 0.7; font-size: 0.85rem; }
-        
-        #ai-task-display { background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; padding: 15px; border-radius: 16px; margin-top: 10px; display: none; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
+        .task-card { background: rgba(255,255,255,0.1); border: 1px solid var(--accent); padding: 15px; border-radius: 20px; margin-top: 12px; }
+        .task-card a { color: var(--accent); text-decoration: none; font-weight: bold; font-size: 0.9rem; }
+        .due-date { font-size: 0.75rem; color: #ef4444; margin-top: 5px; }
         .nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(30, 41, 59, 0.95); display: flex; border-top: 1px solid rgba(255,255,255,0.1); z-index: 100; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; color: #94a3b8; cursor: pointer; }
         .nav-item.active { color: var(--accent); font-weight: bold; }
         .nav-item span { font-size: 1.5rem; margin-bottom: 4px; }
-
-        .page { display: none; }
-        .page.active { display: block; animation: slideUp 0.4s ease-out; }
+        .page { display: none; } .page.active { display: block; animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div id="fx-layer"></div>
-
 <div class="container">
     <div id="p-home" class="page active">
         <div class="glass" style="text-align: center; padding: 30px 20px;">
-            <h1 id="clock" style="font-size: 3.5rem; margin: 0;">00:00</h1>
-            <p id="date" style="opacity: 0.8; text-transform: capitalize;"></p>
+            <h1 id="clock">00:00</h1>
+            <p id="date"></p>
         </div>
-
         <div class="glass">
             <h3>📝 Доп. задания (от ИИ)</h3>
             <button class="btn-action btn-ai" onclick="App.generateAITask()">МНЕ СКУЧНО</button>
-            <div id="ai-task-display"></div>
+            <div id="ai-task-display" style="display:none; padding:10px; background:rgba(139, 92, 246, 0.2); border-radius:10px; margin-top:10px;"></div>
         </div>
-
         <div class="glass">
-            <h3>📅 Расписание на сегодня</h3>
+            <h3>📅 Расписание</h3>
             <div id="schedule-box"></div>
         </div>
     </div>
 
     <div id="p-class" class="page">
         <div class="glass">
-            <h2 style="text-align: center;">🎓 Classroom</h2>
+            <h2 style="text-align: center;">📚 Задания Классрума</h2>
             <div id="auth-ui" style="text-align: center;">
-                <button class="btn-action" onclick="App.login()">ВОЙТИ В КЛАССЫ</button>
+                <button class="btn-action" onclick="App.login()">ПОДТЯНУТЬ ДЗ</button>
             </div>
-            <div id="courses-list"></div>
+            <div id="tasks-container"></div>
+            <button id="logout-btn" class="btn-action" style="display:none; background:#ef4444; color:white; margin-top:20px;" onclick="App.logout()">ВЫЙТИ</button>
         </div>
     </div>
 </div>
 
 <nav class="nav">
     <div class="nav-item active" onclick="App.tab('p-home', this)"><span>🏠</span>ГЛАВНАЯ</div>
-    <div class="nav-item" onclick="App.tab('p-class', this)"><span>📚</span>КЛАССЫ</div>
+    <div class="nav-item" onclick="App.tab('p-class', this)"><span>📚</span>ЗАДАНИЯ</div>
 </nav>
 
 <script>
     const CLIENT_ID = '747337328453-pp0c1ncoagvotsjrephg9vlbf300ko90.apps.googleusercontent.com';
-
-    // ВРЕМЯ УРОКОВ (каждый по 25 мин + 10 мин перемена)
     const TIMES = ["09:00", "09:35", "10:10", "10:45", "11:20", "11:55", "12:30", "13:05", "13:40"];
-    
     const WEEK = {
         1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
         2: ["Английский", "Геометрия", "Физика", "Укр. язык", "Биология", "Музыка/Рис.", "Физра", "Гром. освіта"],
@@ -89,47 +76,32 @@
         5: ["Физра", "Укр. язык", "Укр. литература", "Алгебра", "Зарубежка", "Информатика", "Немецкий"]
     };
 
-    const AI_TASKS = [
-        "Напиши 3 факта о теме урока, которых нет в учебнике.",
-        "Придумай, как знания этого урока помогут тебе заработать миллион.",
-        "Нарисуй в тетради маленького кота-ученого.",
-        "Попробуй запомнить 5 новых слов за 1 минуту.",
-        "Найди в кабинете 3 предмета на букву 'К'.",
-        "Придумай мем про учителя (но не показывай ему!).",
-        "Представь, что ты ИИ. Как бы ты объяснил эту тему первокласснику?"
-    ];
-
     const App = {
         init() {
             this.tick();
             setInterval(() => this.tick(), 1000);
             this.renderToday();
             this.flowers();
-            Notification.requestPermission();
+            const savedToken = localStorage.getItem('google_token');
+            if (savedToken) this.loadAssignments(savedToken);
         },
         tick() {
             const now = new Date();
-            const t = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('clock').innerText = t;
+            document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             document.getElementById('date').innerText = now.toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long'});
-            if (now.getSeconds() === 0) this.checkNotify(t);
         },
         renderToday() {
             const day = new Date().getDay();
             const box = document.getElementById('schedule-box');
-            if (day === 0 || day === 6) return box.innerHTML = "Выходной! Отдыхай! 🍕";
-            
+            if (day === 0 || day === 6) return box.innerHTML = "Выходной! 🍕";
             const lessons = WEEK[day] || [];
-            box.innerHTML = lessons.map((n, i) => `
-                <div class="item"><span>${n}</span><b>${TIMES[i]}</b></div>
-                <div class="item break"><span>Перемена 10 мин</span></div>
-            `).join('');
+            box.innerHTML = lessons.map((n, i) => `<div class="item"><span>${n}</span><b>${TIMES[i]}</b></div>`).join('');
         },
         generateAITask() {
+            const tasks = ["Напиши 3 факта о теме урока.", "Нарисуй кота-ученого.", "Придумай мем про этот урок."];
             const display = document.getElementById('ai-task-display');
-            const task = AI_TASKS[Math.floor(Math.random() * AI_TASKS.length)];
             display.style.display = 'block';
-            display.innerHTML = `<strong>Задание от ИИ:</strong><br>${task}`;
+            display.innerText = tasks[Math.floor(Math.random()*tasks.length)];
         },
         tab(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -138,38 +110,57 @@
             el.classList.add('active');
         },
         flowers() {
-            for(let i=0; i<20; i++) {
+            for(let i=0; i<15; i++) {
                 let f = document.createElement('div'); f.className='flower'; f.innerText='🌸';
                 f.style.left=Math.random()*100+'vw'; f.style.animationDuration=(Math.random()*5+5)+'s';
                 document.getElementById('fx-layer').appendChild(f);
             }
         },
-        checkNotify(t) {
-            const day = new Date().getDay();
-            const lessons = WEEK[day];
-            if (!lessons) return;
-            const idx = TIMES.indexOf(t);
-            if (idx !== -1 && Notification.permission === 'granted') {
-                new Notification("Урок начался!", { body: `Сейчас: ${lessons[idx]}`, icon: "🌸" });
-            }
-        },
         login() {
             const client = google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
-                scope: 'https://www.googleapis.com/auth/classroom.courses.readonly',
-                callback: (r) => { if(r.access_token) this.loadCourses(r.access_token); }
+                scope: 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly',
+                callback: (r) => { 
+                    if(r.access_token) {
+                        localStorage.setItem('google_token', r.access_token);
+                        this.loadAssignments(r.access_token);
+                    }
+                }
             });
-            client.requestAccessToken({ prompt: 'select_account' });
+            client.requestAccessToken();
         },
-        async loadCourses(token) {
-            const list = document.getElementById('courses-list');
-            list.innerHTML = "Загрузка...";
-            const res = await fetch('https://classroom.googleapis.com/v1/courses', { headers: { 'Authorization': `Bearer ${token}` } });
-            const data = await res.json();
-            const active = data.courses ? data.courses.filter(c => c.courseState === 'ACTIVE') : [];
-            document.getElementById('auth-ui').style.display = 'none';
-            list.innerHTML = active.map(c => `<div class="item"><span>${c.name}</span></div>`).join('');
-        }
+        async loadAssignments(token) {
+            const container = document.getElementById('tasks-container');
+            container.innerHTML = "<p style='text-align:center'>Ищу твою домашку...</p>";
+            try {
+                const res = await fetch('https://classroom.googleapis.com/v1/courses', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                const active = data.courses ? data.courses.filter(c => c.courseState === 'ACTIVE') : [];
+                
+                document.getElementById('auth-ui').style.display = 'none';
+                document.getElementById('logout-btn').style.display = 'block';
+                container.innerHTML = "";
+
+                for (let course of active) {
+                    const taskRes = await fetch(`https://classroom.googleapis.com/v1/courses/${course.id}/courseWork`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const taskData = await taskRes.json();
+                    
+                    if (taskData.courseWork && taskData.courseWork.length > 0) {
+                        taskData.courseWork.slice(0, 2).forEach(work => {
+                            container.innerHTML += `
+                                <div class="task-card">
+                                    <div style="font-size:0.7rem; opacity:0.6; margin-bottom:5px;">${course.name}</div>
+                                    <div style="margin-bottom:10px;">${work.title}</div>
+                                    <a href="${work.alternateLink}" target="_blank">ОТКРЫТЬ В КЛАССЕ →</a>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+                if (container.innerHTML === "") container.innerHTML = "<p style='text-align:center'>Ура! Активных заданий нет.</p>";
+            } catch(e) { container.innerHTML = "Ошибка загрузки. Попробуй войти снова."; }
+        },
+        logout() { localStorage.removeItem('google_token'); location.reload(); }
     };
     App.init();
 </script>
