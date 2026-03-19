@@ -3,168 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0b0f1a">
-
-    <title>MATB OS v9.3</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
-    
+    <title>MATB OS v9.5 Ultimate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0b0f1a;
-            --card: #161c2d;
+            --bg: #05070a;
+            --card: #11141d;
             --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
             --text: #ffffff;
-            --text-dim: #94a3b8;
+            --text-dim: #64748b;
             --success: #10b981;
+            --error: #ef4444;
+            --gold: #f59e0b;
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
             margin: 0; background: var(--bg); color: var(--text);
             font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh;
-            -webkit-tap-highlight-color: transparent;
         }
 
         .container {
             height: 100vh; overflow-y: auto;
-            padding: calc(20px + env(safe-area-inset-top)) 20px 120px;
-            box-sizing: border-box;
+            padding: calc(20px + env(safe-area-inset-top)) 20px 140px;
         }
 
-        /* Таймер и часы */
-        .time-widget {
-            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
-            border-radius: 40px; padding: 30px 20px; text-align: center; margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
+        /* Top Clock & Date */
+        .header-widget {
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 35px; padding: 35px 20px; text-align: center; margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
-        
-        .main-clock { font-size: 4.5rem; font-weight: 900; letter-spacing: -2px; line-height: 1; }
-        .main-date { color: var(--accent); font-weight: 800; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; margin-top: 10px; display: block; }
+        .main-clock { font-size: 4.5rem; font-weight: 900; letter-spacing: -3px; line-height: 1; }
+        .main-date { color: var(--accent); font-weight: 800; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 3px; margin-top: 10px; }
 
+        /* Current Status Banner */
         .status-banner {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            border-radius: 30px; padding: 20px; margin-bottom: 25px;
-            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.15);
+            border-radius: 28px; padding: 22px; margin-bottom: 30px;
+            position: relative; overflow: hidden;
             transition: all 0.5s ease;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
         }
+        .status-banner::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
+        }
+        .status-timer { font-family: 'JetBrains Mono'; font-size: 3.2rem; font-weight: 700; line-height: 1; margin-top: 8px; }
 
-        .status-label { font-size: 0.65rem; font-weight: 900; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
-        .status-name { font-size: 1.6rem; font-weight: 900; margin: 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .status-timer { font-family: 'JetBrains Mono'; font-size: 3.2rem; font-weight: 700; line-height: 1; margin-top: 5px; }
+        /* Tabs Logic */
+        .tab-content { transition: opacity 0.3s ease; }
+        .hidden { display: none; opacity: 0; }
 
-        /* Список уроков */
-        .schedule-title { font-size: 0.75rem; font-weight: 900; color: var(--text-dim); margin: 0 0 15px 5px; text-transform: uppercase; letter-spacing: 1px; }
-        
+        /* Schedule Items */
+        .section-title { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--text-dim); margin: 0 0 15px 10px; }
         .item {
-            background: var(--card); border-radius: 22px; padding: 18px; margin-bottom: 10px;
+            background: var(--card); border-radius: 22px; padding: 20px; margin-bottom: 12px;
             display: flex; justify-content: space-between; align-items: center;
             border: 1px solid rgba(255,255,255,0.03);
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.2s;
         }
-        
-        .item.active { border-color: var(--accent); background: rgba(59, 130, 246, 0.08); transform: scale(1.02); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .item.past { opacity: 0.25; filter: grayscale(0.5); }
-        .item-name { font-size: 1rem; font-weight: 800; color: #fff; }
-        .item-num { font-size: 0.65rem; color: var(--accent); font-weight: 900; margin-bottom: 2px; }
-        .item-time { font-family: 'JetBrains Mono'; color: var(--text-dim); font-size: 0.85rem; text-align: right; }
+        .item.active { 
+            border-color: var(--accent); 
+            background: rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: scale(1.02);
+        }
+        .item.past { opacity: 0.3; filter: grayscale(1); }
 
-        /* Навигация */
+        /* Classroom & AI UI */
+        .card {
+            background: var(--card); border-radius: 30px; padding: 24px; margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .ai-box {
+            background: rgba(0,0,0,0.3); border-radius: 24px; padding: 20px; margin-top: 20px;
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+        .btn {
+            width: 100%; padding: 18px; border-radius: 20px; border: none;
+            font-weight: 800; font-size: 0.9rem; text-transform: uppercase;
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.1); color: white; margin-top: 10px; }
+        
+        .quiz-input {
+            width: 100%; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
+            padding: 15px; border-radius: 15px; color: white; font-size: 1rem; margin: 10px 0;
+            outline: none; font-family: inherit;
+        }
+        .option-btn {
+            width: 100%; padding: 15px; margin-top: 10px; border-radius: 16px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            color: white; text-align: left; font-weight: 600; transition: 0.2s;
+        }
+        .option-btn.correct { background: var(--success); border-color: var(--success); }
+        .option-btn.wrong { background: var(--error); border-color: var(--error); }
+
+        /* Navigation Bar */
         .nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(11, 15, 26, 0.95); backdrop-filter: blur(20px);
+            background: rgba(5, 7, 10, 0.9); backdrop-filter: blur(25px);
             display: flex; justify-content: space-around;
-            padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+            padding: 15px 10px calc(20px + env(safe-area-inset-bottom));
             border-top: 1px solid rgba(255,255,255,0.05);
-            z-index: 100;
+            z-index: 1000;
         }
-        
-        .nav-item { text-align: center; color: var(--text-dim); flex: 1; }
+        .nav-item { 
+            text-align: center; color: var(--text-dim); flex: 1; 
+            transition: all 0.3s; position: relative;
+        }
         .nav-item.active { color: var(--accent); }
-        .nav-item i { font-size: 1.3rem; display: block; margin-bottom: 3px; font-style: normal; }
-        .nav-item span { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
-
-        #site-notif {
-            position: fixed; top: -120px; left: 15px; right: 15px;
-            background: #fff; color: #000; padding: 15px 20px; border-radius: 24px;
-            z-index: 9999; transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
-            display: flex; align-items: center; gap: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        .nav-item i { font-size: 1.5rem; display: block; margin-bottom: 5px; font-style: normal; }
+        .nav-item span { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-item.active::after {
+            content: ''; position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 20px; height: 4px; background: var(--accent); border-radius: 0 0 4px 4px;
         }
-        #site-notif.show { top: 20px; }
-        .hidden { display: none; }
 
-        button.primary {
-            width: 100%; padding: 18px; border-radius: 20px; border: none; 
-            background: var(--accent); color: #fff; font-weight: 800; 
-            font-size: 0.9rem; letter-spacing: 0.5px;
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
         }
+        .pulse { animation: pulse 2s infinite ease-in-out; }
     </style>
 </head>
 <body>
 
-    <!-- Кастомное уведомление -->
-    <div id="site-notif">
-        <div style="font-size:1.8rem">⚡</div>
-        <div>
-            <b id="nt-title" style="display:block; font-size: 1rem;">ВНИМАНИЕ</b>
-            <span id="nt-body" style="font-size:0.85rem; opacity:0.7">Пора входить в строй!</span>
-        </div>
-    </div>
-
     <div class="container">
-        <!-- Виджет времени -->
-        <div class="time-widget">
+        <!-- Header Section -->
+        <div class="header-widget">
             <div class="main-clock" id="wall-clock">00:00</div>
-            <div class="main-date" id="wall-date">ЗАГРУЗКА...</div>
+            <div id="wall-date" class="main-date">...</div>
         </div>
 
-        <!-- Активное состояние -->
-        <div id="active-widget" class="status-banner">
-            <div class="status-label" id="act-label">MATB OS v9.3</div>
-            <div class="status-name" id="act-name">ПОДГОТОВКА...</div>
-            <div class="status-timer" id="act-timer">00:00</div>
+        <!-- Dynamic Banner -->
+        <div id="active-banner" class="status-banner">
+            <div id="banner-label" style="font-size:0.7rem; font-weight:900; opacity:0.8; letter-spacing:1px">OS STATUS</div>
+            <div id="banner-name" style="font-size:1.8rem; font-weight:900; margin:4px 0;">ИНИЦИАЛИЗАЦИЯ...</div>
+            <div id="banner-timer" class="status-timer">00:00</div>
         </div>
 
-        <!-- Основной контент -->
-        <div id="tab-main">
-            <div class="schedule-title">План на сегодня</div>
-            <div id="schedule-list"></div>
+        <!-- TAB: SCHEDULE -->
+        <div id="tab-main" class="tab-content">
+            <div class="section-title">Сегодняшний план</div>
+            <div id="schedule-list">
+                <!-- Сюда упадут уроки -->
+            </div>
         </div>
 
-        <!-- Настройки -->
-        <div id="tab-settings" class="hidden">
-            <div style="background:var(--card); padding:25px; border-radius:30px; border: 1px solid rgba(255,255,255,0.05);">
-                <h3 style="margin-top:0">СИСТЕМА</h3>
-                <p style="font-size:0.85rem; color:var(--text-dim); line-height:1.5">
-                    Урок: <b>25 мин</b><br>
-                    Перемена: <b>10 мин</b><br><br>
-                    Чтобы получать пуши в шторку Android, нажми кнопку и разреши доступ. 
-                    <i>Не забудь добавить сайт на главный экран!</i>
+        <!-- TAB: CLASSROOM & AI -->
+        <div id="tab-class" class="tab-content hidden">
+            <div class="card">
+                <div style="display:flex; align-items:center; margin-bottom:15px">
+                    <div style="background:var(--accent); width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-right:15px">🎓</div>
+                    <h3 style="margin:0">Google Classroom</h3>
+                </div>
+                <p style="font-size:0.85rem; color:var(--text-dim); line-height:1.4; margin-bottom:20px">
+                    Проверь новые задания, прикрепленные файлы и сообщения от учителей.
                 </p>
-                <button class="primary" onclick="App.enableNotifications()">ВКЛЮЧИТЬ ПУШИ</button>
+                <button class="btn btn-primary" onclick="window.open('https://classroom.google.com', '_blank')">ПЕРЕЙТИ В КЛАСС</button>
+            </div>
+
+            <div class="card">
+                <div style="display:flex; align-items:center; margin-bottom:15px">
+                    <div style="background:var(--success); width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-right:15px">🤖</div>
+                    <h3 style="margin:0">AI Интеллект-Тренажер</h3>
+                </div>
+                <p style="font-size:0.85rem; color:var(--text-dim); line-height:1.4">
+                    Генерация случайного вопроса по программе. Типы: тест или свободный ввод.
+                </p>
+                <button class="btn btn-success" style="margin-top:15px" onclick="AIQuiz.next()">ДАЙ МНЕ ЗАДАНИЕ</button>
+                
+                <div id="ai-quiz-container" class="ai-box hidden">
+                    <div id="ai-q-type" style="font-size:0.6rem; color:var(--gold); font-weight:900; margin-bottom:10px; text-transform:uppercase"></div>
+                    <div id="ai-q-text" style="font-weight:700; font-size:1.1rem; margin-bottom:20px; line-height:1.4"></div>
+                    <div id="ai-q-content"></div>
+                    <div id="ai-q-feedback" style="margin-top:20px; font-weight:800; text-align:center; font-size:0.9rem"></div>
+                    <button class="btn btn-outline" id="ai-next-btn" style="display:none" onclick="AIQuiz.next()">СЛЕДУЮЩЕЕ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: SETTINGS -->
+        <div id="tab-os" class="tab-content hidden">
+            <div class="card">
+                <h3 style="margin-top:0">Конфигурация Ядра</h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top:20px">
+                    <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:15px">
+                        <div style="font-size:0.6rem; color:var(--text-dim)">УРОК</div>
+                        <div style="font-weight:800">25 МИН</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); padding:15px; border-radius:15px">
+                        <div style="font-size:0.6rem; color:var(--text-dim)">ПЕРЕРЫВ</div>
+                        <div style="font-weight:800">10 МИН</div>
+                    </div>
+                </div>
+                <button class="btn btn-outline" style="margin-top:20px" onclick="location.reload()">ПЕРЕЗАГРУЗИТЬ OS</button>
             </div>
             
-            <div style="margin-top: 20px; text-align: center; font-size: 0.7rem; color: var(--text-dim); opacity: 0.5;">
-                StudyHub MATB Edition • Build 2026.03
+            <div style="text-align:center; padding:20px; color:var(--text-dim); font-size:0.7rem; font-weight:800">
+                MATB OS v9.5 ULTIMATE EDITION<br>BUILD 2026.03.19
             </div>
         </div>
     </div>
 
-    <!-- Таббар -->
+    <!-- Navigation Bar -->
     <nav class="nav">
-        <div class="nav-item active" onclick="App.switchTab('main', this)"><i>📅</i><span>ПЛАН</span></div>
-        <div class="nav-item" onclick="App.switchTab('settings', this)"><i>🛠️</i><span>OS</span></div>
+        <div class="nav-item active" onclick="App.tab('main', this)"><i>📅</i><span>План</span></div>
+        <div class="nav-item" onclick="App.tab('class', this)"><i>👨‍🎓</i><span>Класс</span></div>
+        <div class="nav-item" onclick="App.tab('os', this)"><i>⚙️</i><span>Ядро</span></div>
     </nav>
 
     <script>
         const CONFIG = {
-            lesson_len: 25, // ИСПРАВЛЕНО: 25 минут
-            break_len: 10,  // ИСПРАВЛЕНО: 10 минут
-            start_time: "09:00",
-            schedule: {
+            lesson: 25,
+            break: 10,
+            start: "09:00",
+            fullSchedule: {
                 1: ["Алгебра", "География", "Укр.Мова", "Биология", "Укр.Мова", "Химия", "Информ."], 
                 2: ["Англ.Яз", "Геометрия", "Физика", "Укр.Мова", "Биология", "Обр.Мист.", "Физика", "Гром.Осв."],
                 3: ["Химия", "Осн.Здоровья", "Укр.Лит", "Алгебра", "Ист.Укр.", "Англ.Яз", "География", "Биология"],
@@ -175,191 +237,164 @@
 
         const App = {
             timeline: [],
-            lastM: -1,
-            lastS: -1,
-
             init() {
-                this.buildTimeline();
-                this.renderSchedule();
-                this.initSW();
-                setInterval(() => this.tick(), 1000);
-                this.tick();
+                this.generateTimeline();
+                this.renderInitial();
+                setInterval(() => this.update(), 1000);
             },
-
-            // Инициализация сервис-воркера для пушей в шторку
-            initSW() {
-                if ('serviceWorker' in navigator) {
-                    const swCode = `
-                        self.addEventListener('push', e => {
-                            const data = e.data.json();
-                            self.registration.showNotification(data.title, {
-                                body: data.body,
-                                icon: 'https://cdn-icons-png.flaticon.com/512/3587/3587091.png',
-                                vibrate: [200, 100, 200]
-                            });
-                        });
-                    `;
-                    const blob = new Blob([swCode], {type: 'application/javascript'});
-                    navigator.serviceWorker.register(URL.createObjectURL(blob));
-                }
-            },
-
-            toM(str) { 
-                const [h, m] = str.split(':').map(Number); 
-                return h * 60 + m; 
-            },
+            toM(t) { const [h,m] = t.split(':').map(Number); return h*60+m; },
+            fromM(m) { return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`; },
             
-            fromM(m) { 
-                return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`; 
-            },
-
-            buildTimeline() {
+            generateTimeline() {
                 const day = new Date().getDay();
-                const subjects = CONFIG.schedule[day] || [];
-                let currentPos = this.toM(CONFIG.start_time);
-                this.timeline = [];
-
+                const subjects = CONFIG.fullSchedule[day] || ["ВЫХОДНОЙ"];
+                let current = this.toM(CONFIG.start);
+                
                 subjects.forEach((name, i) => {
-                    const s = currentPos;
-                    const e = s + CONFIG.lesson_len;
-                    this.timeline.push({ type: 'lesson', name: name.toUpperCase(), s, e, num: i + 1 });
-                    
-                    const bs = e;
-                    const be = bs + CONFIG.break_len;
-                    if (i < subjects.length - 1) {
-                        this.timeline.push({ type: 'break', name: 'ПЕРЕМЕНА', s: bs, e: be });
+                    this.timeline.push({ type:'lesson', name: name.toUpperCase(), s: current, e: current + CONFIG.lesson, id: i+1 });
+                    current += CONFIG.lesson;
+                    if(i < subjects.length - 1) {
+                        this.timeline.push({ type:'break', name: 'ПЕРЕРЫВ', s: current, e: current + CONFIG.break });
+                        current += CONFIG.break;
                     }
-                    currentPos = be;
                 });
             },
 
-            renderSchedule() {
+            renderInitial() {
                 const list = document.getElementById('schedule-list');
-                const now = new Date();
                 const days = ["ВОСКРЕСЕНЬЕ", "ПОНЕДЕЛЬНИК", "ВТОРНИК", "СРЕДА", "ЧЕТВЕРГ", "ПЯТНИЦА", "СУББОТА"];
-                document.getElementById('wall-date').innerText = days[now.getDay()];
+                document.getElementById('wall-date').innerText = days[new Date().getDay()];
                 
-                if (this.timeline.length === 0) {
-                    list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-dim)">СЕГОДНЯ ВЫХОДНОЙ!</div>';
-                    return;
-                }
-
                 list.innerHTML = this.timeline.filter(x => x.type === 'lesson').map(item => `
-                    <div class="item" id="item-${item.num}">
+                    <div class="item" id="lesson-${item.id}">
                         <div>
-                            <div class="item-num">УРОК ${item.num}</div>
-                            <div class="item-name">${item.name}</div>
+                            <div style="font-size:0.6rem; color:var(--accent); font-weight:900">БЛОК ${item.id}</div>
+                            <div style="font-weight:800; font-size:1rem">${item.name}</div>
                         </div>
-                        <div class="item-time">
-                            <div style="color:#fff">${this.fromM(item.s)}</div>
-                            <div style="font-size:0.7rem">${this.fromM(item.e)}</div>
+                        <div style="text-align:right; font-family:'JetBrains Mono'; font-size:0.85rem">
+                            <div style="color:var(--text)">${this.fromM(item.s)}</div>
+                            <div style="color:var(--text-dim)">${this.fromM(item.e)}</div>
                         </div>
                     </div>
                 `).join('');
             },
 
-            tick() {
+            update() {
                 const now = new Date();
-                const totalM = now.getHours() * 60 + now.getMinutes();
+                const h = now.getHours();
+                const m = now.getMinutes();
                 const s = now.getSeconds();
+                const totalM = h * 60 + m;
 
-                // Обновляем часы
-                document.getElementById('wall-clock').innerText = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                document.getElementById('wall-clock').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
 
-                let current = this.timeline.find(x => totalM >= x.s && totalM < x.e);
-                
-                if (current) {
-                    this.updateBanner(current, totalM, s);
-                    // Проверка событий (начало/конец) раз в минуту
-                    if (this.lastM !== totalM) {
-                        this.checkEvents(current, totalM);
-                        this.lastM = totalM;
-                    }
+                let active = this.timeline.find(x => totalM >= x.s && totalM < x.e);
+                const banner = document.getElementById('active-banner');
+                const bName = document.getElementById('banner-name');
+                const bLabel = document.getElementById('banner-label');
+                const bTimer = document.getElementById('banner-timer');
+
+                if(active) {
+                    bLabel.innerText = active.type === 'lesson' ? `ТЕКУЩИЙ УРОК (${active.id})` : 'ПЕРЕМЕНА';
+                    bName.innerText = active.name;
+                    banner.style.background = active.type === 'lesson' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : 'linear-gradient(135deg, #059669, #047857)';
+                    
+                    const secondsLeft = (active.e - totalM) * 60 - s;
+                    const mm = Math.floor(secondsLeft / 60);
+                    const ss = secondsLeft % 60;
+                    bTimer.innerText = `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
                 } else {
-                    let next = this.timeline.find(x => x.s > totalM);
-                    this.updateBanner(next ? { name: 'СКОРО НАЧАЛО', s: totalM, e: next.s, type: 'idle' } : null);
+                    bLabel.innerText = 'STATUS';
+                    bName.innerText = totalM < this.toM(CONFIG.start) ? 'ОЖИДАНИЕ СТАРТА' : 'ДЕНЬ ЗАВЕРШЕН';
+                    bTimer.innerText = "--:--";
+                    banner.style.background = 'var(--card)';
                 }
 
-                // Подсветка списка
-                this.timeline.filter(x => x.type === 'lesson').forEach(item => {
-                    const el = document.getElementById(`item-${item.num}`);
-                    if (!el) return;
-                    if (totalM >= item.s && totalM < item.e) el.className = "item active";
-                    else if (totalM >= item.e) el.className = "item past";
+                // Update list highlight
+                this.timeline.filter(x => x.type === 'lesson').forEach(l => {
+                    const el = document.getElementById(`lesson-${l.id}`);
+                    if(!el) return;
+                    if(totalM >= l.s && totalM < l.e) el.className = "item active";
+                    else if(totalM >= l.e) el.className = "item past";
                     else el.className = "item";
                 });
             },
 
-            updateBanner(item, curM, curS) {
-                const name = document.getElementById('act-name'), 
-                      timer = document.getElementById('act-timer'), 
-                      banner = document.getElementById('active-widget'), 
-                      label = document.getElementById('act-label');
-                
-                if (!item) { 
-                    name.innerText = "УРОКИ ОКОНЧЕНЫ"; 
-                    timer.innerText = "--:--"; 
-                    banner.style.background = "var(--card)";
-                    label.innerText = "MATB OS";
-                    return; 
-                }
-                
-                label.innerText = item.type === 'lesson' ? `УРОК ${item.num}` : (item.type === 'break' ? 'ПЕРЕМЕНА' : 'СИСТЕМА');
-                name.innerText = item.name;
-                
-                // Смена цвета: Синий для уроков, Зеленый для перемен
-                banner.style.background = item.type === 'lesson' 
-                    ? "linear-gradient(135deg, #2563eb, #1d4ed8)" 
-                    : "linear-gradient(135deg, #059669, #047857)";
-
-                const remains = (item.e - curM) * 60 - curS;
-                const m = Math.floor(remains / 60);
-                const sec = remains % 60;
-                timer.innerText = `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-            },
-
-            checkEvents(item, curM) {
-                // Только что начался урок/перемена
-                if (curM === item.s) {
-                    this.pushNotify("НАЧАЛО", item.name);
-                } 
-                // Осталась 1 минута
-                else if (item.e - curM === 1) {
-                    this.pushNotify("ФИНИШ", "Осталась 1 минута!");
-                }
-            },
-
-            pushNotify(title, body) {
-                const notif = document.getElementById('site-notif');
-                document.getElementById('nt-title').innerText = title;
-                document.getElementById('nt-body').innerText = body;
-                notif.classList.add('show');
-                
-                if ("vibrate" in navigator) navigator.vibrate([400, 100, 400]);
-
-                // Браузерный пуш (если разрешен)
-                if (Notification.permission === "granted") {
-                    navigator.serviceWorker.ready.then(reg => {
-                        reg.showNotification(title, { body });
-                    });
-                }
-
-                setTimeout(() => notif.classList.remove('show'), 6000);
-            },
-
-            enableNotifications() {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") {
-                        this.pushNotify("ГОТОВО", "Уведомления включены!");
-                    }
-                });
-            },
-
-            switchTab(id, el) {
-                document.getElementById('tab-main').className = id === 'main' ? '' : 'hidden';
-                document.getElementById('tab-settings').className = id === 'settings' ? '' : 'hidden';
-                document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            tab(id, el) {
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+                document.getElementById('tab-'+id).classList.remove('hidden');
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 el.classList.add('active');
+            }
+        };
+
+        const AIQuiz = {
+            questions: [
+                { type: 'test', q: "Какое из этих чисел является простым?", opts: ["15", "21", "17", "27"], correct: 2 },
+                { type: 'test', q: "В каком органе человека вырабатывается желчь?", opts: ["Желудок", "Печень", "Почки", "Мозг"], correct: 1 },
+                { type: 'input', q: "Столица Франции?", correct: "париж" },
+                { type: 'test', q: "Чему равно $5^3$?", opts: ["15", "75", "125", "225"], correct: 2 },
+                { type: 'input', q: "Формула серной кислоты?", correct: "h2so4" },
+                { type: 'test', q: "Кто открыл закон всемирного тяготения?", opts: ["Эйнштейн", "Ньютон", "Галилей", "Тесла"], correct: 1 },
+                { type: 'input', q: "Как называется самая большая планета в Солнечной системе?", correct: "юпитер" }
+            ],
+            
+            next() {
+                const box = document.getElementById('ai-quiz-container');
+                const qType = document.getElementById('ai-q-type');
+                const qText = document.getElementById('ai-q-text');
+                const qCont = document.getElementById('ai-q-content');
+                const qFeed = document.getElementById('ai-q-feedback');
+                const nextBtn = document.getElementById('ai-next-btn');
+
+                box.classList.remove('hidden');
+                qFeed.innerText = "";
+                nextBtn.style.display = "none";
+                
+                const q = this.questions[Math.floor(Math.random() * this.questions.length)];
+                qType.innerText = q.type === 'test' ? 'Тестовое задание' : 'Ввод ответа';
+                qText.innerText = q.q;
+
+                if(q.type === 'test') {
+                    qCont.innerHTML = q.opts.map((o, i) => `
+                        <button class="option-btn" onclick="AIQuiz.checkTest(this, ${i === q.correct})">${o}</button>
+                    `).join('');
+                } else {
+                    qCont.innerHTML = `
+                        <input type="text" id="ai-user-input" class="quiz-input" placeholder="Введите ваш ответ...">
+                        <button class="btn btn-primary" onclick="AIQuiz.checkInput('${q.correct}')">ПРОВЕРИТЬ</button>
+                    `;
+                }
+            },
+
+            checkTest(btn, isCorrect) {
+                const f = document.getElementById('ai-q-feedback');
+                document.querySelectorAll('.option-btn').forEach(b => b.onclick = null);
+                
+                if(isCorrect) {
+                    btn.classList.add('correct');
+                    f.innerText = "✅ ВЕРНО! ТЫ МОЩНЫЙ.";
+                    f.style.color = "var(--success)";
+                } else {
+                    btn.classList.add('wrong');
+                    f.innerText = "❌ ОШИБКА. УЧИСЬ ЛУЧШЕ.";
+                    f.style.color = "var(--error)";
+                }
+                document.getElementById('ai-next-btn').style.display = "block";
+            },
+
+            checkInput(correct) {
+                const val = document.getElementById('ai-user-input').value.toLowerCase().trim();
+                const f = document.getElementById('ai-q-feedback');
+                
+                if(val === correct) {
+                    f.innerText = "✅ ВЕРНО! КРАСАВА.";
+                    f.style.color = "var(--success)";
+                } else {
+                    f.innerText = `❌ НЕТ. ПРАВИЛЬНО: ${correct.toUpperCase()}`;
+                    f.style.color = "var(--error)";
+                }
+                document.getElementById('ai-next-btn').style.display = "block";
             }
         };
 
