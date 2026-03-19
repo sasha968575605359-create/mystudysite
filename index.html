@@ -223,12 +223,12 @@
                     <button class="item-time" style="background:none; border:none; color:var(--accent-green)" onclick="App.toggleNotifs()">ВКЛЮЧИТЬ</button>
                 </div>
                 <div class="settings-item">
-                    <span>Геометрия в 9:00</span>
+                    <span>Уроки по 25 мин</span>
                     <span class="item-time" style="color:#fff">АКТИВНО</span>
                 </div>
                 <div class="settings-item">
-                    <span>Доп. Английский</span>
-                    <span class="item-time" style="color:#fff">16:00 - 17:00</span>
+                    <span>Перемены 10 мин</span>
+                    <span class="item-time" style="color:#fff">АКТИВНО</span>
                 </div>
                 <div class="settings-item" style="border:none">
                     <button style="color:var(--danger); background:none; border:none; font-weight:900" onclick="localStorage.clear(); location.reload();">СБРОС MATB OS</button>
@@ -252,21 +252,14 @@
     <script>
         const CLIENT_ID = '747337328453-pp0c1ncoagvotsjrephg9vlbf300ko90.apps.googleusercontent.com';
 
-        // Стандартная сетка
-        const STANDARD_GRID = [
-            { s: "09:00", e: "09:45" }, { s: "09:55", e: "10:40" },
-            { s: "10:50", e: "11:35" }, { s: "11:55", e: "12:40" },
-            { s: "12:50", e: "13:35" }, { s: "13:45", e: "14:30" }
-        ];
-
-        // Четверг: Геометрия первая + сокращенная перемена на истории
-        const THURSDAY_GRID = [
-            { s: "09:00", e: "09:45" }, 
-            { s: "09:55", e: "10:40" }, 
-            { s: "10:50", e: "11:35" }, 
-            { s: "11:45", e: "12:30" }, 
-            { s: "12:40", e: "13:25" }, 
-            { s: "13:35", e: "14:20" }  
+        // Сетка 25 мин урок + 10 мин перемена
+        const MATB_GRID = [
+            { s: "09:00", e: "09:25" }, // Урок 1
+            { s: "09:35", e: "10:00" }, // Урок 2
+            { s: "10:10", e: "10:35" }, // Урок 3
+            { s: "10:45", e: "11:10" }, // Урок 4
+            { s: "11:20", e: "11:45" }, // Урок 5
+            { s: "11:55", e: "12:20" }  // Урок 6
         ];
 
         const SUBJECTS = {
@@ -296,7 +289,7 @@
                 const day = new Date().getDay();
                 if (day === 0 || day === 6) return;
 
-                const grid = (day === 4) ? THURSDAY_GRID : STANDARD_GRID;
+                const grid = MATB_GRID;
                 const subs = SUBJECTS[day];
 
                 const parse = (t) => {
@@ -317,7 +310,7 @@
                         label: `Урок ${i + 1}`
                     });
 
-                    if (subs[i + 1]) {
+                    if (grid[i + 1] && i < subs.length - 1) {
                         this.timeline.push({
                             type: 'break',
                             name: 'Перемена',
@@ -328,7 +321,7 @@
                     }
                 });
 
-                // Доп. Английский (Вторник и Четверг)
+                // Доп. Английский (Вторник и Четверг) - оставляем как было, если не просили менять время допов
                 if (day === 2 || day === 4) {
                     this.timeline.push({
                         type: 'extra',
@@ -372,6 +365,7 @@
 
             updateBanner(it, mm, ss) {
                 const b = document.getElementById('banner');
+                if (!b) return;
                 b.className = `banner type-${it.type}`;
                 document.getElementById('b-label').innerText = it.name;
                 document.getElementById('b-timer').innerText = (mm === 0 && ss === 0 && it.type === 'wait') ? "CHILL" : 
