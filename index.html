@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STUDY HUB: MATB OS v5.5 FIXED GRID</title>
+    <title>STUDY HUB: MATB OS v5.6 NOTIF FIX</title>
     <!-- Google GIS SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
@@ -151,6 +151,15 @@
         .item-time { font-weight: 800; color: var(--text-dim); }
         .active .item-time { color: #fff; }
 
+        /* MODAL / TOAST */
+        #toast {
+            position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
+            background: #fff; color: #000; padding: 15px 25px; border-radius: 20px;
+            font-weight: 900; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 9999; display: none; animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { bottom: 80px; opacity: 0; } to { bottom: 120px; opacity: 1; } }
+
         /* CLASSROOM TASKS */
         .task-card {
             background: #fff; color: #000; border-radius: 22px; padding: 20px;
@@ -183,6 +192,7 @@
 <body>
 
     <div id="fx-canvas"></div>
+    <div id="toast"></div>
 
     <div class="app-container">
         <header class="clock-card">
@@ -217,10 +227,10 @@
         <!-- VIEW: OS -->
         <div id="view-os" class="hidden">
             <div class="section-card">
-                <div class="section-title">MATB OS v5.5</div>
+                <div class="section-title">MATB OS v5.6</div>
                 <div class="settings-item">
                     <span>Уведомления</span>
-                    <button class="item-time" style="background:none; border:none; color:var(--accent-green)" onclick="App.toggleNotifs()">ВКЛЮЧИТЬ</button>
+                    <button class="item-time" id="notif-status-btn" style="background:none; border:none; color:var(--accent-blue)" onclick="App.toggleNotifs()">ПРОВЕРИТЬ</button>
                 </div>
                 <div class="settings-item">
                     <span>Уроки по 25 мин</span>
@@ -279,6 +289,7 @@
                 this.createSakura();
                 setInterval(() => this.tick(), 1000);
                 this.tick();
+                this.updateNotifBtn();
                 
                 const token = localStorage.getItem('matb_token_v5');
                 if (token) this.loadTasks(token);
@@ -321,13 +332,13 @@
                     }
                 });
 
-                // Доп. Английский (Вторник и Четверг) - оставляем как было, если не просили менять время допов
+                // Доп. Английский (Вторник и Четверг)
                 if (day === 2 || day === 4) {
                     this.timeline.push({
                         type: 'extra',
                         name: 'Доп. Английский',
-                        start: 16 * 60, // 16:00
-                        end: 17 * 60,   // 17:00
+                        start: 16 * 60, 
+                        end: 17 * 60,   
                         label: 'SPECIAL'
                     });
                 }
@@ -346,10 +357,10 @@
                     const el = document.getElementById(`item-${i}`);
                     if (cur >= it.start && cur < it.end) {
                         active = it;
-                        el.classList.add('active');
+                        if (el) el.classList.add('active');
                         this.updateBanner(it, it.end - cur - 1, 60 - sec);
                     } else {
-                        el.classList.remove('active');
+                        if (el) el.classList.remove('active');
                     }
                 });
 
@@ -392,6 +403,55 @@
                 btn.classList.add('active');
             },
 
+            showToast(msg) {
+                const t = document.getElementById('toast');
+                t.innerText = msg;
+                t.style.display = 'block';
+                setTimeout(() => t.style.display = 'none', 3000);
+            },
+
+            updateNotifBtn() {
+                const btn = document.getElementById('notif-status-btn');
+                if (!("Notification" in window)) {
+                    btn.innerText = "НЕДОСТУПНО";
+                    btn.style.color = "var(--danger)";
+                    return;
+                }
+                if (Notification.permission === 'granted') {
+                    btn.innerText = "ВКЛЮЧЕНО";
+                    btn.style.color = "var(--accent-green)";
+                } else if (Notification.permission === 'denied') {
+                    btn.innerText = "ЗАБЛОКИРОВАНО";
+                    btn.style.color = "var(--danger)";
+                } else {
+                    btn.innerText = "АКТИВИРОВАТЬ";
+                    btn.style.color = "var(--accent-blue)";
+                }
+            },
+
+            async toggleNotifs() {
+                if (!("Notification" in window)) {
+                    this.showToast("Браузер не поддерживает уведомления!");
+                    return;
+                }
+
+                if (Notification.permission === 'default') {
+                    const res = await Notification.requestPermission();
+                    if (res === 'granted') {
+                        new Notification("MATB OS", { body: "Уведомления активированы успешно!" });
+                        this.showToast("Готово! Теперь будешь в курсе.");
+                    } else {
+                        this.showToast("Ты отклонил запрос на уведомления.");
+                    }
+                } else if (Notification.permission === 'granted') {
+                    new Notification("MATB OS", { body: "Проверка связи! Всё работает." });
+                    this.showToast("Уже включено, MATB!");
+                } else {
+                    this.showToast("Зайди в настройки сайта и разреши уведомления вручную.");
+                }
+                this.updateNotifBtn();
+            },
+
             auth() {
                 const client = google.accounts.oauth2.initTokenClient({
                     client_id: CLIENT_ID,
@@ -413,6 +473,7 @@
                     const res = await fetch('https://classroom.googleapis.com/v1/courses', { headers: { 'Authorization': `Bearer ${token}` } });
                     const data = await res.json();
                     if (!data.courses) return;
+                    list.innerHTML = '';
                     for (const c of data.courses) {
                         const wRes = await fetch(`https://classroom.googleapis.com/v1/courses/${c.id}/courseWork`, { headers: { 'Authorization': `Bearer ${token}` } });
                         const wData = await wRes.json();
@@ -427,11 +488,6 @@
                         }
                     }
                 } catch(e) { localStorage.removeItem('matb_token_v5'); }
-            },
-
-            async toggleNotifs() {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') new Notification("MATB OS", { body: "Система уведомлений активна" });
             },
 
             createSakura() {
