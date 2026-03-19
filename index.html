@@ -2,43 +2,37 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STUDY HUB: MATB OS v4.7 ULTIMATE EDITION</title>
-    <!-- Google Identity Services for Classroom -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>STUDY HUB: MATB OS v4.9 ULTRA FULL</title>
+    <!-- Google GIS SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        /* PREMIUM DESIGN SYSTEM - MATB SPECIAL EDITION 
-           Здесь дохуя стилей для создания эффекта полноценной ОС.
-        */
         :root {
-            --bg-deep: #050b14;
-            --card-dark: #0a1422;
-            --accent-green: #4ade80;
+            --bg-deep: #020617;
+            --card-dark: #0f172a;
+            --accent-green: #22c55e;
             --accent-blue: #3b82f6;
-            --accent-pink: #f472b6;
-            --accent-orange: #f59e0b;
-            --text-main: #ffffff;
-            --text-dim: #94a3b8;
+            --accent-pink: #ec4899;
+            --text-main: #f8fafc;
+            --text-dim: #64748b;
             --danger: #ef4444;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glow-green: 0 0 25px rgba(74, 222, 128, 0.4);
-            --glow-blue: 0 0 25px rgba(59, 130, 246, 0.4);
-            --glow-pink: 0 0 25px rgba(244, 114, 182, 0.4);
-            --shadow-heavy: 0 20px 50px rgba(0,0,0,0.8);
+            --glow-green: 0 0 30px rgba(34, 197, 94, 0.4);
+            --glow-blue: 0 0 30px rgba(59, 130, 246, 0.4);
+            --glow-pink: 0 0 30px rgba(236, 72, 153, 0.4);
+            --border-light: rgba(255, 255, 255, 0.1);
         }
 
-        /* Глобальные сбросы и база */
+        /* RESET & BASE */
         * { 
             box-sizing: border-box; 
             -webkit-tap-highlight-color: transparent; 
-            margin: 0; 
-            padding: 0;
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent-blue) var(--card-dark);
+            margin: 0; padding: 0; 
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            scrollbar-width: none;
         }
+        ::-webkit-scrollbar { display: none; }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-deep);
             color: var(--text-main);
             min-height: 100vh;
@@ -46,16 +40,15 @@
             flex-direction: column;
             overflow-x: hidden;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(244, 114, 182, 0.08) 0%, transparent 40%);
+                radial-gradient(circle at 50% 0%, #1e293b 0%, transparent 75%),
+                linear-gradient(180deg, #020617 0%, #0f172a 100%);
             background-attachment: fixed;
         }
 
-        /* ЭФФЕКТЫ САКУРЫ v3.0 */
+        /* ЭФФЕКТЫ САКУРЫ ДЛЯ MATB */
         #fx-canvas {
             position: fixed;
-            top: 0; left: 0; 
-            width: 100%; height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
             z-index: 1;
         }
@@ -64,743 +57,690 @@
             background: linear-gradient(135deg, #ffb7c5, #f472b6);
             border-radius: 150% 0 150% 0;
             opacity: 0.3;
-            filter: blur(0.5px);
             animation: fall linear infinite;
+            filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.5));
         }
         @keyframes fall {
             0% { transform: translateY(-10vh) rotate(0deg) translateX(0); }
-            100% { transform: translateY(115vh) rotate(720deg) translateX(100px); }
+            100% { transform: translateY(110vh) rotate(720deg) translateX(100px); }
         }
 
-        /* Основной контейнер */
+        /* ОСНОВНОЙ КОНТЕЙНЕР */
         .app-container {
             max-width: 550px;
             margin: 0 auto;
-            padding: 20px 20px 140px;
+            padding: 25px 20px 140px;
+            width: 100%;
             position: relative;
             z-index: 10;
-            width: 100%;
         }
 
-        /* ВИДЖЕТ ЧАСОВ (Центральный элемент) */
+        /* ВИДЖЕТ ЧАСОВ */
         .clock-card {
-            background: var(--card-dark);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
             border-radius: 45px;
             padding: 50px 20px;
             text-align: center;
-            margin-bottom: 25px;
-            box-shadow: var(--shadow-heavy);
-            border: 1px solid rgba(255,255,255,0.08);
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 30px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+            transition: transform 0.3s ease;
         }
         .clock-card:active { transform: scale(0.98); }
+        
         .clock-time {
-            font-size: 6.5rem;
+            font-size: 6rem;
             font-weight: 900;
-            line-height: 0.9;
             letter-spacing: -5px;
-            font-variant-numeric: tabular-nums;
+            line-height: 0.9;
             background: linear-gradient(to bottom, #fff, #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-variant-numeric: tabular-nums;
         }
         .clock-date {
             color: var(--accent-blue);
-            font-size: 1.2rem;
-            margin-top: 10px;
             text-transform: uppercase;
-            font-weight: 800;
+            font-weight: 900;
             letter-spacing: 3px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
         }
 
-        /* ПАНЕЛЬ УВЕДОМЛЕНИЙ */
-        .notif-panel {
+        /* БЛОК УВЕДОМЛЕНИЙ */
+        .notif-bar {
             background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--border-light);
             border-radius: 30px;
-            padding: 20px 25px;
+            padding: 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             backdrop-filter: blur(15px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        .notif-info h4 { font-size: 0.85rem; font-weight: 900; color: var(--text-main); text-transform: uppercase; }
+        .notif-info h4 { font-size: 0.85rem; font-weight: 950; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
         .notif-info p { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
-        
+
         .btn-toggle {
-            padding: 12px 24px;
+            padding: 14px 24px;
             border-radius: 18px;
             border: none;
             font-weight: 900;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             background: #1e293b;
-            color: #fff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            color: #94a3b8;
+            min-width: 120px;
+            text-transform: uppercase;
         }
-        .btn-toggle.active {
-            background: var(--accent-green);
-            color: #000;
-            box-shadow: var(--glow-green);
-        }
-        .btn-toggle.error { background: var(--danger); }
+        .btn-toggle.on { background: var(--accent-green); color: #06170c; box-shadow: var(--glow-green); }
+        .btn-toggle.denied { background: var(--danger); color: #fff; }
+        .btn-toggle:active { transform: scale(0.9); }
 
-        /* ГЛАВНЫЙ СТАТУС-БАННЕР */
-        .status-banner {
-            border-radius: 35px;
-            padding: 30px;
+        /* БАННЕР ТЕКУЩЕГО СОСТОЯНИЯ */
+        .banner {
+            border-radius: 40px;
+            padding: 35px 25px;
             margin-bottom: 30px;
             text-align: center;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
             position: relative;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            background: #111827;
+            border: 1px solid var(--border-light);
         }
-        .status-banner.type-lesson { background: linear-gradient(135deg, #1e40af, #3b82f6); box-shadow: var(--glow-blue); }
-        .status-banner.type-break { background: linear-gradient(135deg, #9d174d, #f472b6); box-shadow: var(--glow-pink); }
-        .status-banner.type-wait { background: #18181b; border: 1px solid rgba(255,255,255,0.1); }
+        .banner::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        .banner-label { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; opacity: 0.9; }
-        .banner-timer { font-size: 3.8rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1; }
-        .banner-sub { font-size: 0.75rem; opacity: 0.7; font-weight: 700; }
+        .banner.type-lesson { 
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6); 
+            box-shadow: var(--glow-blue); border: none; 
+        }
+        .banner.type-break { 
+            background: linear-gradient(135deg, #be185d, #ec4899); 
+            box-shadow: var(--glow-pink); border: none; 
+        }
 
-        /* СЕКЦИИ КОНТЕНТА */
-        .card {
-            background: var(--card-dark);
-            border-radius: 40px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-heavy);
-            border: 1px solid rgba(255,255,255,0.04);
-        }
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            font-size: 1.3rem;
-            font-weight: 900;
-            letter-spacing: 1px;
-        }
-        .card-header i { font-style: normal; background: var(--glass); padding: 8px; border-radius: 12px; }
+        .banner-label { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; opacity: 0.9; margin-bottom: 8px; letter-spacing: 1px; }
+        .banner-timer { font-size: 4rem; font-weight: 950; font-variant-numeric: tabular-nums; line-height: 1; }
+        .banner-sub { font-size: 0.75rem; font-weight: 800; opacity: 0.7; margin-top: 10px; }
 
         /* СПИСОК РАСПИСАНИЯ */
-        .schedule-list { display: flex; flex-direction: column; gap: 12px; }
-        .schedule-item {
+        .section-card {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 40px;
+            padding: 30px 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-light);
+        }
+        .section-title { 
+            font-weight: 950; font-size: 1.1rem; margin-bottom: 25px; 
+            color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase;
+            padding-left: 10px; border-left: 4px solid var(--accent-blue);
+        }
+
+        .item {
             background: rgba(255,255,255,0.02);
             border-radius: 24px;
-            padding: 20px 25px;
+            padding: 18px 24px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.4s ease;
-            border-left: 6px solid transparent;
-            position: relative;
+            border: 1px solid transparent;
+            transition: 0.4s;
         }
-        .schedule-item.type-lesson { border-left-color: var(--accent-blue); }
-        .schedule-item.type-break { border-left-color: var(--accent-pink); opacity: 0.6; }
+        .item.type-lesson { border-left: 5px solid var(--accent-blue); }
+        .item.type-break { border-left: 5px solid var(--accent-pink); opacity: 0.6; }
 
-        .schedule-item.active {
-            background: rgba(255,255,255,0.08);
-            transform: scale(1.03);
-            opacity: 1;
+        .item.active { 
+            background: rgba(255,255,255,0.08); 
+            transform: translateX(5px) scale(1.02);
+            border-color: rgba(255,255,255,0.1);
         }
-        .schedule-item.active.type-lesson { border-left-color: var(--accent-green); box-shadow: var(--glow-green); }
-        .schedule-item.active.type-break { border-left-color: var(--accent-pink); box-shadow: var(--glow-pink); }
+        .item.active.type-lesson { border-left-color: var(--accent-green); box-shadow: var(--glow-green); }
+        .item.active.type-break { opacity: 1; border-left-color: var(--accent-pink); box-shadow: var(--glow-pink); }
 
-        .item-info .title { font-weight: 800; font-size: 1.1rem; display: block; margin-bottom: 2px; }
-        .item-info .tag { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; color: var(--text-dim); letter-spacing: 1px; }
+        .item-info { display: flex; flex-direction: column; }
+        .item-tag { font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-dim); margin-bottom: 2px; }
+        .item-name { font-weight: 850; font-size: 1.1rem; color: #fff; }
         .item-time { font-weight: 900; font-size: 1rem; color: var(--text-dim); font-variant-numeric: tabular-nums; }
-        .active .item-time { color: #fff; }
+        .active .item-time { color: var(--text-main); }
 
-        /* КАРТОЧКИ ЗАДАНИЙ (NEOBRUTALISM) */
-        .task-list { display: flex; flex-direction: column; gap: 15px; }
+        /* ЗАДАНИЯ CLASSROOM (НЕОБРУТАЛИЗМ) */
         .task-card {
-            background: #ffffff;
-            color: #000000;
-            border-radius: 25px;
-            padding: 25px;
+            background: #fff;
+            color: #000;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 20px;
             border: 4px solid #000;
             box-shadow: 8px 8px 0px #000;
             cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .task-card:active { transform: translate(4px, 4px); box-shadow: 4px 4px 0px #000; }
-        .task-card::after {
-            content: ''; position: absolute; top: 0; right: 0; width: 40px; height: 40px;
-            background: var(--accent-blue); clip-path: polygon(100% 0, 0 0, 100% 100%);
-        }
-        .task-course { font-size: 0.75rem; font-weight: 900; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 5px; }
-        .task-title { font-size: 1.2rem; font-weight: 900; line-height: 1.2; }
-
-        /* МОНИТОРИНГ / СТАТИСТИКА */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .stat-box {
-            background: rgba(255,255,255,0.03);
-            border-radius: 25px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .stat-label { font-size: 0.7rem; color: var(--text-dim); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
-        .stat-value { font-size: 1.8rem; font-weight: 900; color: var(--accent-green); }
-
-        /* АВТОРИЗАЦИЯ */
-        .auth-container {
-            text-align: center;
-            padding: 50px 20px;
-        }
-        .btn-auth {
-            background: #fff;
-            color: #000;
-            border: none;
-            padding: 20px 40px;
-            border-radius: 25px;
-            font-weight: 900;
-            font-size: 1.1rem;
-            cursor: pointer;
-            box-shadow: 0 10px 30px rgba(255,255,255,0.1);
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            transition: 0.3s;
-        }
-        .btn-auth:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(255,255,255,0.2); }
-
-        /* МОДАЛЬНОЕ ОКНО */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
-            backdrop-filter: blur(15px);
-            z-index: 10000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal-box {
-            background: var(--card-dark);
-            width: 100%;
-            max-width: 480px;
-            border-radius: 40px;
-            padding: 40px;
-            border: 1px solid var(--accent-blue);
-            box-shadow: 0 0 100px rgba(59, 130, 246, 0.2);
+            transition: 0.2s;
             position: relative;
         }
-        .modal-close {
-            position: absolute; top: 25px; right: 25px;
-            background: var(--glass); border: none; color: #fff;
-            width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; cursor: pointer;
+        .task-card:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0px #000; }
+        .task-tag { 
+            display: inline-block; padding: 4px 10px; background: #000; color: #fff;
+            border-radius: 8px; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px;
         }
+        .task-title { font-size: 1.2rem; font-weight: 950; line-height: 1.1; margin-bottom: 8px; }
+        .task-desc { font-size: 0.85rem; color: #444; font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-        /* НАВИГАЦИЯ */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0; left: 0; width: 100%;
-            background: rgba(10, 20, 34, 0.95);
+        /* НАВИГАЦИЯ ПАНЕЛЬ */
+        .nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(25px);
-            display: flex;
-            padding: 15px 0 35px;
-            border-top: 1px solid rgba(255,255,255,0.08);
-            z-index: 5000;
+            display: flex; padding: 15px 10px 40px;
+            border-top: 1px solid var(--border-light);
+            z-index: 1000;
+            justify-content: space-around;
         }
-        .nav-item {
-            flex: 1;
-            text-align: center;
-            color: var(--text-dim);
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.75rem;
-            font-weight: 900;
-            text-transform: uppercase;
+        .nav-btn { 
+            flex: 1; text-align: center; color: var(--text-dim); cursor: pointer; 
+            font-weight: 900; font-size: 0.75rem; transition: 0.3s;
+            display: flex; flex-direction: column; align-items: center;
         }
-        .nav-item i { font-size: 1.6rem; font-style: normal; opacity: 0.6; transition: 0.3s; }
-        .nav-item.active { color: var(--accent-green); }
-        .nav-item.active i { opacity: 1; transform: translateY(-5px); }
+        .nav-btn.active { color: var(--accent-green); }
+        .nav-btn i { font-size: 1.6rem; margin-bottom: 5px; font-style: normal; transition: 0.3s; }
+        .nav-btn.active i { transform: translateY(-5px) scale(1.2); }
 
-        /* ВСПОМОГАТЕЛЬНЫЕ КЛАССЫ */
-        .hidden { display: none !important; }
-        .loader {
-            width: 50px; height: 50px; border: 5px solid var(--glass);
-            border-top-color: var(--accent-blue); border-radius: 50%;
-            animation: spin 1s linear infinite; margin: 30px auto;
+        /* МОДАЛЬНЫЕ ОКНА */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center;
+            z-index: 2000; padding: 25px; backdrop-filter: blur(15px);
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal-box { 
+            background: var(--card-dark); padding: 35px; border-radius: 40px; 
+            width: 100%; max-width: 400px; border: 2px solid var(--accent-blue);
+            box-shadow: 0 0 50px rgba(59, 130, 246, 0.3);
+            transform: translateY(0); animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes slideUp { from { transform: translateY(50px); } to { transform: translateY(0); } }
+
+        .modal-box h3 { font-size: 1.5rem; font-weight: 950; color: #fff; margin-bottom: 15px; }
+        .modal-box p { color: var(--text-dim); line-height: 1.6; font-size: 0.95rem; margin-bottom: 25px; }
+        
+        .btn-action { 
+            width: 100%; background: var(--accent-blue); color: #fff; border: none; 
+            padding: 18px; border-radius: 20px; font-weight: 950; font-size: 1rem;
+            cursor: pointer; transition: 0.3s; box-shadow: var(--glow-blue);
+        }
+        .btn-action:active { transform: scale(0.95); }
+
+        /* ВСПОМОГАТЕЛЬНОЕ */
+        .loader-wrap { text-align: center; padding: 50px 0; }
+        .loader { 
+            width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.05); 
+            border-top-color: var(--accent-blue); border-radius: 50%; 
+            animation: spin 0.8s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite; margin: 0 auto; 
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        @media (max-width: 400px) {
-            .clock-time { font-size: 5rem; }
-            .banner-timer { font-size: 3rem; }
+        .os-btn {
+            position: absolute; bottom: 100px; right: 20px;
+            width: 50px; height: 50px; border-radius: 15px;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 900; color: var(--text-dim);
+            cursor: pointer; z-index: 50;
         }
+        .os-btn:active { background: var(--accent-green); color: #000; }
+
+        .hidden { display: none !important; }
+        .empty-state { text-align: center; color: var(--text-dim); padding: 40px 20px; font-weight: 700; }
     </style>
 </head>
 <body>
 
-    <!-- Слой анимации -->
     <div id="fx-canvas"></div>
 
     <div class="app-container">
         
         <!-- ЧАСЫ -->
-        <header class="clock-card" id="clock-widget">
-            <div class="clock-time" id="display-time">00:00</div>
-            <div class="clock-date" id="display-date">ЗАГРУЗКА...</div>
+        <header class="clock-card" id="main-clock-widget">
+            <div class="clock-time" id="clock">00:00</div>
+            <div class="clock-date" id="date">ИНИЦИАЛИЗАЦИЯ...</div>
         </header>
 
         <!-- ПАНЕЛЬ УВЕДОМЛЕНИЙ -->
-        <section class="notif-panel">
+        <section class="notif-bar">
             <div class="notif-info">
-                <h4>Smart Notifications</h4>
-                <p id="notif-status">Уведомления отключены</p>
+                <h4>PUSH-CONTROL</h4>
+                <p id="notif-status">Нажми для активации пушей</p>
             </div>
-            <button class="btn-toggle" id="btn-toggle-notif" onclick="App.requestNotifs()">ВКЛЮЧИТЬ</button>
+            <button class="btn-toggle" id="btn-notif" onclick="App.toggleNotifs()">ВКЛЮЧИТЬ</button>
         </section>
 
-        <!-- ГЛАВНЫЙ ЭКРАН -->
-        <main id="view-home">
-            <div id="main-banner" class="status-banner type-wait">
-                <div class="banner-label" id="banner-label">ОЖИДАНИЕ СИСТЕМЫ</div>
-                <div class="banner-timer" id="banner-timer">00:00:00</div>
-                <div class="banner-sub" id="banner-next">Инициализация данных...</div>
+        <!-- ГЛАВНЫЙ ЭКРАН (БАЗА) -->
+        <div id="view-home">
+            <div id="banner" class="banner">
+                <div class="banner-label" id="b-label">Загрузка системы...</div>
+                <div class="banner-timer" id="b-timer">00:00</div>
+                <div class="banner-sub" id="b-sub">MATB OS v4.9 ENGINE</div>
             </div>
 
-            <div class="card">
-                <div class="card-header"><i>📅</i> РАСПИСАНИЕ НА СЕГОДНЯ</div>
-                <div class="schedule-list" id="schedule-render-target">
-                    <!-- Сюда рендерится список -->
-                </div>
+            <div class="section-card">
+                <div class="section-title">РАСПИСАНИЕ СЕГОДНЯ</div>
+                <div id="schedule-list"></div>
+                <div id="schedule-empty" class="hidden empty-state">На сегодня уроков нет. Чиль! 😎</div>
             </div>
-
-            <div class="card">
-                <div class="card-header"><i>📊</i> МОНИТОРИНГ</div>
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-label">Заданий в работе</div>
-                        <div class="stat-value" id="stat-tasks-count">0</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Текущий этап</div>
-                        <div class="stat-value" id="stat-current-step">-</div>
-                    </div>
-                </div>
-            </div>
-        </main>
+        </div>
 
         <!-- ЭКРАН ЗАДАНИЙ -->
-        <section id="view-tasks" class="hidden">
-            <div class="card" style="min-height: 500px;">
-                <div class="card-header"><i>🚨</i> GOOGLE CLASSROOM</div>
+        <div id="view-tasks" class="hidden">
+            <div class="section-card" style="min-height: 500px;">
+                <div class="section-title">GOOGLE CLASSROOM</div>
                 
-                <!-- Блок входа -->
-                <div id="auth-ui" class="auth-container">
-                    <div style="font-size: 5rem; margin-bottom: 20px;">🔑</div>
-                    <p style="color: var(--text-dim); margin-bottom: 30px; font-weight: 600;">Авторизуйтесь для синхронизации <br>ваших учебных заданий</p>
-                    <button class="btn-auth" onclick="App.handleGoogleAuth()">
-                        <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="24" alt="">
-                        ВОЙТИ ЧЕРЕЗ GOOGLE
-                    </button>
+                <div id="auth-ui" class="hidden" style="text-align: center; padding-top: 60px;">
+                    <p style="color: var(--text-dim); margin-bottom: 25px; font-weight: 700;">Нужен доступ к твоим курсам</p>
+                    <button class="btn-action" onclick="App.auth()">АВТОРИЗОВАТЬСЯ</button>
                 </div>
 
-                <!-- Список задач -->
-                <div id="tasks-render-target" class="task-list"></div>
-
-                <!-- Состояние "Пусто" -->
-                <div id="tasks-empty-state" class="hidden" style="text-align: center; padding: 60px 0; opacity: 0.3;">
-                    <div style="font-size: 5rem; margin-bottom: 10px;">🏝️</div>
-                    <p style="font-weight: 900; letter-spacing: 1px;">ВСЕ ЗАДАНИЯ ВЫПОЛНЕНЫ</p>
+                <div id="task-loader" class="hidden">
+                    <div class="loader-wrap">
+                        <div class="loader"></div>
+                        <p style="margin-top: 20px; font-weight: 800; color: var(--accent-blue);">ШЕРСТИМ КЛАССРУМ...</p>
+                    </div>
                 </div>
 
-                <button id="btn-logout" class="hidden" style="width: 100%; margin-top: 30px; background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 15px; border-radius: 20px; font-weight: 800; cursor: pointer;" onclick="App.logout()">
-                    ВЫЙТИ ИЗ АККАУНТА
-                </button>
+                <div id="task-list"></div>
+                <div id="task-empty" class="hidden empty-state">Долгов нет. Ты чертов гений! 🏆</div>
             </div>
-        </section>
+        </div>
+
+        <!-- СЕКРЕТНАЯ КНОПКА OS -->
+        <div class="os-btn" onclick="App.osPower()">OS</div>
 
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ -->
-    <div class="modal-overlay" id="modal-details" onclick="App.closeModal()">
+    <!-- МОДАЛКА ДЕТАЛЕЙ ЗАДАНИЯ -->
+    <div id="modal" class="modal" onclick="this.style.display='none'">
         <div class="modal-box" onclick="event.stopPropagation()">
-            <button class="modal-close" onclick="App.closeModal()">&times;</button>
-            <div id="m-course" style="color: var(--accent-blue); font-weight: 900; font-size: 0.8rem; margin-bottom: 10px; text-transform: uppercase;">КУРС</div>
-            <h2 id="m-title" style="margin-bottom: 20px; line-height: 1.2;">Название задания</h2>
-            <div id="m-description" style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.6; max-height: 250px; overflow-y: auto; margin-bottom: 30px; padding-right: 10px; text-align: left;">
-                Описание отсутствует...
-            </div>
-            <button class="btn-auth" id="m-link-btn" style="width: 100%; justify-content: center; background: var(--accent-blue); color: #fff;">
-                ОТКРЫТЬ В CLASSROOM
-            </button>
+            <h3 id="m-title">Название задачи</h3>
+            <p id="m-desc">Описание будет здесь...</p>
+            <button class="btn-action" id="m-go">ПЕРЕЙТИ К ЗАДАНИЮ</button>
         </div>
     </div>
 
-    <!-- НАВИГАЦИЯ -->
-    <nav class="bottom-nav">
-        <div class="nav-item active" id="nav-home" onclick="App.switchView('home')">
-            <i>🏠</i><span>БАЗА</span>
+    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+    <nav class="nav">
+        <div class="nav-btn active" onclick="App.switchView('home', this)">
+            <i>🏠</i>
+            <span>БАЗА</span>
         </div>
-        <div class="nav-item" id="nav-tasks" onclick="App.switchView('tasks')">
-            <i>📚</i><span>ЗАДАЧИ</span>
-        </div>
-        <div class="nav-item" onclick="App.playEffect()">
-            <i>⚙️</i><span>OS</span>
+        <div class="nav-btn" onclick="App.switchView('tasks', this)">
+            <i>📚</i>
+            <span>ЗАДАЧИ</span>
         </div>
     </nav>
 
     <script>
-        /**
-         * MATB OS CORE ENGINE v4.7
-         * Полная реализация со всеми свистелками и перделками.
-         */
+        // КОНФИГ
+        const CLIENT_ID = '747337328453-pp0c1ncoagvotsjrephg9vlbf300ko90.apps.googleusercontent.com';
 
-        const GOOGLE_CLIENT_ID = '747337328453-pp0c1ncoagvotsjrephg9vlbf300ko90.apps.googleusercontent.com';
-
-        const APP_CONFIG = {
-            lesson_duration: 25,
-            break_duration: 10,
-            school_start: "09:00",
-            lesson_count: 8
-        };
-
-        const SUBJECT_MAP = {
+        // РАСПИСАНИЕ (БЕЗ ФИЗРЫ В ЧЕТВЕРГ)
+        const SUBJECTS = {
             1: ["Алгебра", "География", "Укр. язык", "Биология", "Укр. язык", "Химия", "Информатика"],
             2: ["Геометрия", "Физика", "Укр. язык", "Биология", "Музыка", "Физкультура", "Гром. освіта"],
             3: ["Химия", "Основы здоровья", "Укр. литература", "Алгебра", "История", "Английский", "География"],
-            4: ["Математика Доп", "Физика", "История", "История", "Технологии", "Английский"], // Физра убрана по запросу MATB
+            4: ["Математика Доп", "Физика", "История", "История", "Технологии", "Английский"], 
             5: ["Физкультура", "Укр. язык", "Укр. литература", "Алгебра", "Зарубежка", "Информатика", "Немецкий"]
         };
 
         const App = {
-            full_schedule: [],
-            active_index: -1,
-            last_push_id: "",
-            
+            timeline: [],
+            lastNotification: "",
+            isProcessingAuth: false,
+
             init() {
-                console.log("MATB OS: Booting...");
-                this.generateTimeline();
+                console.log("MATB OS Initializing...");
+                this.buildTimeline();
                 this.renderSchedule();
-                this.initSakura();
-                this.checkPermissions();
+                this.createSakura();
+                this.updateNotifStatus();
                 
-                // Главный цикл обновлений
-                setInterval(() => {
-                    this.updateTime();
-                    this.engine();
-                }, 1000);
-                this.updateTime();
-                
-                // Проверка токена Classroom
-                const savedToken = localStorage.getItem('matb_classroom_token');
+                // Таймеры
+                setInterval(() => this.tick(), 1000);
+                this.tick();
+
+                // Авто-вход в классум
+                const savedToken = localStorage.getItem('matb_token_v49');
                 if (savedToken) {
-                    this.syncClassroom(savedToken);
+                    this.loadTasks(savedToken);
+                } else {
+                    document.getElementById('auth-ui').classList.remove('hidden');
                 }
             },
 
-            // Генерация сетки времени
-            generateTimeline() {
+            // ГЕНЕРАЦИЯ ТАЙМЛАЙНА (УРОКИ + ПЕРЕМЕНЫ)
+            buildTimeline() {
                 const day = new Date().getDay();
-                const subjects = SUBJECT_MAP[day] || [];
-                let currentTime = this.timeToMinutes(APP_CONFIG.school_start);
-
-                for (let i = 0; i < APP_CONFIG.lesson_count; i++) {
-                    // Добавляем урок
-                    this.full_schedule.push({
-                        id: `L${i}`,
-                        type: 'lesson',
-                        name: subjects[i] || `Урок ${i + 1}`,
-                        order: i + 1,
-                        start: currentTime,
-                        end: currentTime + APP_CONFIG.lesson_duration
-                    });
-                    currentTime += APP_CONFIG.lesson_duration;
-
-                    // Добавляем перемену (если не последний урок)
-                    if (i < APP_CONFIG.lesson_count - 1) {
-                        this.full_schedule.push({
-                            id: `B${i}`,
-                            type: 'break',
-                            name: `Перемена ${i + 1}`,
-                            order: i + 1,
-                            start: currentTime,
-                            end: currentTime + APP_CONFIG.break_duration
-                        });
-                        currentTime += APP_CONFIG.break_duration;
-                    }
+                const currentDaySubjects = SUBJECTS[day] || [];
+                
+                if (currentDaySubjects.length === 0) {
+                    document.getElementById('schedule-empty').classList.remove('hidden');
+                    return;
                 }
+
+                let startTime = 9 * 60; // Старт в 09:00
+
+                currentDaySubjects.forEach((sub, index) => {
+                    const lessonNum = index + 1;
+                    
+                    // Урок (45 минут)
+                    this.timeline.push({
+                        type: 'lesson',
+                        n: lessonNum,
+                        name: sub,
+                        start: startTime,
+                        end: startTime + 45
+                    });
+                    
+                    startTime += 45;
+
+                    // Перемена (10 минут)
+                    if (index < currentDaySubjects.length - 1) {
+                        this.timeline.push({
+                            type: 'break',
+                            n: lessonNum,
+                            name: `Перемена ${lessonNum}`,
+                            start: startTime,
+                            end: startTime + 10
+                        });
+                        startTime += 10;
+                    }
+                });
             },
 
-            timeToMinutes(str) {
-                const [h, m] = str.split(':').map(Number);
-                return h * 60 + m;
-            },
-
-            minutesToTime(m) {
-                const hh = Math.floor(m / 60).toString().padStart(2, '0');
-                const mm = (m % 60).toString().padStart(2, '0');
-                return `${hh}:${mm}`;
-            },
-
+            // ОТРИСОВКА СПИСКА
             renderSchedule() {
-                const target = document.getElementById('schedule-render-target');
-                target.innerHTML = this.full_schedule.map((item, idx) => `
-                    <div class="schedule-item type-${item.type}" id="item-${idx}">
-                        <div class="item-info">
-                            <span class="tag">${item.type === 'lesson' ? 'ЗАНЯТИЕ ' + item.order : 'ПЕРЕРЫВ'}</span>
-                            <span class="title">${item.name}</span>
+                const list = document.getElementById('schedule-list');
+                list.innerHTML = this.timeline.map((item, i) => {
+                    const h = Math.floor(item.start / 60);
+                    const m = item.start % 60;
+                    const timeStr = `${h}:${m.toString().padStart(2, '0')}`;
+                    
+                    return `
+                        <div class="item type-${item.type}" id="sched-item-${i}">
+                            <div class="item-info">
+                                <span class="item-tag">${item.type === 'lesson' ? 'Урок ' + item.n : 'Отдых'}</span>
+                                <span class="item-name">${item.name}</span>
+                            </div>
+                            <div class="item-time">${timeStr}</div>
                         </div>
-                        <div class="item-time">${this.minutesToTime(item.start)}</div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             },
 
-            updateTime() {
+            // ЕЖЕСЕКУНДНЫЙ ТИК
+            tick() {
                 const now = new Date();
-                document.getElementById('display-time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                document.getElementById('display-date').innerText = now.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'short' });
-            },
+                const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                const currentSeconds = now.getSeconds();
 
-            engine() {
-                const now = new Date();
-                const curMin = now.getHours() * 60 + now.getMinutes();
-                const curSec = now.getSeconds();
+                // Обновление часов
+                document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+                document.getElementById('date').innerText = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'short'});
 
-                let currentItem = null;
-                let nextItem = null;
+                let activeItem = null;
 
-                this.full_schedule.forEach((item, idx) => {
-                    const el = document.getElementById(`item-${idx}`);
-                    if (curMin >= item.start && curMin < item.end) {
-                        currentItem = item;
+                this.timeline.forEach((item, index) => {
+                    const el = document.getElementById(`sched-item-${index}`);
+                    if (!el) return;
+
+                    if (currentMinutes >= item.start && currentMinutes < item.end) {
+                        activeItem = item;
                         el.classList.add('active');
-                        // Скролл к активному элементу, если он сменился
-                        if (this.active_index !== idx) {
-                            this.active_index = idx;
-                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
+                        
+                        const remainM = item.end - currentMinutes - 1;
+                        const remainS = 60 - currentSeconds;
+                        this.updateBanner(item, remainM, remainS);
+                        
+                        // Пуш-уведомление при входе в новый слот
+                        this.sendPush(item.name);
                     } else {
                         el.classList.remove('active');
                     }
                 });
 
-                if (currentItem) {
-                    const remMin = currentItem.end - curMin - 1;
-                    const remSec = 60 - curSec;
-                    this.updateBanner(currentItem, remMin, remSec);
-                    this.pushNotify(currentItem.name);
-                    document.getElementById('stat-current-step').innerText = currentItem.type === 'lesson' ? `${currentItem.order} УР` : "ПЕР";
-                } else {
-                    nextItem = this.full_schedule.find(x => x.start > curMin);
+                // Если уроков сейчас нет
+                if (!activeItem) {
+                    const nextItem = this.timeline.find(it => it.start > currentMinutes);
                     if (nextItem) {
-                        const remMin = nextItem.start - curMin - 1;
-                        const remSec = 60 - curSec;
-                        this.updateBanner({ type: 'wait', name: 'ОЖИДАНИЕ' }, remMin, remSec, `Далее: ${nextItem.name}`);
+                        const waitM = nextItem.start - currentMinutes - 1;
+                        const waitS = 60 - currentSeconds;
+                        this.updateBanner({type: 'wait', name: 'Ожидание'}, waitM, waitS, `Далее: ${nextItem.name}`);
                     } else {
-                        this.updateBanner({ type: 'wait', name: 'УРОКИ ОКОНЧЕНЫ' }, 0, 0, 'Свободное время');
-                        document.getElementById('stat-current-step').innerText = "OFF";
+                        this.updateBanner({type: 'done', name: 'Уроки окончены'}, 0, 0, "Свободное время!");
                     }
                 }
             },
 
-            updateBanner(item, m, s, sub = "") {
-                const b = document.getElementById('main-banner');
-                const label = document.getElementById('banner-label');
-                const timer = document.getElementById('banner-timer');
-                const subEl = document.getElementById('banner-next');
+            updateBanner(item, mm, ss, customSub = "") {
+                const banner = document.getElementById('banner');
+                const label = document.getElementById('b-label');
+                const timer = document.getElementById('b-timer');
+                const sub = document.getElementById('b-sub');
 
-                b.className = `status-banner type-${item.type}`;
-                label.innerText = item.type === 'lesson' ? `ИДЕТ УРОК: ${item.name}` : 
-                                 item.type === 'break' ? `ПЕРЕМЕНА: ${item.name}` : item.name;
+                banner.className = `banner type-${item.type}`;
+                label.innerText = item.name;
                 
-                timer.innerText = m < 0 ? "00:00" : `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-                subEl.innerText = sub || (item.type !== 'wait' ? `До конца этапа осталось` : "");
+                if (item.type === 'done') {
+                    timer.innerText = "END";
+                } else {
+                    timer.innerText = `${mm.toString().padStart(2, '0')}:${ss.toString().padStart(2, '0')}`;
+                }
+                
+                sub.innerText = customSub || "До завершения этапа";
             },
 
-            // СИСТЕМА УВЕДОМЛЕНИЙ
-            async requestNotifs() {
+            // УВЕДОМЛЕНИЯ
+            async toggleNotifs() {
+                if (!("Notification" in window)) {
+                    alert("Твой браузер не поддерживает пуши. Юзай Chrome или Safari.");
+                    return;
+                }
+
                 const permission = await Notification.requestPermission();
+                this.updateNotifStatus();
+
                 if (permission === 'granted') {
-                    this.checkPermissions();
                     new Notification("MATB OS", { 
-                        body: "Уведомления успешно активированы! ✅", 
-                        icon: "https://cdn-icons-png.flaticon.com/512/1827/1827379.png" 
+                        body: "Система уведомлений активирована! 🚀",
+                        icon: "https://cdn-icons-png.flaticon.com/512/1828/1828640.png"
                     });
-                } else {
-                    document.getElementById('btn-toggle-notif').classList.add('error');
-                    document.getElementById('notif-status').innerText = "Доступ запрещен браузером";
                 }
             },
 
-            checkPermissions() {
-                const btn = document.getElementById('btn-toggle-notif');
-                const status = document.getElementById('notif-status');
+            updateNotifStatus() {
+                const btn = document.getElementById('btn-notif');
+                const statusTxt = document.getElementById('notif-status');
+
+                if (!("Notification" in window)) {
+                    btn.innerText = "ERROR";
+                    statusTxt.innerText = "Не поддерживается браузером";
+                    return;
+                }
+
                 if (Notification.permission === 'granted') {
                     btn.innerText = "АКТИВНО";
-                    btn.classList.add('active');
-                    status.innerText = "Система пришлет пуш при смене этапа";
+                    btn.classList.add('on');
+                    statusTxt.innerText = "Уведомления работают четко";
+                } else if (Notification.permission === 'denied') {
+                    btn.innerText = "ЗАБЛОЧЕНО";
+                    btn.classList.add('denied');
+                    statusTxt.innerText = "Разблокируй в настройках";
                 }
             },
 
-            pushNotify(title) {
-                if (this.last_push_id !== title && Notification.permission === 'granted') {
-                    this.last_push_id = title;
-                    new Notification("MATB OS: Смена этапа", {
-                        body: `Начинается: ${title}`,
-                        icon: "https://cdn-icons-png.flaticon.com/512/3557/3557635.png"
+            sendPush(title) {
+                if (this.lastNotification !== title && Notification.permission === 'granted') {
+                    this.lastNotification = title;
+                    new Notification("Новое событие!", { 
+                        body: `Началось: ${title}`,
+                        tag: "study-hub-event"
                     });
                 }
             },
 
-            // ИНТЕГРАЦИЯ CLASSROOM
-            handleGoogleAuth() {
-                const client = google.accounts.oauth2.initTokenClient({
-                    client_id: GOOGLE_CLIENT_ID,
-                    scope: 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly',
-                    callback: (response) => {
-                        if (response.access_token) {
-                            localStorage.setItem('matb_classroom_token', response.access_token);
-                            this.syncClassroom(response.access_token);
-                        }
-                    }
-                });
-                client.requestAccessToken();
-            },
-
-            async syncClassroom(token) {
-                const renderTarget = document.getElementById('tasks-render-target');
-                const authUI = document.getElementById('auth-ui');
-                const logoutBtn = document.getElementById('btn-logout');
-                const emptyState = document.getElementById('tasks-empty-state');
-
-                authUI.style.display = 'none';
-                logoutBtn.classList.remove('hidden');
-                renderTarget.innerHTML = `<div class="loader"></div>`;
+            // GOOGLE CLASSROOM ЛОГИКА
+            auth() {
+                if (this.isProcessingAuth) return;
+                this.isProcessingAuth = true;
 
                 try {
-                    const coursesResp = await fetch('https://classroom.googleapis.com/v1/courses', {
-                        headers: { Authorization: `Bearer ${token}` }
+                    const client = google.accounts.oauth2.initTokenClient({
+                        client_id: CLIENT_ID,
+                        scope: 'https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly',
+                        callback: (response) => {
+                            this.isProcessingAuth = false;
+                            if (response.access_token) {
+                                localStorage.setItem('matb_token_v49', response.access_token);
+                                this.loadTasks(response.access_token);
+                            }
+                        },
+                        error_callback: (err) => {
+                            this.isProcessingAuth = false;
+                            console.error("Auth Error:", err);
+                        }
                     });
-                    const coursesData = await coursesResp.json();
-                    
-                    if (!coursesData.courses) throw "No courses found";
+                    client.requestAccessToken();
+                } catch (e) {
+                    this.isProcessingAuth = false;
+                    alert("Ошибка Google API. Проверь VPN или сеть.");
+                }
+            },
 
-                    renderTarget.innerHTML = "";
-                    let totalTasks = 0;
+            async loadTasks(token) {
+                document.getElementById('auth-ui').classList.add('hidden');
+                document.getElementById('task-loader').classList.remove('hidden');
+                document.getElementById('task-empty').classList.add('hidden');
+                
+                const listEl = document.getElementById('task-list');
+                listEl.innerHTML = "";
 
+                try {
+                    // 1. Получаем список курсов
+                    const coursesRes = await fetch('https://classroom.googleapis.com/v1/courses', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const coursesData = await coursesRes.json();
+
+                    if (!coursesData.courses || coursesData.courses.length === 0) {
+                        document.getElementById('task-empty').classList.remove('hidden');
+                        return;
+                    }
+
+                    let hasAnyTasks = false;
+
+                    // 2. Для каждого курса ищем задания
                     for (const course of coursesData.courses) {
-                        if (course.courseState !== 'ACTIVE') continue;
-
-                        const workResp = await fetch(`https://classroom.googleapis.com/v1/courses/${course.id}/courseWork`, {
-                            headers: { Authorization: `Bearer ${token}` }
+                        const workRes = await fetch(`https://classroom.googleapis.com/v1/courses/${course.id}/courseWork`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
                         });
-                        const workData = await workResp.json();
+                        const workData = await workRes.json();
 
-                        if (workData.courseWork) {
+                        if (workData.courseWork && workData.courseWork.length > 0) {
+                            hasAnyTasks = true;
                             workData.courseWork.forEach(work => {
-                                totalTasks++;
-                                this.createTaskCard(course.name, work);
+                                const card = document.createElement('div');
+                                card.className = 'task-card';
+                                card.innerHTML = `
+                                    <div class="task-tag">${course.name}</div>
+                                    <div class="task-title">${work.title}</div>
+                                    <div class="task-desc">${work.description || 'Нет описания.'}</div>
+                                `;
+                                card.onclick = () => this.showTaskModal(work);
+                                listEl.appendChild(card);
                             });
                         }
                     }
 
-                    document.getElementById('stat-tasks-count').innerText = totalTasks;
-                    if (totalTasks === 0) emptyState.classList.remove('hidden');
-                    else emptyState.classList.add('hidden');
+                    if (!hasAnyTasks) {
+                        document.getElementById('task-empty').classList.remove('hidden');
+                    }
 
-                } catch (err) {
-                    console.error("Classroom Sync Error:", err);
-                    renderTarget.innerHTML = `<p style="color:var(--danger); text-align:center;">Ошибка авторизации. Перезайдите.</p>`;
-                    authUI.style.display = 'block';
-                    logoutBtn.classList.add('hidden');
+                } catch (error) {
+                    console.error("Classroom Error:", error);
+                    localStorage.removeItem('matb_token_v49');
+                    document.getElementById('auth-ui').classList.remove('hidden');
+                } finally {
+                    document.getElementById('task-loader').classList.add('hidden');
                 }
             },
 
-            createTaskCard(courseName, work) {
-                const container = document.getElementById('tasks-render-target');
-                const card = document.createElement('div');
-                card.className = 'task-card';
-                card.innerHTML = `
-                    <div class="task-course">${courseName}</div>
-                    <div class="task-title">${work.title}</div>
-                `;
-                card.onclick = () => {
-                    document.getElementById('m-course').innerText = courseName;
-                    document.getElementById('m-title').innerText = work.title;
-                    document.getElementById('m-description').innerText = work.description || "Описание к этому заданию отсутствует в Classroom.";
-                    document.getElementById('m-link-btn').onclick = () => window.open(work.alternateLink, '_blank');
-                    document.getElementById('modal-details').style.display = 'flex';
+            showTaskModal(work) {
+                const modal = document.getElementById('modal');
+                document.getElementById('m-title').innerText = work.title;
+                document.getElementById('m-desc').innerText = work.description || "У этого задания нет подробного описания. Просто сделай его!";
+                
+                const goBtn = document.getElementById('m-go');
+                goBtn.onclick = () => {
+                    window.open(work.alternateLink, '_blank');
                 };
-                container.appendChild(card);
+
+                modal.style.display = 'flex';
             },
 
-            logout() {
-                localStorage.removeItem('matb_classroom_token');
-                location.reload();
+            // UI УПРАВЛЕНИЕ
+            switchView(view, btn) {
+                document.getElementById('view-home').classList.toggle('hidden', view !== 'home');
+                document.getElementById('view-tasks').classList.toggle('hidden', view !== 'tasks');
+                
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
             },
 
-            closeModal() {
-                document.getElementById('modal-details').style.display = 'none';
+            osPower() {
+                const widget = document.getElementById('main-clock-widget');
+                widget.style.transform = "rotate(5deg) scale(1.1)";
+                widget.style.boxShadow = "0 0 100px var(--accent-green)";
+                setTimeout(() => {
+                    widget.style.transform = "";
+                    widget.style.boxShadow = "";
+                }, 500);
             },
 
-            switchView(view) {
-                const home = document.getElementById('view-home');
-                const tasks = document.getElementById('view-tasks');
-                const nHome = document.getElementById('nav-home');
-                const nTasks = document.getElementById('nav-tasks');
-
-                if (view === 'home') {
-                    home.classList.remove('hidden');
-                    tasks.classList.add('hidden');
-                    nHome.classList.add('active');
-                    nTasks.classList.remove('active');
-                } else {
-                    home.classList.add('hidden');
-                    tasks.classList.remove('hidden');
-                    nHome.classList.remove('active');
-                    nTasks.classList.add('active');
-                }
-            },
-
-            initSakura() {
+            createSakura() {
                 const container = document.getElementById('fx-canvas');
-                for (let i = 0; i < 40; i++) {
+                const petalCount = 35;
+
+                for (let i = 0; i < petalCount; i++) {
                     const petal = document.createElement('div');
                     petal.className = 'petal';
-                    petal.style.left = Math.random() * 100 + 'vw';
-                    const size = Math.random() * 10 + 6;
-                    petal.style.width = size + 'px';
-                    petal.style.height = size + 'px';
-                    petal.style.animationDuration = (Math.random() * 8 + 7) + 's';
-                    petal.style.animationDelay = (Math.random() * 10) + 's';
+                    
+                    const size = Math.random() * 8 + 6;
+                    petal.style.width = `${size}px`;
+                    petal.style.height = `${size}px`;
+                    
+                    petal.style.left = `${Math.random() * 100}vw`;
+                    petal.style.animationDuration = `${Math.random() * 5 + 7}s`;
+                    petal.style.animationDelay = `${Math.random() * 10}s`;
+                    
                     container.appendChild(petal);
                 }
-            },
-
-            playEffect() {
-                const clock = document.getElementById('clock-widget');
-                clock.style.borderColor = "var(--accent-green)";
-                clock.style.transform = "translateY(-10px)";
-                setTimeout(() => {
-                    clock.style.borderColor = "rgba(255,255,255,0.08)";
-                    clock.style.transform = "translateY(0)";
-                }, 500);
             }
         };
 
-        // Запуск при загрузке
+        // ЗАПУСК
         window.onload = () => App.init();
     </script>
 </body>
